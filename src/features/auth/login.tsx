@@ -120,7 +120,7 @@ export default function LoginForm() {
           {/* Google Login */}
           <Button
             className="w-full rounded"
-            onClick={() => signIn("google", { callbackUrl: "/dashboard" })}
+            onClick={() => signIn("google", { callbackUrl: "/" })}
           >
             Google
           </Button>
@@ -128,7 +128,7 @@ export default function LoginForm() {
           {/* Facebook Login */}
           <Button
             className="w-full rounded"
-            onClick={() => signIn("facebook", { callbackUrl: "/dashboard" })}
+            onClick={() => signIn("facebook", { callbackUrl: "/" })}
           >
             Facebook
           </Button>

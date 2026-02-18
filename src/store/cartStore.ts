@@ -128,8 +128,7 @@ export const useCartStore = create<CartState>()(
           promoCode: null,
         }),
 
-      getQuantity: () =>
-        get().cart.reduce((sum, item) => sum + item.quantity, 0),
+      getQuantity: () => get().cart.length,
 
       getSubtotal: () =>
         get().cart.reduce((sum, item) => sum + item.price * item.quantity, 0),
