@@ -59,12 +59,20 @@ export const metadata = {
     "best supermarket Cairo",
     "أفضل سوبر ماركت القاهرة",
   ],
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "El Dokanh",
+  },
+  manifest: "/manifest",
 };
 
 export const viewport = {
+  themeColor: "#ffffff",
   width: "device-width",
   initialScale: 1,
   maximumScale: 1,
+  userScalable: false,
 };
 
 export default function RootLayout({
