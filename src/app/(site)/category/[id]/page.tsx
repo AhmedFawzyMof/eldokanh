@@ -4,11 +4,14 @@ import { ArrowLeft, ArrowRight } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getProductByCategory } from "@/models/products";
-import { getCategoryById } from "@/models/categories";
+import { getAllCategories, getCategoryById } from "@/models/categories";
 import { getSubcategoryByCategory } from "@/models/subcategories";
 import Pagination from "@/components/pagination";
 import { SubCategoriesSection } from "@/components/subcategory-section";
 import { getAuthSession } from "@/lib/auth-session";
+import { Metadata } from "next";
+import { Suspense } from "react";
+import ProductsGridSkeleton from "@/features/products/components/productsGridSkeleton";
 
 const PRODUCTS_PER_PAGE = 20;
 
@@ -18,6 +21,33 @@ interface CategoryPageProps {
     page?: string;
     subcategory?: string;
   }>;
+}
+export async function generateMetadata(
+  props: CategoryPageProps,
+): Promise<Metadata> {
+  const categoryParams = await props.params;
+  const category = await getCategoryById(Number(categoryParams.id));
+
+  if (!category) {
+    return { title: "القسم غير موجود" };
+  }
+
+  return {
+    title: `قسم ${category.nameAr}`,
+    description:
+      category.descriptionAr || `تصفح أفضل منتجات قسم ${category.nameAr}`,
+    openGraph: {
+      images: [category.image || ""],
+    },
+  };
+}
+
+export async function generateStaticParams() {
+  const categories = await getAllCategories(null);
+
+  return categories.map((category) => ({
+    id: category.id.toString(),
+  }));
 }
 
 export default async function CategoryPage(props: CategoryPageProps) {
@@ -96,11 +126,13 @@ export default async function CategoryPage(props: CategoryPageProps) {
 
         {categoryProducts.count! > 0 ? (
           <>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              {categoryProducts.products.map((product) => (
-                <ProductCard key={product.id} product={product} />
-              ))}
-            </div>
+            <Suspense fallback={<ProductsGridSkeleton />}>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                {categoryProducts.products.map((product) => (
+                  <ProductCard key={product.id} product={product} />
+                ))}
+              </div>
+            </Suspense>
             <Pagination
               totalPages={totalPages}
               totalProducts={totalProducts}

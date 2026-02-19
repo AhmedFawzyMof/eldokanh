@@ -32,12 +32,21 @@ export function Header() {
         </Link>
 
         {/* Desktop Nav */}
-        <nav className="hidden md:flex items-center gap-6 text-sm font-medium">
+        <nav
+          dir="rtl"
+          className="hidden md:flex items-center gap-6 text-sm font-medium"
+        >
           <Link
             href="/"
             className="text-muted-foreground transition-colors hover:text-primary"
           >
             الرئيسية
+          </Link>
+          <Link
+            href="/about"
+            className="text-muted-foreground transition-colors hover:text-primary"
+          >
+            عن الدكانة
           </Link>
           <Link
             href="/products"

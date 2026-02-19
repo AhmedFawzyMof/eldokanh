@@ -5,6 +5,8 @@ import PaginationComponent from "@/components/pagination";
 import { getAllBrands } from "@/models/brands";
 import { getAllProducts } from "@/models/products";
 import { getAuthSession } from "@/lib/auth-session";
+import ProductsGridSkeleton from "@/features/products/components/productsGridSkeleton";
+import { Suspense } from "react";
 
 interface ProductsPageProps {
   searchParams: Promise<{
@@ -67,11 +69,13 @@ export default async function SearchPage(props: ProductsPageProps) {
           search={search}
         />
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
-          {data.products.map((product: any) => (
-            <ProductCard key={product.id} product={product} />
-          ))}
-        </div>
+        <Suspense fallback={<ProductsGridSkeleton />}>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
+            {data.products.map((product: any) => (
+              <ProductCard key={product.id} product={product} />
+            ))}
+          </div>
+        </Suspense>
 
         <PaginationComponent
           totalProducts={totalProducts}

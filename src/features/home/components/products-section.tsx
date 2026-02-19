@@ -1,8 +1,10 @@
 import { ProductCard } from "@/components/product-card";
 import { Button } from "@/components/ui/button";
 import { Product } from "@/db/schema.types";
+import ProductsGridSkeleton from "@/features/products/components/productsGridSkeleton";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/dist/client/link";
+import { Suspense } from "react";
 
 type ProductSectionType = Product & {
   isFav: boolean | null;
@@ -33,11 +35,13 @@ export function ProductsSection(products: {
         </Button>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-        {products.products.map((product) => (
-          <ProductCard key={product.id} product={product} />
-        ))}
-      </div>
+      <Suspense fallback={<ProductsGridSkeleton />}>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+          {products.products.map((product) => (
+            <ProductCard key={product.id} product={product} />
+          ))}
+        </div>
+      </Suspense>
     </section>
   );
 }

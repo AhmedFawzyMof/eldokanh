@@ -6,11 +6,33 @@ import {
   products,
   products_category,
 } from "@/db/schema";
-import { eq, and, like, or, sql, inArray, desc, is } from "drizzle-orm";
+import { eq, and, like, or, sql, inArray, desc } from "drizzle-orm";
 import { Session } from "next-auth";
 
 export async function createProduct(data: typeof products.$inferInsert) {
   return await db.insert(products).values(data).returning();
+}
+
+export async function getProductById(id: number) {
+  return await db
+    .select({
+      product: { ...products, categoryAr: products_category.nameAr },
+    })
+    .from(products)
+    .where(and(eq(products.id, id), eq(products.isActive, true)))
+    .innerJoin(products_category, eq(products.categoryId, products_category.id))
+    .get();
+}
+
+export async function getProducts() {
+  return await db
+    .select({
+      id: products.id,
+    })
+    .from(products)
+    .where(eq(products.isActive, true))
+    .orderBy(desc(products.id))
+    .execute();
 }
 
 export async function getAllProducts(

@@ -5,8 +5,11 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getProductByBrand } from "@/models/products";
 import Pagination from "@/components/pagination";
-import { getBrandById } from "@/models/brands";
+import { getAllBrands, getBrandById } from "@/models/brands";
 import { getAuthSession } from "@/lib/auth-session";
+import { Metadata } from "next";
+import { Suspense } from "react";
+import ProductsGridSkeleton from "@/features/products/components/productsGridSkeleton";
 
 const PRODUCTS_PER_PAGE = 20;
 
@@ -15,6 +18,36 @@ interface BrandPageProps {
   searchParams: Promise<{
     page?: string;
   }>;
+}
+
+export async function generateStaticParams() {
+  const brands = await getAllBrands(null);
+
+  return brands.map((brand) => ({
+    id: brand.id.toString(),
+  }));
+}
+
+export async function generateMetadata(
+  props: BrandPageProps,
+): Promise<Metadata> {
+  const brandParams = await props.params;
+  const brand = await getBrandById(Number(brandParams.id));
+
+  if (!brand) {
+    return {
+      title: "الماركة غير موجودة",
+    };
+  }
+
+  return {
+    title: `ماركة ${brand.nameAr}`,
+    description:
+      brand.descriptionAr || `تسوق أحدث منتجات ${brand.nameAr} من متجرنا.`,
+    openGraph: {
+      images: [brand.image || ""],
+    },
+  };
 }
 
 export default async function BrandPage(props: BrandPageProps) {
@@ -85,11 +118,14 @@ export default async function BrandPage(props: BrandPageProps) {
 
         {brandProducts.count! > 0 ? (
           <>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              {brandProducts.products.map((product) => (
-                <ProductCard key={product.id} product={product} />
-              ))}
-            </div>
+            <Suspense fallback={<ProductsGridSkeleton />}>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                {brandProducts.products.map((product) => (
+                  <ProductCard key={product.id} product={product} />
+                ))}
+              </div>
+            </Suspense>
+
             <Pagination
               totalPages={totalPages}
               totalProducts={totalProducts}

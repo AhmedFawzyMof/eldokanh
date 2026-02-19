@@ -2,6 +2,8 @@ import { ProductCard } from "@/components/product-card";
 import PaginationComponent from "@/components/pagination";
 import { getAllProducts } from "@/models/products";
 import { getAuthSession } from "@/lib/auth-session";
+import ProductsGridSkeleton from "@/features/products/components/productsGridSkeleton";
+import { Suspense } from "react";
 
 interface ProductsPageProps {
   searchParams: Promise<{
@@ -36,12 +38,13 @@ export default async function ProductsPage(props: ProductsPageProps) {
             اكتشف مجموعتنا الكاملة من منتجات العناية بالبشرة الطبيعية
           </p>
         </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
-          {products.products.map((product) => (
-            <ProductCard key={product.id} product={product} />
-          ))}
-        </div>
+        <Suspense fallback={<ProductsGridSkeleton />}>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
+            {products.products.map((product) => (
+              <ProductCard key={product.id} product={product} />
+            ))}
+          </div>
+        </Suspense>
 
         <PaginationComponent
           totalProducts={totalProducts}
