@@ -84,7 +84,9 @@ export default function ProductView({ product }: ProductPageProps) {
           </div>
 
           {/* السعر */}
-          <div className="text-3xl font-bold">${product.price!.toFixed(2)}</div>
+          <div className="text-3xl font-bold">
+            ج.م {product.price!.toFixed(2)}
+          </div>
 
           {/* الوصف */}
           <p className="text-muted-foreground leading-relaxed">
