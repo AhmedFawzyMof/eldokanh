@@ -85,6 +85,12 @@ export default function RootLayout({
       lang="en"
       className={`${cairo.variable} ${geistSans.variable} antialiased`}
     >
+      <head>
+        <meta
+          name="google-site-verification"
+          content="X0RYT4cq2QMmkuLGJTJ63A4c30BVQXq6lOS_YpzEOks"
+        />
+      </head>
       <body className="font-[var(--font-cairo)] bg-slate-50">
         <Providers>
           <Header />
