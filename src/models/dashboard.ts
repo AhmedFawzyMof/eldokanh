@@ -22,6 +22,7 @@ export async function getDashboardData() {
           THEN ${orders.userId} 
         END)
       `,
+      totalOrders: sql<number>`COUNT(${orders.id})`,
     })
     .from(orderItems)
     .leftJoin(orders, eq(orderItems.orderId, orders.id))
@@ -38,7 +39,6 @@ export async function getDashboardData() {
         status: orders.status,
         paymentStatus: orders.paymentStatus,
         createdAt: orders.createdAt,
-        totalOrders: sql<number>`COUNT(${orders.id})`,
       })
       .from(orders)
       .innerJoin(payments, eq(orders.id, payments.orderId))
@@ -70,7 +70,7 @@ export async function getDashboardData() {
         total_revenue_lastmonth: total?.totalRevenueLastMonth || 0,
       },
       numberOfOrders: {
-        total_orders: latestOrders[0].totalOrders || 0,
+        total_orders: totals?.totalOrders || 0,
         total_orders_lastmonth: total?.totalOrdersLastMonth || 0,
       },
     },

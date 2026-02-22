@@ -6,7 +6,7 @@ import {
   products,
   products_category,
 } from "@/db/schema";
-import { eq, and, like, or, sql, inArray, desc } from "drizzle-orm";
+import { eq, and, like, or, sql, inArray, desc, asc } from "drizzle-orm";
 import { Session } from "next-auth";
 
 export async function createProduct(data: typeof products.$inferInsert) {
@@ -118,7 +118,7 @@ export async function getAllProducts(
     )
     .leftJoin(product_brands, eq(products.brandId, product_brands.id))
     .where(and(...conditions))
-    .orderBy(desc(products.id))
+    .orderBy(asc(products.categoryId))
     .limit(limit)
     .offset(offset)
     .execute();
@@ -274,7 +274,7 @@ export async function getProductByBrand(
   const productsData = await productQuery
     .innerJoin(products_category, eq(products.categoryId, products_category.id))
     .where(and(...conditions))
-    .orderBy(desc(products.id))
+    .orderBy(asc(products.categoryId))
     .limit(limit)
     .offset(offset)
     .execute();
