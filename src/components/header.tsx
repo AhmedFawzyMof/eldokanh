@@ -23,12 +23,7 @@ export function Header() {
       <div className="container mx-auto flex h-16 items-center justify-between px-4">
         {/* Brand */}
         <Link href="/" className="flex items-center gap-2">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
-            <Image width={32} height={32} src="/logo.png" alt="Logo" />
-          </div>
-          <span className="text-xl font-bold tracking-tight text-foreground">
-            الدكانة
-          </span>
+          <Image width={100} height={100} src="/logo.webp" alt="Logo" />
         </Link>
 
         {/* Desktop Nav */}

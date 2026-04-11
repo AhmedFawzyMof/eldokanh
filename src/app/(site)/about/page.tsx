@@ -24,7 +24,7 @@ export default function AboutPage() {
         <div className="grid md:grid-cols-2 gap-12 items-center">
           <div className="relative aspect-[4/3] rounded-3xl overflow-hidden bg-secondary">
             <img
-              src="/logo.png"
+              src="/logo.webp"
               alt="Frozen Food & Grocery"
               className="w-full h-full object-cover"
             />
