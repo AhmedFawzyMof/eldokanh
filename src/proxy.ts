@@ -1,10 +1,10 @@
-// middleware.ts
+import { withAuth } from "next-auth/middleware";
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import jwt from "jsonwebtoken";
 
 const ALLOWED_ORIGIN = "https://admin-app-tjbd.vercel.app";
-const PUBLIC_ROUTES = ["/api/admin/login"];
+const PUBLIC_API_ROUTES = ["/api/admin/login"];
 
 function withCors(response: NextResponse) {
   response.headers.set("Access-Control-Allow-Origin", ALLOWED_ORIGIN);
@@ -20,14 +20,14 @@ function withCors(response: NextResponse) {
   return response;
 }
 
-export function proxy(req: NextRequest) {
+async function handleApiAdminMiddleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
   if (req.method === "OPTIONS") {
     return withCors(new NextResponse(null, { status: 204 }));
   }
 
-  if (PUBLIC_ROUTES.some((route) => pathname.startsWith(route))) {
+  if (PUBLIC_API_ROUTES.some((route) => pathname.startsWith(route))) {
     return withCors(NextResponse.next());
   }
 
@@ -52,6 +52,34 @@ export function proxy(req: NextRequest) {
   }
 }
 
+export default withAuth(
+  async function middleware(req) {
+    const { pathname } = req.nextUrl;
+    if (pathname.startsWith("/api/admin")) {
+      return await handleApiAdminMiddleware(req);
+    }
+    const token = req.nextauth.token;
+    if (pathname.startsWith("/admin") && pathname !== "/admin/login") {
+      if (token?.role !== "admin") {
+        return NextResponse.redirect(new URL("/", req.url));
+      }
+    }
+
+    return NextResponse.next();
+  },
+  {
+    callbacks: {
+      authorized: ({ token, req }) => {
+        if (req.nextUrl.pathname.startsWith("/api/admin")) return true;
+        return !!token;
+      },
+    },
+    pages: {
+      signIn: "/admin/login",
+    },
+  },
+);
+
 export const config = {
-  matcher: ["/api/admin/:path*"],
+  matcher: ["/admin/:path*", "/api/admin/:path*"],
 };

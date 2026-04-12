@@ -7,16 +7,31 @@ import Link from "next/link";
 import Image from "next/image";
 import { useSession, signOut } from "next-auth/react";
 import { useCartStore } from "@/store/cartStore";
+import { usePathname } from "next/navigation";
 
 export function Header() {
+  const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
   const { data: session } = useSession();
   const cartQuantity = useCartStore((state) => state.getQuantity());
+  const [fullUrl, setFullUrl] = useState("");
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const host = window.location.host;
+      const protocol = window.location.protocol;
+      setFullUrl(`${protocol}//${host}${pathname}`);
+    }
+  }, [pathname]);
 
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  if (fullUrl.includes("admin")) {
+    return null;
+  }
 
   return (
     <header className="sticky top-0 z-50 border-b bg-card/80 backdrop-blur supports-[backdrop-filter]:bg-card/60">

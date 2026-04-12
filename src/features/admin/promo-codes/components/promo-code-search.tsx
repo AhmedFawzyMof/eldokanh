@@ -1,0 +1,51 @@
+"use client";
+
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { Search } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { useState, useTransition, useEffect } from "react";
+
+export function PromoCodeSearch() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const pathname = usePathname();
+  const [isPending, startTransition] = useTransition();
+  const [search, setSearch] = useState(searchParams.get("search") || "");
+
+  useEffect(() => {
+    setSearch(searchParams.get("search") || "");
+  }, [searchParams]);
+
+  const handleSearch = (term: string) => {
+    setSearch(term);
+    const params = new URLSearchParams(searchParams);
+    if (term) {
+      params.set("search", term);
+    } else {
+      params.delete("search");
+    }
+    params.set("page", "1");
+
+    startTransition(() => {
+      router.replace(`${pathname}?${params.toString()}`);
+    });
+  };
+
+  return (
+    <div className="relative text-right">
+      <Search className="absolute right-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
+      <Input
+        type="search"
+        placeholder="البحث عن كود خصم..."
+        value={search}
+        onChange={(e) => handleSearch(e.target.value)}
+        className="h-12 pr-12 text-lg rounded-2xl border-slate-200 focus:ring-primary shadow-sm"
+      />
+      {isPending && (
+        <div className="absolute left-4 top-1/2 -translate-y-1/2">
+          <div className="h-4 w-4 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+        </div>
+      )}
+    </div>
+  );
+}

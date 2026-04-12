@@ -52,9 +52,24 @@ export async function GET(_req: NextRequest) {
   return NextResponse.json({ offers, brands, categories });
 }
 
+import { processAndUploadImage } from "@/lib/image-processor";
+
 export async function POST(req: NextRequest) {
-  const body = await req.json();
-  const { data, error } = await tryCatch(() => createOffer(body));
+  const formData = await req.formData();
+  const productId = formData.get("productId") ? Number(formData.get("productId")) : null;
+  const categoryId = formData.get("categoryId") ? Number(formData.get("categoryId")) : null;
+  const brandId = formData.get("brandId") ? Number(formData.get("brandId")) : null;
+  const file = formData.get("file") as File | null;
+
+  let image = "";
+  if (file && file.size > 0) {
+    const uploadResult = await processAndUploadImage(file, "offers");
+    image = uploadResult.secure_url;
+  }
+
+  const { data, error } = await tryCatch(() =>
+    createOffer({ productId, categoryId, brandId, image }),
+  );
 
   if (error) {
     console.log(error);
@@ -66,6 +81,7 @@ export async function POST(req: NextRequest) {
 
   return NextResponse.json(data, { status: 201 });
 }
+
 
 export async function DELETE(req: NextRequest) {
   const searchParams = req.nextUrl.searchParams;

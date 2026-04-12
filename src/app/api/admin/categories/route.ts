@@ -31,11 +31,25 @@ export async function GET(req: NextRequest) {
   return NextResponse.json({ categories });
 }
 
-export async function POST(req: NextRequest) {
-  const body = await req.json();
-  const data: any = { ...body };
+import { processAndUploadImage } from "@/lib/image-processor";
 
-  const { data: _, error } = await tryCatch(() => createCategory(data));
+export async function POST(req: NextRequest) {
+  const formData = await req.formData();
+  const nameAr = formData.get("nameAr") as string;
+  const name = formData.get("name") as string;
+  const descriptionAr = formData.get("descriptionAr") as string;
+  const description = formData.get("description") as string;
+  const file = formData.get("file") as File | null;
+
+  let image = "";
+  if (file && file.size > 0) {
+    const uploadResult = await processAndUploadImage(file, "categories");
+    image = uploadResult.secure_url;
+  }
+
+  const { data: _, error } = await tryCatch(() =>
+    createCategory({ nameAr, name, descriptionAr, description, image }),
+  );
 
   if (error) {
     console.log(error);
@@ -47,6 +61,7 @@ export async function POST(req: NextRequest) {
 
   return NextResponse.json({}, { status: 201 });
 }
+
 
 export async function DELETE(req: NextRequest) {
   const searchParams = req.nextUrl.searchParams;

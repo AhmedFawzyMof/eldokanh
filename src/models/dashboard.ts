@@ -34,7 +34,7 @@ export async function getDashboardData() {
     db
       .select({
         orderId: orders.id,
-        userId: orders.userId,
+        user: users.name,
         totalAmount: payments.amount,
         status: orders.status,
         paymentStatus: orders.paymentStatus,
@@ -42,6 +42,7 @@ export async function getDashboardData() {
       })
       .from(orders)
       .innerJoin(payments, eq(orders.id, payments.orderId))
+      .innerJoin(users, eq(orders.userId, users.id))
       .orderBy(desc(orders.createdAt))
       .limit(5)
       .execute(),

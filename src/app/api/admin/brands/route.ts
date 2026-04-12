@@ -29,11 +29,23 @@ export async function GET(req: NextRequest) {
   return NextResponse.json({ brands });
 }
 
-export async function POST(req: NextRequest) {
-  const body = await req.json();
-  const data: any = { ...body };
+import { processAndUploadImage } from "@/lib/image-processor";
 
-  const { data: brand, error } = await tryCatch(() => createBrand(data));
+export async function POST(req: NextRequest) {
+  const formData = await req.formData();
+  const nameAr = formData.get("nameAr") as string;
+  const name = formData.get("name") as string;
+  const file = formData.get("file") as File | null;
+
+  let imageUrl = "";
+  if (file && file.size > 0) {
+    const uploadResult = await processAndUploadImage(file, "brands");
+    imageUrl = uploadResult.secure_url;
+  }
+
+  const { data: brand, error } = await tryCatch(() =>
+    createBrand({ nameAr, name, image: imageUrl }),
+  );
 
   if (error) {
     console.log(error);

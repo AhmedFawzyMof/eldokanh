@@ -3,32 +3,44 @@ import { tryCatch } from "@/lib/tryCatch";
 import { updateCategory } from "@/models/categories";
 import { NextRequest, NextResponse } from "next/server";
 
+import { processAndUploadImage } from "@/lib/image-processor";
+
 export async function PUT(
   req: NextRequest,
   context: { params: Promise<{ id: string }> },
 ) {
   const { id } = await context.params;
-  const body = await req.json();
+  const formData = await req.formData();
+  
+  const nameAr = formData.get("nameAr") as string;
+  const name = formData.get("name") as string;
+  const descriptionAr = formData.get("descriptionAr") as string;
+  const description = formData.get("description") as string;
+  const oldImageUrl = formData.get("oldImageUrl") as string;
+  const file = formData.get("file") as File | null;
 
   if (isNaN(Number(id))) {
     return NextResponse.json({ error: "Invalid ID" }, { status: 400 });
   }
 
-  if (body.oldImageUrl !== "") {
-    const public_id = getPublicIdFromCloudinaryUrl(body.oldImageUrl);
+  let image = formData.get("image") as string;
 
-    if (!public_id) {
-      return NextResponse.json(
-        { error: "publicId is required" },
-        { status: 400 },
-      );
+  if (file && file.size > 0) {
+    // If a new file is uploaded, process it
+    const uploadResult = await processAndUploadImage(file, "categories");
+    image = uploadResult.secure_url;
+
+    // Delete old image if it exists and a new one was uploaded
+    if (oldImageUrl) {
+      const public_id = getPublicIdFromCloudinaryUrl(oldImageUrl);
+      if (public_id) {
+        await cloudinary.uploader.destroy(public_id);
+      }
     }
-
-    await cloudinary.uploader.destroy(public_id);
   }
 
-  const { data, error } = await tryCatch(() =>
-    updateCategory(Number(id), body),
+  const { data, error } = await tryCatch(() => 
+    updateCategory(Number(id), { nameAr, name, descriptionAr, description, image })
   );
 
   if (error) {
@@ -44,3 +56,4 @@ export async function PUT(
 
   return NextResponse.json({}, { status: 201 });
 }
+

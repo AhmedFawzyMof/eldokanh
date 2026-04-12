@@ -5,7 +5,7 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import bcrypt from "bcrypt";
 
 import { db } from "@/db";
-import { users } from "@/db/schema";
+import { admins, users } from "@/db/schema";
 import { eq } from "drizzle-orm";
 
 export const authOptions: NextAuthOptions = {
@@ -64,11 +64,28 @@ export const authOptions: NextAuthOptions = {
       return true;
     },
     async jwt({ token, user }) {
-      if (user) token.id = user.id;
+      if (user) {
+        token.id = user.id;
+        // Check if user is an admin
+        const adminData = await db.query.admins.findFirst({
+          where: eq(admins.userId, Number(user.id)),
+        });
+
+        if (adminData) {
+          token.role = "admin";
+          token.permissions = adminData.permissions;
+        } else {
+          token.role = "user";
+        }
+      }
       return token;
     },
     async session({ session, token }) {
-      if (token?.id) session.user.id = token.id as string;
+      if (token?.id) {
+        session.user.id = token.id as string;
+        session.user.role = token.role as string;
+        session.user.permissions = token.permissions as string;
+      }
       return session;
     },
   },
