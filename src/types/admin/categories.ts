@@ -7,4 +7,5 @@ export type Category = {
   description?: string;
   descriptionAr?: string;
   productCount?: number;
+  isActive?: boolean;
 };

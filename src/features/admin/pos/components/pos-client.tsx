@@ -53,10 +53,12 @@ export function POSClient({
     setSearch(searchParams.get("search") || "");
   }, [searchParams]);
 
-  const { mutate: createOrder, isPending: isOrderPending } = useCreatePOSOrder(() => {
-    setCart([]);
-    setIsCheckoutOpen(false);
-  });
+  const { mutate: createOrder, isPending: isOrderPending } = useCreatePOSOrder(
+    () => {
+      setCart([]);
+      setIsCheckoutOpen(false);
+    },
+  );
 
   const updateUrl = (updates: Record<string, string | null>) => {
     const params = new URLSearchParams(searchParams);
@@ -76,15 +78,21 @@ export function POSClient({
       const existing = prev.find((i) => i.id === product.id);
       if (existing) {
         return prev.map((i) =>
-          i.id === product.id ? { ...i, quantity: i.quantity + (i.type === 'unit' ? 1 : 0.5) } : i,
+          i.id === product.id
+            ? { ...i, quantity: i.quantity + (i.type === "unit" ? 1 : 0.5) }
+            : i,
         );
       }
-      return [...prev, { ...product, quantity: product.type === 'unit' ? 1 : 0.5 }];
+      return [
+        ...prev,
+        { ...product, quantity: product.type === "unit" ? 1 : 0.5 },
+      ];
     });
   };
 
   const cartTotal = useMemo(
-    () => cart.reduce((sum, item) => sum + (item.price || 0) * item.quantity, 0),
+    () =>
+      cart.reduce((sum, item) => sum + (item.price || 0) * item.quantity, 0),
     [cart],
   );
 
@@ -141,8 +149,12 @@ export function POSClient({
 
         <div className="grid grid-cols-2 gap-3">
           <Select
-            value={initialCategoryId === null ? "all" : String(initialCategoryId)}
-            onValueChange={(v) => updateUrl({ categoryId: v === "all" ? null : v })}
+            value={
+              initialCategoryId === null ? "all" : String(initialCategoryId)
+            }
+            onValueChange={(v) =>
+              updateUrl({ categoryId: v === "all" ? null : v })
+            }
           >
             <SelectTrigger className="h-11 rounded-xl border-slate-200 bg-white shadow-sm">
               <SelectValue placeholder="جميع الفئات" />
@@ -159,7 +171,9 @@ export function POSClient({
 
           <Select
             value={initialBrandId === null ? "all" : String(initialBrandId)}
-            onValueChange={(v) => updateUrl({ brandId: v === "all" ? null : v })}
+            onValueChange={(v) =>
+              updateUrl({ brandId: v === "all" ? null : v })
+            }
           >
             <SelectTrigger className="h-11 rounded-xl border-slate-200 bg-white shadow-sm">
               <SelectValue placeholder="جميع الشركات" />
@@ -194,9 +208,9 @@ export function POSClient({
                 ) : (
                   <Package className="h-10 w-10 text-slate-200" />
                 )}
-                {cart.find(item => item.id === product.id) && (
+                {cart.find((item) => item.id === product.id) && (
                   <div className="absolute top-2 right-2 bg-primary text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-lg">
-                    {cart.find(item => item.id === product.id)?.quantity}
+                    {cart.find((item) => item.id === product.id)?.quantity}
                   </div>
                 )}
               </div>
@@ -223,12 +237,12 @@ export function POSClient({
         )}
 
         <div className="mt-8 flex justify-center">
-            <PaginationComponent 
-                totalProducts={initialTotalCount}
-                totalPages={totalPages}
-                currentPage={initialPage}
-                searchParams={Object.fromEntries(searchParams.entries())}
-            />
+          <PaginationComponent
+            totalProducts={initialTotalCount}
+            totalPages={totalPages}
+            currentPage={initialPage}
+            searchParams={Object.fromEntries(searchParams.entries())}
+          />
         </div>
       </main>
 

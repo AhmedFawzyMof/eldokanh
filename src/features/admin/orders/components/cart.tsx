@@ -60,7 +60,16 @@ export function CheckoutCart({
   return (
     <Sheet>
       <SheetTrigger asChild>
-        <div className="fixed w-full shrink-0 bottom-0 px-4 py-3 pb-6 bg-white/80 backdrop-blur-md border-t z-50">
+        <Button className="fixed w-10 h-10 text-lg bottom-5 left-5 shadow-lg">
+          <ShoppingCart className="h-6 w-6" />
+          <span className=" sr-only">سلة البيع</span>
+          {CartQuantity > 0 && (
+            <Badge className="absolute -top-2 -right-2 bg-primary-foreground/20 text-primary-foreground p-1 text-xs">
+              {CartQuantity}
+            </Badge>
+          )}
+        </Button>
+        {/* <div className="fixed w-full shrink-0 bottom-0 px-4 py-3 pb-6 bg-white/80 backdrop-blur-md border-t z-50">
           <button className="w-full h-14 bg-primary text-primary-foreground rounded-2xl flex items-center justify-between px-5 font-bold text-base active:scale-[0.98] transition-all shadow-lg shadow-primary/20">
             <div className="flex items-center gap-2">
               <ShoppingCart className="h-5 w-5" />
@@ -76,7 +85,7 @@ export function CheckoutCart({
             </div>
             <span className="text-lg">{cartTotal.toLocaleString()} ج.م</span>
           </button>
-        </div>
+        </div> */}
       </SheetTrigger>
 
       <SheetContent

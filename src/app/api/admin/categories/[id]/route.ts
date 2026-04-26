@@ -11,12 +11,13 @@ export async function PUT(
 ) {
   const { id } = await context.params;
   const formData = await req.formData();
-  
+
   const nameAr = formData.get("nameAr") as string;
   const name = formData.get("name") as string;
   const descriptionAr = formData.get("descriptionAr") as string;
   const description = formData.get("description") as string;
   const oldImageUrl = formData.get("oldImageUrl") as string;
+  const isActive = Boolean(formData.get("isActive"));
   const file = formData.get("file") as File | null;
 
   if (isNaN(Number(id))) {
@@ -26,11 +27,9 @@ export async function PUT(
   let image = formData.get("image") as string;
 
   if (file && file.size > 0) {
-    // If a new file is uploaded, process it
     const uploadResult = await processAndUploadImage(file, "categories");
     image = uploadResult.secure_url;
 
-    // Delete old image if it exists and a new one was uploaded
     if (oldImageUrl) {
       const public_id = getPublicIdFromCloudinaryUrl(oldImageUrl);
       if (public_id) {
@@ -39,11 +38,19 @@ export async function PUT(
     }
   }
 
-  const { data, error } = await tryCatch(() => 
-    updateCategory(Number(id), { nameAr, name, descriptionAr, description, image })
+  const { data, error } = await tryCatch(() =>
+    updateCategory(Number(id), {
+      nameAr,
+      name,
+      descriptionAr,
+      description,
+      image,
+      isActive,
+    }),
   );
 
   if (error) {
+    console.log(error);
     return NextResponse.json(
       { message: "somthing went wrong" },
       { status: 500 },
@@ -56,4 +63,3 @@ export async function PUT(
 
   return NextResponse.json({}, { status: 201 });
 }
-

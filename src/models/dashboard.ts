@@ -41,27 +41,28 @@ export async function getDashboardData() {
         createdAt: orders.createdAt,
       })
       .from(orders)
-      .innerJoin(payments, eq(orders.id, payments.orderId))
-      .innerJoin(users, eq(orders.userId, users.id))
+      .leftJoin(payments, eq(orders.id, payments.orderId))
+      .leftJoin(users, eq(orders.userId, users.id))
       .orderBy(desc(orders.createdAt))
       .limit(5)
-      .execute(),
+      .all(),
 
     db
       .select({
         productId: products.id,
         name: products.name,
+        nameAr: products.nameAr,
         soldQuantity: sql<number>`SUM(${orderItems.quantity})`,
         revenue: sql<number>`SUM(${orderItems.price})`,
       })
       .from(orderItems)
-      .leftJoin(orders, eq(orderItems.orderId, orders.id))
-      .leftJoin(products, eq(orderItems.productId, products.id))
-      .where(sql`${orders.createdAt} >= date('now','-30 day')`)
+      .innerJoin(orders, eq(orderItems.orderId, orders.id))
+      .innerJoin(products, eq(orderItems.productId, products.id))
+      .where(sql`${orders.createdAt} >= date('now','-120 day')`)
       .groupBy(products.id)
       .orderBy(desc(sql`SUM(${orderItems.quantity})`))
       .limit(5)
-      .execute(),
+      .all(),
   ]);
 
   return {
@@ -81,5 +82,16 @@ export async function getDashboardData() {
     },
     latestOrders,
     topProducts,
+    monthlyRevenue: await db
+      .select({
+        month: sql<string>`strftime('%Y-%m', ${orders.createdAt})`,
+        revenue: sql<number>`SUM(${orderItems.price} * ${orderItems.quantity})`,
+      })
+      .from(orderItems)
+      .innerJoin(orders, eq(orderItems.orderId, orders.id))
+      .where(sql`${orders.createdAt} >= date('now', '-6 month')`)
+      .groupBy(sql`strftime('%Y-%m', ${orders.createdAt})`)
+      .orderBy(sql`strftime('%Y-%m', ${orders.createdAt})`)
+      .all(),
   };
 }

@@ -164,3 +164,16 @@ export const favorites = sqliteTable("favorites", {
   userId: integer("user_id").references(() => users.id),
   productId: integer("product_id").references(() => products.id),
 });
+
+export const contacts = sqliteTable("contacts", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  name: text("name").notNull(),
+  email: text("email").notNull(),
+  phone: text("phone"),
+  subject: text("subject"),
+  message: text("message").notNull(),
+  status: text("status", { enum: ["pending", "read", "replied"] }).default(
+    "pending",
+  ),
+  createdAt: text("created_at").default(sql`CURRENT_TIMESTAMP`),
+});

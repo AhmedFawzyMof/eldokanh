@@ -72,9 +72,9 @@ export function OfferCard({
         <div className="flex p-3 gap-4">
           <div className="relative shrink-0">
             <div className="h-24 w-36 rounded-2xl overflow-hidden bg-slate-50 border border-slate-100 flex items-center justify-center">
-              {offer.imageUrl ? (
+              {offer.image ? (
                 <img
-                  src={offer.imageUrl}
+                  src={offer.image}
                   alt="Offer"
                   className="h-full w-full object-cover"
                 />

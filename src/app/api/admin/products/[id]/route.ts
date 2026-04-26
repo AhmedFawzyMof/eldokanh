@@ -11,18 +11,24 @@ export async function PUT(
 ) {
   const { id } = await context.params;
   const formData = await req.formData();
-  
+
   const nameAr = formData.get("nameAr") as string;
   const name = formData.get("name") as string;
   const descriptionAr = formData.get("descriptionAr") as string;
   const description = formData.get("description") as string;
   const price = Number(formData.get("price"));
-  const discountPrice = formData.has("discountPrice") ? Number(formData.get("discountPrice")) : null;
+  const discountPrice = formData.has("discountPrice")
+    ? Number(formData.get("discountPrice"))
+    : null;
   const categoryId = Number(formData.get("categoryId"));
-  const subcategoryId = formData.has("subcategoryId") ? Number(formData.get("subcategoryId")) : null;
-  const brandId = formData.has("brandId") ? Number(formData.get("brandId")) : null;
+  const subcategoryId = formData.has("subcategoryId")
+    ? Number(formData.get("subcategoryId"))
+    : null;
+  const brandId = formData.has("brandId")
+    ? Number(formData.get("brandId"))
+    : null;
   const stockQuantity = Number(formData.get("stockQuantity") || 0);
-  const type = formData.get("type") as string || "unit";
+  const type = (formData.get("type") as string) || "unit";
   const isActive = formData.get("isActive") === "true";
   const oldImageUrl = formData.get("oldImageUrl") as string;
   const file = formData.get("file") as File | null;
@@ -47,7 +53,7 @@ export async function PUT(
     }
   }
 
-  const { data, error } = await tryCatch(() => 
+  const { data, error } = await tryCatch(() =>
     updateProduct(Number(id), {
       nameAr,
       name,
@@ -62,7 +68,7 @@ export async function PUT(
       type,
       isActive,
       imageUrl,
-    } as any)
+    } as any),
   );
 
   if (error) {
@@ -78,4 +84,3 @@ export async function PUT(
 
   return NextResponse.json({}, { status: 201 });
 }
-

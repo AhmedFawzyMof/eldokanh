@@ -74,7 +74,7 @@ export function OrderCard({
 
           <div className="flex-1 space-y-3 text-right">
             <div className="flex justify-between items-start">
-               <span className="text-sm font-black text-slate-900">
+              <span className="text-sm font-black text-slate-900">
                 {(order.totalAmount || 0).toLocaleString()} ج.م
               </span>
               <div className="flex items-center gap-2">
@@ -111,7 +111,7 @@ export function OrderCard({
 
             <div className="flex justify-between items-center">
               <div className="flex items-center gap-4">
-                <Link href={`/admin/receipt/${order.id}`}>
+                <Link href={`/admin/orders/${order.id}/receipt`}>
                   <Button size="sm" className="text-xs h-8 rounded-xl">
                     إيصال
                   </Button>
@@ -132,7 +132,7 @@ export function OrderCard({
                   {order.paymentStatus}
                 </Badge>
                 <div className="flex items-center gap-1 text-[10px] text-muted-foreground bg-slate-50 px-2 py-1 rounded-md">
-                   {order.paymentMethod}
+                  {order.paymentMethod}
                   <CreditCard className="h-3 w-3" />
                 </div>
               </div>

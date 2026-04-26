@@ -23,7 +23,6 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Loader2, UploadCloud, X } from "lucide-react";
 import { useGetSubcategories, useProductMutations } from "../actions";
 import { Textarea } from "@/components/ui/textarea";
-import axios from "axios";
 
 interface EditProductProps {
   productEdit: Product;
@@ -41,11 +40,12 @@ export function EditProduct({
   const [formData, setFormData] = useState<Product>(productEdit);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const { editMutation } = useProductMutations();
-  
-  const { data: subcategories, isLoading: isLoadingSubs } = useGetSubcategories(
-    { category: formData.categoryId! },
-    isOpen,
-  );
+
+  const {
+    data: subcategories,
+    isLoading: isLoadingSubs,
+    refetch,
+  } = useGetSubcategories({ category: formData.categoryId! }, isOpen);
 
   useEffect(() => {
     if (isOpen) setFormData(productEdit);
@@ -61,7 +61,7 @@ export function EditProduct({
     }
   };
 
-  const subCategories = subcategories?.data;
+  const subCategories = subcategories?.data.subcategories || [];
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -78,7 +78,7 @@ export function EditProduct({
           }
         }
       });
-      
+
       if (selectedFile) {
         formDataToSend.append("file", selectedFile);
         formDataToSend.append("oldImageUrl", formData.imageUrl || "");
@@ -103,7 +103,6 @@ export function EditProduct({
     }
   };
 
-
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
@@ -112,7 +111,7 @@ export function EditProduct({
         </Button>
       </DialogTrigger>
 
-      <DialogContent className="sm:max-w-xl h-[92vh] sm:h-auto flex flex-col p-0 overflow-hidden rounded-2xl">
+      <DialogContent className="sm:max-w-xl max-h-[92vh] overflow-y-scroll flex flex-col p-0 rounded-2xl">
         <DialogHeader className="p-6 pb-2">
           <DialogTitle className="text-right text-xl font-bold">
             تعديل: {productEdit.nameAr || productEdit.name}
@@ -130,7 +129,7 @@ export function EditProduct({
 
               <div className="flex flex-col items-center sm:flex-row-reverse gap-6">
                 <div className="relative group w-32 h-32 border-2 border-dashed rounded-2xl overflow-hidden bg-slate-50 flex items-center justify-center">
-                  {(selectedFile || formData.imageUrl) ? (
+                  {selectedFile || formData.imageUrl ? (
                     <>
                       <img
                         src={
@@ -154,13 +153,15 @@ export function EditProduct({
                   ) : (
                     <div className="text-center p-2">
                       <UploadCloud className="mx-auto h-8 w-8 text-slate-300 mb-1" />
-                      <span className="text-xs text-slate-400">لا توجد صورة</span>
+                      <span className="text-xs text-slate-400">
+                        لا توجد صورة
+                      </span>
                     </div>
                   )}
                 </div>
 
                 <div className="flex-1 w-full space-y-2">
-                   <Label htmlFor="edit-image" className="cursor-pointer">
+                  <Label htmlFor="edit-image" className="cursor-pointer">
                     <div className="border border-slate-200 rounded-xl p-3 text-center text-sm hover:bg-slate-50 transition-colors">
                       {selectedFile ? selectedFile.name : "اختر صورة جديدة"}
                     </div>
@@ -206,7 +207,9 @@ export function EditProduct({
                 <Label>الوصف بالعربي</Label>
                 <Textarea
                   value={formData.descriptionAr || ""}
-                  onChange={(e) => handleChange("descriptionAr", e.target.value)}
+                  onChange={(e) =>
+                    handleChange("descriptionAr", e.target.value)
+                  }
                   className="rounded-xl min-h-[100px]"
                   required
                 />
@@ -225,8 +228,18 @@ export function EditProduct({
               <div className="space-y-2 text-right">
                 <Label>الفئة</Label>
                 <Select
-                  value={String(formData.categoryId)}
-                  onValueChange={(val) => handleChange("categoryId", Number(val))}
+                  value={formData.categoryId ? String(formData.categoryId) : ""}
+                  onValueChange={(val) => {
+                    const categoryId = Number(val);
+
+                    setFormData((prev) => ({
+                      ...prev,
+                      categoryId,
+                      subcategoryId: undefined,
+                    }));
+
+                    refetch();
+                  }}
                 >
                   <SelectTrigger dir="rtl" className="rounded-xl">
                     <SelectValue placeholder="اختر الفئة" />
@@ -241,34 +254,45 @@ export function EditProduct({
                 </Select>
               </div>
 
-              <div className="space-y-2 text-right">
-                <Label>الفئة الفرعية</Label>
-                <Select
-                  value={formData.subcategoryId ? String(formData.subcategoryId) : undefined}
-                  disabled={!formData.categoryId || isLoadingSubs}
-                  onValueChange={(val) => handleChange("subcategoryId", Number(val))}
-                >
-                  <SelectTrigger dir="rtl" className="rounded-xl">
-                    <SelectValue
-                      placeholder={
-                        isLoadingSubs ? "جاري التحميل..." : "اختر الفئة الفرعية"
-                      }
-                    />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {subCategories?.map((sub: any) => (
-                      <SelectItem key={sub.id} value={sub.id.toString()}>
-                        {sub.nameAr}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
+              {subCategories.length > 0 && subCategories[0].id && (
+                <div className="space-y-2 text-right">
+                  <Label>الفئة الفرعية</Label>
+                  <Select
+                    value={
+                      formData.subcategoryId
+                        ? String(formData.subcategoryId)
+                        : ""
+                    }
+                    disabled={!formData.categoryId || isLoadingSubs}
+                    onValueChange={(val) =>
+                      handleChange("subcategoryId", Number(val))
+                    }
+                  >
+                    <SelectTrigger dir="rtl" className="rounded-xl">
+                      <SelectValue
+                        placeholder={
+                          isLoadingSubs
+                            ? "جاري التحميل..."
+                            : "اختر الفئة الفرعية"
+                        }
+                      />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {subCategories?.map((sub: any) => (
+                        <SelectItem key={sub.id} value={sub.id.toString()}>
+                          {sub.nameAr}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
               <div className="space-y-2 text-right">
                 <Label>الشركة / البراند</Label>
                 <Select
-                  value={formData.brandId ? String(formData.brandId) : undefined}
+                  value={
+                    formData.brandId ? String(formData.brandId) : undefined
+                  }
                   onValueChange={(val) => handleChange("brandId", Number(val))}
                 >
                   <SelectTrigger dir="rtl" className="rounded-xl">
@@ -286,7 +310,7 @@ export function EditProduct({
 
               <div className="space-y-2 text-right">
                 <Label>نوع البيع</Label>
-                <Select 
+                <Select
                   value={formData.type}
                   onValueChange={(val) => handleChange("type", val)}
                 >
@@ -307,7 +331,9 @@ export function EditProduct({
                 <Input
                   type="number"
                   value={formData.price || 0}
-                  onChange={(e) => handleChange("price", Number(e.target.value))}
+                  onChange={(e) =>
+                    handleChange("price", Number(e.target.value))
+                  }
                   className="rounded-xl bg-white"
                   required
                 />
@@ -317,7 +343,9 @@ export function EditProduct({
                 <Input
                   type="number"
                   value={formData.discountPrice || 0}
-                  onChange={(e) => handleChange("discountPrice", Number(e.target.value))}
+                  onChange={(e) =>
+                    handleChange("discountPrice", Number(e.target.value))
+                  }
                   className="rounded-xl bg-white"
                 />
               </div>
@@ -326,7 +354,9 @@ export function EditProduct({
                 <Input
                   type="number"
                   value={formData.stockQuantity || 0}
-                  onChange={(e) => handleChange("stockQuantity", Number(e.target.value))}
+                  onChange={(e) =>
+                    handleChange("stockQuantity", Number(e.target.value))
+                  }
                   className="rounded-xl bg-white"
                   required
                 />

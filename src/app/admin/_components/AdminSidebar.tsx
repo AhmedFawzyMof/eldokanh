@@ -7,17 +7,12 @@ import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { signOut, useSession } from "next-auth/react";
 
-import {
-  Sheet,
-  SheetClose,
-  SheetContent,
-  SheetFooter,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { adminPages } from "@/lib/admin/pages";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { useQuery } from "@tanstack/react-query";
+import adminApi from "@/lib/admin/api";
 
 export default function AdminSidebar() {
   const pathname = usePathname();
@@ -33,6 +28,13 @@ export default function AdminSidebar() {
     }
   }, [pathname]);
 
+  const { data } = useQuery({
+    queryKey: ["admin", "sidebar"],
+    queryFn: async () => {
+      return await adminApi.get("/counters");
+    },
+  });
+
   const currentPage =
     adminPages.find((page) => page.href === pathname)?.title ||
     "لوحة المعلومات";
@@ -46,64 +48,108 @@ export default function AdminSidebar() {
     return null;
   }
 
-  return (
-    <div className="sticky top-0 z-40 flex flex-row-reverse items-center justify-between h-12 py-2 px-4 shadow bg-background">
-      <Link href="/admin/dashboard">
-        <p className="text-2xl font-bold">{currentPage}</p>
-      </Link>
-      <Sheet>
-        <SheetTrigger asChild>
-          <Menu className="h-6 w-6 text-primary cursor-pointer" />
-        </SheetTrigger>
-        <SheetContent side="right" className="w-72 px-4 flex flex-col h-full">
-          <SheetHeader>
-            <SheetTitle>
+  const NavContent = () => (
+    <div className="flex flex-col h-full bg-card border-l">
+      <div className="p-6">
+        <Link href="/admin/dashboard" className="flex items-center gap-3">
+          <div className="h-10 w-10 rounded-xl bg-primary flex items-center justify-center text-primary-foreground shadow-lg shadow-primary/20">
+            <Home className="h-6 w-6" />
+          </div>
+          <span className="font-bold text-xl tracking-tight">الدكان ماركت</span>
+        </Link>
+      </div>
+
+      <ScrollArea className="flex-1 px-4">
+        <div className="space-y-1 py-4" dir="rtl">
+          {adminPages.map((page, index) => {
+            const isActive = pathname === page.href;
+            return (
               <Link
-                href="/admin/dashboard"
-                className="flex items-center gap-2 px-2"
+                key={index}
+                href={page.href}
+                className={cn(
+                  "group flex items-center gap-3 rounded-xl px-4 py-3 text-sm transition-all duration-200",
+                  isActive
+                    ? "bg-primary text-primary-foreground shadow-md shadow-primary/10"
+                    : "text-muted-foreground hover:bg-secondary hover:text-foreground",
+                )}
               >
-                <Home className="h-6 w-6" />
-                <span className="font-bold text-xl">الدكان ماركت</span>
-              </Link>
-            </SheetTitle>
-          </SheetHeader>
-
-          <nav dir="rtl" className="flex-1 px-4 py-4 overflow-y-auto">
-            <div className="grid gap-1">
-              {adminPages.map((page, index) => (
-                <Link
-                  key={index}
-                  href={page.href}
+                <page.icon
                   className={cn(
-                    "relative flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-all hover:text-primary",
-                    pathname === page.href
-                      ? "bg-secondary font-medium text-primary"
-                      : "text-muted-foreground",
+                    "h-5 w-5",
+                    isActive
+                      ? "text-primary-foreground"
+                      : "text-muted-foreground group-hover:text-primary",
                   )}
-                >
-                  <page.icon className="h-4 w-4" />
-                  <span>{page.title}</span>
-                  {/* Badge logic can be added here if needed, linking to API counts */}
-                </Link>
-              ))}
-            </div>
-          </nav>
+                />
+                <span className="font-medium">{page.title}</span>
+                {page.badge && (
+                  (() => {
+                    const count = page.href === "/admin/contact" 
+                      ? data?.data.contacts 
+                      : page.href === "/admin/orders" 
+                        ? data?.data.orders 
+                        : 0;
+                    
+                    if (!count || count === 0) return null;
 
-          <SheetFooter className="mt-auto">
-            <SheetClose asChild>
-              <Button
-                variant="destructive"
-                className="w-full flex items-center gap-2"
-                onClick={handleLogout}
-                disabled={!session}
-              >
-                <LogOut className="h-4 w-4" />
-                تسجيل الخروج
-              </Button>
-            </SheetClose>
-          </SheetFooter>
-        </SheetContent>
-      </Sheet>
+                    return (
+                      <span
+                        className={cn(
+                          "mr-auto flex h-5 w-5 items-center justify-center rounded-full text-[10px] font-bold",
+                          isActive
+                            ? "bg-primary-foreground text-primary"
+                            : "bg-primary text-primary-foreground",
+                        )}
+                      >
+                        {count}
+                      </span>
+                    );
+                  })()
+                )}
+              </Link>
+            );
+          })}
+        </div>
+      </ScrollArea>
+
+      <div className="p-4 mt-auto border-t">
+        <Button
+          variant="ghost"
+          className="w-full justify-start gap-3 rounded-xl text-red-500 hover:text-red-600 hover:bg-red-50 transition-colors"
+          onClick={handleLogout}
+          disabled={!session}
+        >
+          <LogOut className="h-5 w-5" />
+          <span className="font-medium">تسجيل الخروج</span>
+        </Button>
+      </div>
     </div>
+  );
+
+  return (
+    <>
+      {/* Mobile Header and Sidebar */}
+      <div className="lg:hidden sticky top-0 z-40 flex flex-row-reverse items-center justify-between h-16 py-2 px-4 shadow-sm bg-background border-b">
+        <div className="flex items-center gap-3">
+          <span className="text-lg font-bold">{currentPage}</span>
+        </div>
+        <Sheet>
+          <SheetTrigger asChild>
+            <Button variant="ghost" size="icon" className="h-10 w-10">
+              <Menu className="h-6 w-6 text-primary" />
+            </Button>
+          </SheetTrigger>
+          <SheetContent side="right" className="p-0 w-80">
+            <NavContent />
+          </SheetContent>
+        </Sheet>
+      </div>
+
+      {/* Desktop Persistent Sidebar */}
+      <aside className="hidden lg:flex fixed inset-y-0 right-0 z-50 w-72 flex-col">
+        <NavContent />
+      </aside>
+    </>
   );
 }

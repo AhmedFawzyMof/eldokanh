@@ -5,6 +5,7 @@ import {
   createSubcategories,
   deleteSubCategory,
   getAllSubCategories,
+  getSubcategoryByCategory,
 } from "@/models/subcategories";
 import { getAllCategories } from "@/models/categories";
 
@@ -13,6 +14,22 @@ export async function GET(req: NextRequest) {
 
   const search = searchParams.get("search");
   const page = searchParams.get("page");
+  const category = searchParams.get("category");
+
+  if (category) {
+    const { data, error } = await tryCatch(() =>
+      getSubcategoryByCategory(Number(category)),
+    );
+
+    if (error) {
+      return NextResponse.json(
+        { message: "somthing went wrong" },
+        { status: 500 },
+      );
+    }
+
+    return NextResponse.json({ subcategories: data }, { status: 200 });
+  }
 
   const { data: subcategories, error } = await tryCatch(() =>
     getAllSubCategories(Number(page), search, {

@@ -1,21 +1,21 @@
-"use client";
-
-import { use } from "react";
-import AdminLoading from "@/app/admin/_components/AdminLoading";
-import { useGetOrderById } from "@/features/admin/orders/actions";
+import { tryCatch } from "@/lib/tryCatch";
+import { getOrderById } from "@/models/orders";
 import OrderEditForm from "@/features/admin/orders/components/order-edit-form";
+import { getAllDeliveries } from "@/models/delivery";
 
-export default function OrderPage({ params }: { params: Promise<{ id: string }> }) {
-  const resolvedParams = use(params);
-  const id = parseInt(resolvedParams.id);
+interface OrderPageProps {
+  params: Promise<{ id: string }>;
+}
 
-  const { data, isLoading } = useGetOrderById(id);
+export default async function OrderPage(props: OrderPageProps) {
+  const orderParams = await props.params;
+  const orderId = parseInt(orderParams.id);
+  const { data, error } = await tryCatch(() => getOrderById(orderId));
+  const { data: deliveryData, error: deliveryError } = await tryCatch(() =>
+    getAllDeliveries(null),
+  );
 
-  if (isLoading) return <AdminLoading />;
-
-  const order = data?.data;
-
-  if (!order) {
+  if (isNaN(orderId) && !data) {
     return (
       <div className="flex flex-col items-center justify-center py-32 text-slate-400">
         <p className="text-lg font-bold">الطلب غير موجود</p>
@@ -23,9 +23,20 @@ export default function OrderPage({ params }: { params: Promise<{ id: string }> 
     );
   }
 
+  if (error || deliveryError) {
+    return (
+      <div className="flex flex-col items-center justify-center py-32 text-slate-400">
+        <p className="text-lg font-bold">
+          {error?.message}
+          {deliveryError?.message}
+        </p>
+      </div>
+    );
+  }
+
   return (
     <div className="max-w-6xl mx-auto px-4 py-8">
-      <OrderEditForm initialData={order} />
+      <OrderEditForm initialData={data} deliveryData={deliveryData} />
     </div>
   );
 }

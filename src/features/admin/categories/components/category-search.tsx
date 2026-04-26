@@ -12,13 +12,18 @@ export function CategorySearch() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const [isPending, startTransition] = useTransition();
-
   const [value, setValue] = useState(searchParams.get("search") || "");
 
+  const debouncedValue = useDebounce(value, 500);
+
   useEffect(() => {
-    const params = new URLSearchParams(searchParams);
-    if (value) {
-      params.set("search", value);
+    const params = new URLSearchParams(searchParams.toString());
+    const currentSearch = params.get("search") || "";
+
+    if (debouncedValue === currentSearch) return;
+
+    if (debouncedValue) {
+      params.set("search", debouncedValue);
     } else {
       params.delete("search");
     }
@@ -26,7 +31,7 @@ export function CategorySearch() {
     startTransition(() => {
       router.replace(`${pathname}?${params.toString()}`);
     });
-  }, [value, pathname, router, searchParams]);
+  }, [debouncedValue, pathname, router, searchParams]);
 
   return (
     <div className="relative text-right">

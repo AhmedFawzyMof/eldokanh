@@ -61,12 +61,12 @@ export const adminPages = [
     icon: GalleryHorizontal,
     badge: false,
   },
-  // {
-  //   title: "طلبات التواصل",
-  //   href: "/admin/contact",
-  //   icon: Contact,
-  //   badge: true,
-  // },
+  {
+    title: "طلبات التواصل",
+    href: "/admin/contact",
+    icon: Contact,
+    badge: true,
+  },
   {
     title: "المدن للتوصيل",
     href: "/admin/delivery",
@@ -79,10 +79,16 @@ export const adminPages = [
     icon: CreditCard,
     badge: false,
   },
-  // {
-  //   title: "العملاء",
-  //   href: "/admin/customers",
-  //   icon: Users,
-  //   badge: false,
-  // },
+  {
+    title: "العملاء",
+    href: "/admin/customers",
+    icon: Users,
+    badge: false,
+  },
+  {
+    title: "المشرفين",
+    href: "/admin/admins",
+    icon: Users,
+    badge: false,
+  },
 ];

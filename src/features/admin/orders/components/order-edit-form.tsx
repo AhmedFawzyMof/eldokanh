@@ -14,16 +14,29 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
-import { Trash2, Loader2, Save, ShoppingBag, Truck, CreditCard, ChevronRight } from "lucide-react";
+import {
+  Trash2,
+  Loader2,
+  Save,
+  ShoppingBag,
+  Truck,
+  CreditCard,
+  ChevronRight,
+} from "lucide-react";
 import { useGetDeliveries } from "@/features/admin/delivery/actions";
 import { useOrderMutations } from "../actions";
 import type { Delivery } from "@/types/admin/delivery";
 import Link from "next/link";
 
-export default function OrderEditForm({ initialData }: { initialData: any }) {
+export default function OrderEditForm({
+  initialData,
+  deliveryData,
+}: {
+  initialData: any;
+  deliveryData: any;
+}) {
   const [formData, setFormData] = useState(initialData);
   const [selectedCity, setSelectedCity] = useState<Delivery | null>(null);
-  const { data: deliveryData, isLoading: isDeliveryLoading } = useGetDeliveries({ search: "" });
   const { editMutation, deleteOrderItemMutation } = useOrderMutations();
 
   const subtotal = useMemo(() => {
@@ -86,15 +99,18 @@ export default function OrderEditForm({ initialData }: { initialData: any }) {
   };
 
   return (
-    <form
-      className="space-y-8 pb-32"
-      onSubmit={handleSubmit}
-      dir="rtl"
-    >
+    <form className="space-y-8 pb-32" onSubmit={handleSubmit} dir="rtl">
       <div className="flex items-center gap-2 text-slate-400 text-sm mb-2">
-        <Link href="/admin/orders" className="hover:text-primary transition-colors">الطلبات</Link>
+        <Link
+          href="/admin/orders"
+          className="hover:text-primary transition-colors"
+        >
+          الطلبات
+        </Link>
         <ChevronRight className="h-4 w-4" />
-        <span className="text-slate-900 font-bold">تعديل الطلب #{initialData.id}</span>
+        <span className="text-slate-900 font-bold">
+          تعديل الطلب #{initialData.id}
+        </span>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -163,7 +179,9 @@ export default function OrderEditForm({ initialData }: { initialData: any }) {
                   <Label className="font-bold">الاسم بالكامل</Label>
                   <Input
                     value={formData.address.fullName || ""}
-                    onChange={(e) => update("address", "fullName", e.target.value)}
+                    onChange={(e) =>
+                      update("address", "fullName", e.target.value)
+                    }
                     className="h-12 rounded-xl border-slate-200 shadow-none"
                   />
                 </div>
@@ -181,15 +199,19 @@ export default function OrderEditForm({ initialData }: { initialData: any }) {
                   <Label className="font-bold">المدينة / المنطقة</Label>
                   <Select
                     onValueChange={(city) => setSelectedCity(JSON.parse(city))}
-                    defaultValue={JSON.stringify(cities.find(c => c.city === formData.address.city))}
+                    defaultValue={JSON.stringify(
+                      cities.find((c) => c.city === formData.address.city),
+                    )}
                   >
                     <SelectTrigger className="h-12 rounded-xl border-slate-200 shadow-none">
-                      <SelectValue placeholder={isDeliveryLoading ? "جاري التحميل..." : "اختر المدينة"} />
+                      <SelectValue placeholder={"اختر المدينة"} />
                     </SelectTrigger>
                     <SelectContent>
                       {cities.map((city: Delivery) => (
                         <SelectItem key={city.id} value={JSON.stringify(city)}>
-                          {city.city} {city.deliveryCost! > 0 && `(+${city.deliveryCost} ج.م)`}
+                          {city.city}{" "}
+                          {city.deliveryCost! > 0 &&
+                            `(+${city.deliveryCost} ج.م)`}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -200,7 +222,9 @@ export default function OrderEditForm({ initialData }: { initialData: any }) {
                   <Label className="font-bold">الشارع</Label>
                   <Input
                     value={formData.address.street || ""}
-                    onChange={(e) => update("address", "street", e.target.value)}
+                    onChange={(e) =>
+                      update("address", "street", e.target.value)
+                    }
                     className="h-12 rounded-xl border-slate-200 shadow-none"
                   />
                 </div>
@@ -210,7 +234,9 @@ export default function OrderEditForm({ initialData }: { initialData: any }) {
                     <Label className="font-bold">المبنى</Label>
                     <Input
                       value={formData.address.building || ""}
-                      onChange={(e) => update("address", "building", e.target.value)}
+                      onChange={(e) =>
+                        update("address", "building", e.target.value)
+                      }
                       className="h-12 rounded-xl border-slate-200 shadow-none"
                     />
                   </div>
@@ -218,7 +244,9 @@ export default function OrderEditForm({ initialData }: { initialData: any }) {
                     <Label className="font-bold">الدور</Label>
                     <Input
                       value={formData.address.floor || ""}
-                      onChange={(e) => update("address", "floor", e.target.value)}
+                      onChange={(e) =>
+                        update("address", "floor", e.target.value)
+                      }
                       className="h-12 rounded-xl border-slate-200 shadow-none"
                     />
                   </div>
@@ -241,24 +269,40 @@ export default function OrderEditForm({ initialData }: { initialData: any }) {
               {formData.items.map((item: any, i: number) => {
                 const isUnit = item.type === "unit";
                 return (
-                  <div key={item.id} className="group relative flex flex-col md:flex-row gap-4 p-4 rounded-2xl border border-slate-100 bg-white hover:border-primary/20 hover:bg-primary/[0.01] transition-all">
+                  <div
+                    key={item.id}
+                    className="group relative flex flex-col md:flex-row gap-4 p-4 rounded-2xl border border-slate-100 bg-white hover:border-primary/20 hover:bg-primary/[0.01] transition-all"
+                  >
                     <div className="flex-1 space-y-1">
                       <div className="flex items-center gap-2">
-                        <span className="font-bold text-slate-900">{item.nameAr}</span>
-                        <Badge variant="secondary" className="text-[10px] rounded-full h-5">
+                        <span className="font-bold text-slate-900">
+                          {item.nameAr}
+                        </span>
+                        <Badge
+                          variant="secondary"
+                          className="text-[10px] rounded-full h-5"
+                        >
                           {isUnit ? "بالقطعة" : "بالوزن"}
                         </Badge>
                       </div>
-                      <div className="text-xs text-slate-400">ID: {item.id}</div>
+                      <div className="text-xs text-slate-400">
+                        ID: {item.id}
+                      </div>
                     </div>
 
                     <div className="flex items-center gap-4">
                       <div className="w-24">
-                        <Label className="text-[10px] text-slate-400 mb-1 block">السعر</Label>
-                        <div className="font-black text-sm">{item.price?.toLocaleString()} ج.م</div>
+                        <Label className="text-[10px] text-slate-400 mb-1 block">
+                          السعر
+                        </Label>
+                        <div className="font-black text-sm">
+                          {item.price?.toLocaleString()} ج.م
+                        </div>
                       </div>
                       <div className="w-28 space-y-1">
-                        <Label className="text-[10px] text-slate-400">الكمية</Label>
+                        <Label className="text-[10px] text-slate-400">
+                          الكمية
+                        </Label>
                         <Input
                           type="number"
                           step={isUnit ? 1 : 0.001}
@@ -266,7 +310,12 @@ export default function OrderEditForm({ initialData }: { initialData: any }) {
                           onChange={(e) => {
                             const value = e.target.value;
                             const items = [...formData.items];
-                            items[i].quantity = value === "" ? 0 : isUnit ? parseInt(value) : parseFloat(value);
+                            items[i].quantity =
+                              value === ""
+                                ? 0
+                                : isUnit
+                                  ? parseInt(value)
+                                  : parseFloat(value);
                             setFormData({ ...formData, items });
                           }}
                           className="h-10 rounded-xl border-slate-200 text-center font-bold"
@@ -307,7 +356,9 @@ export default function OrderEditForm({ initialData }: { initialData: any }) {
                     <Label className="font-bold">طريقة الدفع</Label>
                     <Input
                       value={formData.payment.method}
-                      onChange={(e) => update("payment", "method", e.target.value)}
+                      onChange={(e) =>
+                        update("payment", "method", e.target.value)
+                      }
                       className="h-12 rounded-xl border-slate-200 shadow-none text-right"
                     />
                   </div>
@@ -316,7 +367,13 @@ export default function OrderEditForm({ initialData }: { initialData: any }) {
                     <Input
                       type="number"
                       value={formData.payment.deliveryCost}
-                      onChange={(e) => update("payment", "deliveryCost", Number(e.target.value))}
+                      onChange={(e) =>
+                        update(
+                          "payment",
+                          "deliveryCost",
+                          Number(e.target.value),
+                        )
+                      }
                       className="h-12 rounded-xl border-slate-200 shadow-none text-right"
                     />
                   </div>
@@ -327,28 +384,39 @@ export default function OrderEditForm({ initialData }: { initialData: any }) {
                 <div className="space-y-3">
                   <div className="flex justify-between text-sm text-slate-500">
                     <span>إجمالي المنتجات</span>
-                    <span className="font-bold font-mono">{subtotal.toLocaleString()} ج.م</span>
+                    <span className="font-bold font-mono">
+                      {subtotal.toLocaleString()} ج.م
+                    </span>
                   </div>
-                  
+
                   {discount > 0 && (
                     <div className="flex justify-between text-sm">
                       <div className="flex items-center gap-1.5 text-emerald-600">
                         <Tag className="h-3.5 w-3.5" />
                         <span>كود الخصم ({initialData.promo.code})</span>
                       </div>
-                      <span className="font-bold font-mono text-emerald-600">-{discount.toLocaleString()} ج.م</span>
+                      <span className="font-bold font-mono text-emerald-600">
+                        -{discount.toLocaleString()} ج.م
+                      </span>
                     </div>
                   )}
 
                   <div className="flex justify-between text-sm text-slate-500">
                     <span>تكلفة التوصيل</span>
-                    <span className="font-bold font-mono">{formData.payment.deliveryCost?.toLocaleString()} ج.م</span>
+                    <span className="font-bold font-mono">
+                      {formData.payment.deliveryCost?.toLocaleString()} ج.م
+                    </span>
                   </div>
 
                   <div className="pt-4 mt-2 border-t flex justify-between items-center bg-primary/5 -mx-6 px-6 py-4">
-                    <span className="font-black text-slate-700">الإجمالي النهائي</span>
+                    <span className="font-black text-slate-700">
+                      الإجمالي النهائي
+                    </span>
                     <span className="text-2xl font-black text-primary font-mono tracking-tight">
-                      {(finalAmount + (formData.payment.deliveryCost || 0)).toLocaleString()} ج.م
+                      {(
+                        finalAmount + (formData.payment.deliveryCost || 0)
+                      ).toLocaleString()}{" "}
+                      ج.م
                     </span>
                   </div>
                 </div>
@@ -356,10 +424,10 @@ export default function OrderEditForm({ initialData }: { initialData: any }) {
             </Card>
 
             {/* Save Button */}
-            <Button 
-                type="submit"
-                className="w-full h-16 text-xl font-black rounded-2xl shadow-xl shadow-primary/20 flex items-center justify-center gap-3 transition-transform active:scale-[0.98]"
-                disabled={editMutation.isPending}
+            <Button
+              type="submit"
+              className="w-full h-16 text-xl font-black rounded-2xl shadow-xl shadow-primary/20 flex items-center justify-center gap-3 transition-transform active:scale-[0.98]"
+              disabled={editMutation.isPending}
             >
               {editMutation.isPending ? (
                 <>

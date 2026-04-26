@@ -10,13 +10,6 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -24,7 +17,13 @@ import { Loader2, Edit2 } from "lucide-react";
 import { useCategoryMutations } from "../actions";
 import { Textarea } from "@/components/ui/textarea";
 import { ImageInput } from "@/app/admin/_components/ImageInput";
-import axios from "axios";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface EditCategoryProps {
   categoryEdit: Category;
@@ -56,13 +55,22 @@ export function EditCategory({ categoryEdit }: EditCategoryProps) {
       const formDataToSend = new FormData();
       formDataToSend.append("nameAr", formData.nameAr || "");
       formDataToSend.append("name", formData.name || "");
-      formDataToSend.append("descriptionAr", (formData as any).descriptionAr || "");
+      formDataToSend.append(
+        "descriptionAr",
+        (formData as any).descriptionAr || "",
+      );
       formDataToSend.append("description", (formData as any).description || "");
-      formDataToSend.append("image", formData.imageUrl || (formData as any).image || "");
-      
+      formDataToSend.append(
+        "image",
+        formData.imageUrl || (formData as any).image || "",
+      );
+
       if (selectedFile) {
         formDataToSend.append("file", selectedFile);
-        formDataToSend.append("oldImageUrl", formData.imageUrl || (formData as any).image || "");
+        formDataToSend.append(
+          "oldImageUrl",
+          formData.imageUrl || (formData as any).image || "",
+        );
       }
 
       editMutation.mutate(
@@ -84,7 +92,6 @@ export function EditCategory({ categoryEdit }: EditCategoryProps) {
     }
   };
 
-
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
@@ -99,7 +106,7 @@ export function EditCategory({ categoryEdit }: EditCategoryProps) {
       </DialogTrigger>
 
       <DialogContent
-        className="sm:max-w-lg rounded-2xl flex flex-col p-0 overflow-hidden"
+        className="sm:max-w-xl max-h-[92vh] overflow-y-scroll flex flex-col p-0 rounded-2xl"
         dir="rtl"
       >
         <DialogHeader className="p-6 pb-2">
@@ -150,6 +157,32 @@ export function EditCategory({ categoryEdit }: EditCategoryProps) {
                 className="rounded-xl min-h-[100px] border-slate-200 shadow-sm"
                 rows={3}
               />
+            </div>
+            <div className="space-y-2 text-right border-t pt-6">
+              <Label className="font-bold">الوصف بالإنجليزي</Label>
+              <Textarea
+                value={(formData as any).description || ""}
+                onChange={(e) =>
+                  handleChange("description" as any, e.target.value)
+                }
+                className="rounded-xl min-h-[100px] border-slate-200 shadow-sm"
+                rows={3}
+              />
+            </div>
+            <div className="space-y-2 text-right">
+              <Label>حالة العرض</Label>
+              <Select
+                defaultValue="1"
+                onValueChange={(val) => handleChange("isActive", val === "1")}
+              >
+                <SelectTrigger dir="rtl" className="rounded-xl bg-white">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="1">متاح</SelectItem>
+                  <SelectItem value="0">مخفي / غير متاح</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
           </form>
         </ScrollArea>

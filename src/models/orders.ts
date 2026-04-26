@@ -69,6 +69,16 @@ export async function getAllOrders(page: number, search: string | null) {
   return { orders: ordersData, count: total?.count || 0 };
 }
 
+export async function getActiveOrdersCount() {
+  return await db
+    .select({
+      count: sql<number>`COUNT(${orders.id})`,
+    })
+    .from(orders)
+    .where(not(eq(orders.status, "delivered")))
+    .get();
+}
+
 export async function getUserOrders(userId: number, page: number = 1) {
   const limit = 10;
   const offset = (page - 1) * limit;

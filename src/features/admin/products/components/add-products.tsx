@@ -23,7 +23,6 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { useGetSubcategories, useProductMutations } from "../actions";
 import { Textarea } from "@/components/ui/textarea";
 import { Loader2, Plus, UploadCloud, X } from "lucide-react";
-import axios from "axios";
 
 interface AddProductProps {
   categories: { id: number; name: string; nameAr: string }[];
@@ -53,10 +52,11 @@ export function AddProduct({ categories, brands }: AddProductProps) {
 
   const [formData, setFormData] = useState<Partial<Product>>(initialFormState);
 
-  const { data: subcategories, isLoading: isLoadingSubs } = useGetSubcategories(
-    { category: formData.categoryId! },
-    isOpen,
-  );
+  const {
+    data: subcategories,
+    isLoading: isLoadingSubs,
+    refetch,
+  } = useGetSubcategories({ category: formData.categoryId! }, isOpen);
 
   const handleChange = (field: keyof Product, value: any) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -79,7 +79,7 @@ export function AddProduct({ categories, brands }: AddProductProps) {
           formDataToSend.append(key, String(value));
         }
       });
-      
+
       if (selectedFile) {
         formDataToSend.append("file", selectedFile);
       }
@@ -98,9 +98,7 @@ export function AddProduct({ categories, brands }: AddProductProps) {
     }
   };
 
-
-  const subCategories = subcategories?.data;
-
+  const subCategories = subcategories?.data?.subcategories || [];
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
@@ -110,8 +108,8 @@ export function AddProduct({ categories, brands }: AddProductProps) {
         </Button>
       </DialogTrigger>
 
-      <DialogContent className="sm:max-w-xl h-[92vh] sm:h-auto flex flex-col p-0 overflow-hidden rounded-2xl">
-        <DialogHeader className="p-6 pb-2">
+      <DialogContent className="sm:max-w-xl max-h-[92vh] overflow-y-scroll flex flex-col p-0 rounded-2xl">
+        <DialogHeader className="p-6 pb-2 sticky top-0 bg-white/95 backdrop-blur-md z-10">
           <DialogTitle className="text-right text-xl font-bold">
             اضافة منتج جديد
           </DialogTitle>
@@ -145,7 +143,9 @@ export function AddProduct({ categories, brands }: AddProductProps) {
                   ) : (
                     <div className="text-center p-2">
                       <UploadCloud className="mx-auto h-8 w-8 text-slate-300 mb-1" />
-                      <span className="text-xs text-slate-400">لا توجد صورة</span>
+                      <span className="text-xs text-slate-400">
+                        لا توجد صورة
+                      </span>
                     </div>
                   )}
                 </div>
@@ -197,7 +197,9 @@ export function AddProduct({ categories, brands }: AddProductProps) {
                 <Label>الوصف بالعربي</Label>
                 <Textarea
                   value={formData.descriptionAr}
-                  onChange={(e) => handleChange("descriptionAr", e.target.value)}
+                  onChange={(e) =>
+                    handleChange("descriptionAr", e.target.value)
+                  }
                   placeholder="وصف مختصر للمنتج..."
                   className="rounded-xl min-h-[100px]"
                   required
@@ -218,9 +220,17 @@ export function AddProduct({ categories, brands }: AddProductProps) {
               <div className="space-y-2 text-right">
                 <Label>الفئة</Label>
                 <Select
+                  value={formData.categoryId ? String(formData.categoryId) : ""}
                   onValueChange={(val) => {
-                    handleChange("categoryId", Number(val));
-                    handleChange("subcategoryId", undefined);
+                    const categoryId = Number(val);
+
+                    setFormData((prev) => ({
+                      ...prev,
+                      categoryId,
+                      subcategoryId: undefined,
+                    }));
+
+                    refetch();
                   }}
                 >
                   <SelectTrigger dir="rtl" className="rounded-xl">
@@ -236,31 +246,39 @@ export function AddProduct({ categories, brands }: AddProductProps) {
                 </Select>
               </div>
 
-              <div className="space-y-2 text-right">
-                <Label>الفئة الفرعية</Label>
-                <Select
-                  disabled={!formData.categoryId || isLoadingSubs}
-                  onValueChange={(val) =>
-                    handleChange("subcategoryId", Number(val))
-                  }
-                >
-                  <SelectTrigger dir="rtl" className="rounded-xl">
-                    <SelectValue
-                      placeholder={
-                        isLoadingSubs ? "جاري التحميل..." : "اختر الفئة الفرعية"
-                      }
-                    />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {subCategories?.map((sub: any) => (
-                      <SelectItem key={sub.id} value={sub.id.toString()}>
-                        {sub.nameAr}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
+              {subCategories?.length > 0 && subCategories[0].id && (
+                <div className="space-y-2 text-right">
+                  <Label>الفئة الفرعية</Label>
+                  <Select
+                    value={
+                      formData.subcategoryId
+                        ? String(formData.subcategoryId)
+                        : ""
+                    }
+                    disabled={!formData.categoryId || isLoadingSubs}
+                    onValueChange={(val) =>
+                      handleChange("subcategoryId", Number(val))
+                    }
+                  >
+                    <SelectTrigger dir="rtl" className="rounded-xl">
+                      <SelectValue
+                        placeholder={
+                          isLoadingSubs
+                            ? "جاري التحميل..."
+                            : "اختر الفئة الفرعية"
+                        }
+                      />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {subCategories?.map((sub: any) => (
+                        <SelectItem key={sub.id} value={sub.id.toString()}>
+                          {sub.nameAr}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
               <div className="space-y-2 text-right">
                 <Label>الشركة / البراند</Label>
                 <Select
@@ -280,7 +298,7 @@ export function AddProduct({ categories, brands }: AddProductProps) {
               </div>
               <div className="space-y-2 text-right">
                 <Label>نوع البيع</Label>
-                <Select 
+                <Select
                   defaultValue="unit"
                   onValueChange={(val) => handleChange("type", val)}
                 >
@@ -301,17 +319,21 @@ export function AddProduct({ categories, brands }: AddProductProps) {
                 <Input
                   type="number"
                   value={formData.price}
-                  onChange={(e) => handleChange("price", Number(e.target.value))}
+                  onChange={(e) =>
+                    handleChange("price", Number(e.target.value))
+                  }
                   className="rounded-xl bg-white"
                   required
                 />
               </div>
               <div className="space-y-2 text-right">
-                <Label>السعر قبل الخصم</Label>
+                <Label>خصم (قيمة)</Label>
                 <Input
                   type="number"
                   value={formData.discountPrice}
-                  onChange={(e) => handleChange("discountPrice", Number(e.target.value))}
+                  onChange={(e) =>
+                    handleChange("discountPrice", Number(e.target.value))
+                  }
                   className="rounded-xl bg-white"
                 />
               </div>
@@ -320,7 +342,9 @@ export function AddProduct({ categories, brands }: AddProductProps) {
                 <Input
                   type="number"
                   value={formData.stockQuantity}
-                  onChange={(e) => handleChange("stockQuantity", Number(e.target.value))}
+                  onChange={(e) =>
+                    handleChange("stockQuantity", Number(e.target.value))
+                  }
                   className="rounded-xl bg-white"
                   required
                 />
