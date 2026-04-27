@@ -1,6 +1,7 @@
 import { db } from "@/db";
 import { users, admins } from "@/db/schema";
 import { and, asc, desc, eq, like, notInArray, or, sql } from "drizzle-orm";
+import bcrypt from "bcrypt";
 
 export async function createUser(data: {
   name: string;
@@ -9,7 +10,11 @@ export async function createUser(data: {
   provider?: string;
   providerId?: string;
 }) {
-  return await db.insert(users).values(data).returning().get();
+  const userData = { ...data };
+  if (userData.password) {
+    userData.password = await bcrypt.hash(userData.password, 10);
+  }
+  return await db.insert(users).values(userData).returning().get();
 }
 
 export async function getUserById(id: number) {
@@ -58,7 +63,15 @@ export async function updateUser(
   id: number,
   data: Partial<typeof users.$inferInsert>,
 ) {
-  return await db.update(users).set(data).where(eq(users.id, id)).returning();
+  const updateData = { ...data };
+  if (updateData.password) {
+    updateData.password = await bcrypt.hash(updateData.password, 10);
+  }
+  return await db
+    .update(users)
+    .set(updateData)
+    .where(eq(users.id, id))
+    .returning();
 }
 
 export async function deleteUser(id: number) {
