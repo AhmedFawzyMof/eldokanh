@@ -137,7 +137,7 @@ const PrivacyPage = () => {
                 مسؤول حماية البيانات عندنا جاهز يرد عليك في أي وقت.
               </p>
               <a
-                href="mailto:privacy@yourfrozenapp.com"
+                href="mailto:ezweb2024@gmail.com"
                 className="bg-primary text-primary-foreground px-8 py-3 rounded-full font-bold hover:opacity-90 transition-all shadow-md"
               >
                 راسل فريق الخصوصية

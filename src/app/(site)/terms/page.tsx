@@ -148,10 +148,10 @@ const TermsPage = () => {
             <br />
             عندك استفسار؟
             <a
-              href="mailto:support@frozen.com"
+              href="mailto:ezweb2024@gmail.com"
               className="text-primary underline underline-offset-4"
             >
-              support@frozen.com
+              ezweb2024@gmail.com
             </a>
           </footer>
         </main>
