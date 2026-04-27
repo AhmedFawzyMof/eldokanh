@@ -2,20 +2,41 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Package } from "lucide-react";
 
-const getStatusColor = (status: string) => {
-  switch (status) {
-    case "مكتمل":
-      return "bg-green-100 text-green-700 border-green-200 hover:bg-green-100";
-    case "قيد التنفيذ":
-      return "bg-blue-100 text-blue-700 border-blue-200 hover:bg-blue-100";
-    case "ملغي":
-      return "bg-red-100 text-red-700 border-red-200 hover:bg-red-100";
-    default:
-      return "bg-slate-100 text-slate-700";
-  }
-};
-
 export default function OrderCard({ order }: { order: any }) {
+  const getStatusColor = (status: string) => {
+    switch (status.toLowerCase()) {
+      case "delivered":
+        return "bg-green-100 text-green-700 border-green-200";
+      case "pending":
+        return "bg-yellow-100 text-yellow-700 border-yellow-200";
+      case "processing":
+        return "bg-blue-100 text-blue-700 border-blue-200";
+      case "confirmed":
+        return "bg-indigo-100 text-indigo-700 border-indigo-200";
+      case "cancelled":
+        return "bg-red-100 text-red-700 border-red-200";
+      default:
+        return "secondary";
+    }
+  };
+
+  const getStatusInArabic = (status: string) => {
+    switch (status.toLowerCase()) {
+      case "delivered":
+        return "تم التوصيل";
+      case "pending":
+        return "قيد الانتظار";
+      case "processing":
+        return "قيد التجهيز";
+      case "confirmed":
+        return "مؤكد";
+      case "cancelled":
+        return "ملغي";
+      default:
+        return "غير معروف";
+    }
+  };
+
   return (
     <Card className="overflow-hidden border-muted/60 transition-all hover:border-primary/30 hover:shadow-sm">
       <CardContent className="p-0">
@@ -27,7 +48,7 @@ export default function OrderCard({ order }: { order: any }) {
                 variant="outline"
                 className={getStatusColor(order.status!)}
               >
-                {order.status}
+                {getStatusInArabic(order.status!)}
               </Badge>
             </div>
             <p className="text-sm text-muted-foreground">

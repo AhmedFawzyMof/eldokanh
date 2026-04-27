@@ -33,7 +33,6 @@ export default function OrdersClient({
 
   const { deleteMutation } = useOrderMutations();
 
-  // Sync state with URL if URL changes (e.g. back button)
   useEffect(() => {
     setSearch(searchParams.get("search") || "");
   }, [searchParams]);

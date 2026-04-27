@@ -4,18 +4,21 @@ import { updateUser } from "@/models/users";
 
 export async function PUT(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> },
 ) {
-  const id = Number(params.id);
+  const { id } = await context.params;
   const body = await req.json();
   const { name, email } = body;
 
   const { error } = await tryCatch(() =>
-    updateUser(id, { name, email })
+    updateUser(Number(id), { name, email }),
   );
 
   if (error) {
-    return NextResponse.json({ message: "Failed to update customer" }, { status: 500 });
+    return NextResponse.json(
+      { message: "Failed to update customer" },
+      { status: 500 },
+    );
   }
 
   return NextResponse.json({ message: "Updated successfully" });

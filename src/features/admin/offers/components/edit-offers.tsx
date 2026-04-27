@@ -61,11 +61,11 @@ export function EditOffer({ offerEdit, categories, brands }: EditOfferProps) {
         formDataToSend.append("categoryId", String(formData.categoryId));
       if (formData.brandId)
         formDataToSend.append("brandId", String(formData.brandId));
-      formDataToSend.append("image", formData.imageUrl || "");
+      formDataToSend.append("image", formData.image || "");
 
       if (selectedFile) {
         formDataToSend.append("file", selectedFile);
-        formDataToSend.append("oldImageUrl", formData.imageUrl || "");
+        formDataToSend.append("oldImageUrl", formData.image || "");
       }
 
       editMutation.mutate(
@@ -119,7 +119,7 @@ export function EditOffer({ offerEdit, categories, brands }: EditOfferProps) {
             <ImageInput
               selectedFile={selectedFile}
               setSelectedFile={setSelectedFile}
-              image={formData.imageUrl}
+              image={formData.image}
             />
 
             <div className="grid grid-cols-1 gap-6 border-t pt-6">
