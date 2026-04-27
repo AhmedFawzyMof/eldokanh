@@ -11,17 +11,19 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Loader2, Plus } from "lucide-react";
 import { useAdminMutations } from "../actions";
+import {
+  ADMIN_PERMISSIONS,
+  PERMISSION_LABELS,
+  AdminPermission,
+} from "@/types/permissions";
+import { Checkbox } from "@/components/ui/checkbox";
+import { useSession } from "next-auth/react";
 
 export function AddAdmin() {
+  const { data: session } = useSession();
+  const isSuperAdmin = session?.user?.permissions === "full";
   const [isOpen, setIsOpen] = useState(false);
   const { addMutation } = useAdminMutations();
 
@@ -29,7 +31,7 @@ export function AddAdmin() {
     name: "",
     email: "",
     password: "",
-    permissions: "full",
+    permissions: "",
   });
 
   const handleChange = (field: string, value: string) => {
@@ -41,7 +43,7 @@ export function AddAdmin() {
     addMutation.mutate(formData, {
       onSuccess: () => {
         setIsOpen(false);
-        setFormData({ name: "", email: "", password: "", permissions: "full" });
+        setFormData({ name: "", email: "", password: "", permissions: "" });
       },
     });
   };
@@ -95,20 +97,66 @@ export function AddAdmin() {
               required
             />
           </div>
-          <div className="space-y-2 text-right">
+          <div className="space-y-3 text-right">
             <Label className="font-bold">الصلاحيات</Label>
-            <Select
-              value={formData.permissions}
-              onValueChange={(v) => handleChange("permissions", v)}
-            >
-              <SelectTrigger className="h-11 rounded-xl border-slate-200">
-                <SelectValue placeholder="اختر الصلاحية" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="full">صلاحية كاملة</SelectItem>
-                <SelectItem value="restricted">صلاحية محدودة</SelectItem>
-              </SelectContent>
-            </Select>
+            {isSuperAdmin && (
+              <div className="flex items-center gap-2 mb-2">
+                <Checkbox
+                  id="add-full-access"
+                  checked={formData.permissions === "full"}
+                  onCheckedChange={(checked) => {
+                    if (checked) {
+                      handleChange("permissions", "full");
+                    } else {
+                      handleChange("permissions", "");
+                    }
+                  }}
+                />
+                <Label
+                  htmlFor="add-full-access"
+                  className="cursor-pointer font-bold"
+                >
+                  صلاحية كاملة (جميع المهام)
+                </Label>
+              </div>
+            )}
+
+            {formData.permissions !== "full" && (
+              <div className="grid grid-cols-2 gap-3 p-3 border rounded-xl bg-slate-50">
+                {Object.entries(ADMIN_PERMISSIONS).map(([key, value]) => {
+                  const permissionsList = formData.permissions
+                    .split(",")
+                    .filter(Boolean);
+                  const isChecked = permissionsList.includes(value);
+
+                  return (
+                    <div key={key} className="flex items-center gap-2">
+                      <Checkbox
+                        id={`add-perm-${value}`}
+                        checked={isChecked}
+                        onCheckedChange={(checked) => {
+                          let newList;
+                          if (checked) {
+                            newList = [...permissionsList, value];
+                          } else {
+                            newList = permissionsList.filter(
+                              (p) => p !== value,
+                            );
+                          }
+                          handleChange("permissions", newList.join(","));
+                        }}
+                      />
+                      <Label
+                        htmlFor={`add-perm-${value}`}
+                        className="text-sm cursor-pointer whitespace-nowrap"
+                      >
+                        {PERMISSION_LABELS[value as AdminPermission]}
+                      </Label>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
           </div>
 
           <Button

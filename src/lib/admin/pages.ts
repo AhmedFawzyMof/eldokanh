@@ -11,6 +11,7 @@ import {
   CreditCard,
   Motorbike,
 } from "lucide-react";
+import { ADMIN_PERMISSIONS } from "@/types/permissions";
 
 export const adminPages = [
   {
@@ -18,77 +19,90 @@ export const adminPages = [
     href: "/admin/dashboard",
     icon: LayoutDashboard,
     badge: false,
+    permission: ADMIN_PERMISSIONS.DASHBOARD_VIEW,
   },
   {
     title: "المنتجات",
     href: "/admin/products",
     icon: ShoppingCart,
     badge: false,
+    permission: ADMIN_PERMISSIONS.PRODUCTS_MANAGE,
   },
   {
     title: "الطلبات",
     href: "/admin/orders",
     icon: Package,
     badge: true,
+    permission: ADMIN_PERMISSIONS.ORDERS_MANAGE,
   },
   {
     title: "إنشاء طلب",
     href: "/admin/orders/create",
     icon: Menu,
     badge: false,
+    permission: ADMIN_PERMISSIONS.ORDERS_MANAGE,
   },
   {
     title: "الشركات",
     href: "/admin/brands",
     icon: Building,
     badge: false,
+    permission: ADMIN_PERMISSIONS.BRANDS_MANAGE,
   },
   {
     title: "الاقسام",
     href: "/admin/categories",
     icon: LayoutList,
     badge: false,
+    permission: ADMIN_PERMISSIONS.CATEGORIES_MANAGE,
   },
   {
     title: "الاقسام الفرعية",
     href: "/admin/subcategories",
     icon: LayoutList,
     badge: false,
+    permission: ADMIN_PERMISSIONS.CATEGORIES_MANAGE,
   },
   {
     title: "مجلة العرض",
     href: "/admin/magazine",
     icon: GalleryHorizontal,
     badge: false,
+    permission: ADMIN_PERMISSIONS.OFFERS_MANAGE,
   },
   {
     title: "طلبات التواصل",
     href: "/admin/contact",
     icon: Contact,
     badge: true,
+    permission: ADMIN_PERMISSIONS.CONTACTS_MANAGE,
   },
   {
     title: "المدن للتوصيل",
     href: "/admin/delivery",
     icon: Motorbike,
     badge: false,
+    permission: ADMIN_PERMISSIONS.DELIVERY_MANAGE,
   },
   {
     title: "الكوبونات",
     href: "/admin/coupons",
     icon: CreditCard,
     badge: false,
+    permission: ADMIN_PERMISSIONS.PROMO_CODES_MANAGE,
   },
   {
     title: "العملاء",
     href: "/admin/customers",
     icon: Users,
     badge: false,
+    permission: ADMIN_PERMISSIONS.USERS_MANAGE,
   },
   {
     title: "المشرفين",
     href: "/admin/admins",
     icon: Users,
     badge: false,
+    permission: ADMIN_PERMISSIONS.ADMINS_MANAGE,
   },
 ];

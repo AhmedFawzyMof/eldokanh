@@ -13,12 +13,17 @@ import { adminPages } from "@/lib/admin/pages";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useQuery } from "@tanstack/react-query";
 import adminApi from "@/lib/admin/api";
+import { hasPermission } from "@/types/permissions";
 
 export default function AdminSidebar() {
   const pathname = usePathname();
   const router = useRouter();
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
   const [fullUrl, setFullUrl] = useState("");
+
+  const userPermissions = session?.user?.permissions;
+  const userRole = session?.user?.role;
+  const isAdmin = userRole === "admin";
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -34,6 +39,21 @@ export default function AdminSidebar() {
       return await adminApi.get("/counters");
     },
   });
+
+  const effectivePermissions = userPermissions || (isAdmin ? "full" : "");
+
+  const filteredPages =
+    status === "loading"
+      ? []
+      : adminPages.filter((page) => {
+          if (status === "authenticated") {
+            return hasPermission(
+              effectivePermissions || "full",
+              page.permission as any,
+            );
+          }
+          return false;
+        });
 
   const currentPage =
     adminPages.find((page) => page.href === pathname)?.title ||
@@ -61,7 +81,7 @@ export default function AdminSidebar() {
 
       <ScrollArea className="flex-1 px-4">
         <div className="space-y-1 py-4" dir="rtl">
-          {adminPages.map((page, index) => {
+          {filteredPages.map((page, index) => {
             const isActive = pathname === page.href;
             return (
               <Link
@@ -83,14 +103,15 @@ export default function AdminSidebar() {
                   )}
                 />
                 <span className="font-medium">{page.title}</span>
-                {page.badge && (
+                {page.badge &&
                   (() => {
-                    const count = page.href === "/admin/contact" 
-                      ? data?.data.contacts 
-                      : page.href === "/admin/orders" 
-                        ? data?.data.orders 
-                        : 0;
-                    
+                    const count =
+                      page.href === "/admin/contact"
+                        ? data?.data.contacts
+                        : page.href === "/admin/orders"
+                          ? data?.data.orders
+                          : 0;
+
                     if (!count || count === 0) return null;
 
                     return (
@@ -105,8 +126,7 @@ export default function AdminSidebar() {
                         {count}
                       </span>
                     );
-                  })()
-                )}
+                  })()}
               </Link>
             );
           })}

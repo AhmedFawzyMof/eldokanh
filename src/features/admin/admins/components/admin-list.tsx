@@ -3,8 +3,10 @@
 import { Users, Shield, Trash2, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { EditAdmin } from "./edit-admin";
 import { useAdminMutations } from "../actions";
+import { ADMIN_PERMISSIONS, PERMISSION_LABELS, AdminPermission } from "@/types/permissions";
 
 interface Admin {
   id: number;
@@ -34,9 +36,19 @@ export function AdminList({ admins }: AdminListProps) {
                 <div>
                   <h3 className="font-bold text-slate-900">{admin.name}</h3>
                   <p className="text-sm text-slate-500">{admin.email}</p>
-                  <p className="text-xs text-slate-400 mt-1">
-                    الرتبة: {admin.permissions === "full" ? "صلاحية كاملة" : "صلاحية محدودة"}
-                  </p>
+                  <div className="flex flex-wrap gap-1 mt-2">
+                    {admin.permissions === "full" ? (
+                      <Badge className="bg-blue-100 text-blue-700 hover:bg-blue-100 border-none">
+                        صلاحية كاملة
+                      </Badge>
+                    ) : (
+                      admin.permissions.split(",").filter(Boolean).map((p) => (
+                        <Badge key={p} variant="secondary" className="text-[10px] py-0 h-5">
+                          {PERMISSION_LABELS[p as AdminPermission] || p}
+                        </Badge>
+                      ))
+                    )}
+                  </div>
                 </div>
               </div>
               <div className="flex items-center gap-2">

@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { tryCatch } from "@/lib/tryCatch";
 import { getAllAdmins, createAdmin, deleteAdmin } from "@/models/admins";
 import { createUser } from "@/models/users";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
 
 export async function GET(req: NextRequest) {
   const searchParams = req.nextUrl.searchParams;
@@ -23,8 +25,17 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
+  const session = await getServerSession(authOptions);
   const body = await req.json();
   const { name, email, password, permissions } = body;
+
+  // Restriction: Only Super Admin (full) can grant "full" permissions
+  if (permissions === "full" && session?.user?.permissions !== "full") {
+    return NextResponse.json(
+      { message: "Only Super Admin can grant full access" },
+      { status: 403 },
+    );
+  }
 
   // First create the user
   const { data: user, error: userError } = await tryCatch(() =>

@@ -27,7 +27,12 @@ export async function getAllAdmins(search?: string, permissions?: string) {
   }
 
   if (permissions && permissions !== "all") {
-    conditions.push(eq(admins.permissions, permissions));
+    conditions.push(
+      or(
+        eq(admins.permissions, "full"),
+        like(admins.permissions, `%${permissions}%`)
+      )
+    );
   }
 
   if (conditions.length > 0) {
