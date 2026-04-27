@@ -64,7 +64,7 @@ export default function AdminSidebar() {
     router.push("/admin/login");
   };
 
-  if (fullUrl.includes("admin/login")) {
+  if (pathname.includes("admin/login")) {
     return null;
   }
 
@@ -150,10 +150,7 @@ export default function AdminSidebar() {
   return (
     <>
       {/* Mobile Header and Sidebar */}
-      <div className="lg:hidden sticky top-0 z-40 flex flex-row-reverse items-center justify-between h-16 py-2 px-4 shadow-sm bg-background border-b">
-        <div className="flex items-center gap-3">
-          <span className="text-lg font-bold">{currentPage}</span>
-        </div>
+      <div className="lg:hidden sticky top-0 z-40 flex items-center justify-between h-16 py-2 px-4 shadow-sm bg-background border-b w-full">
         <Sheet>
           <SheetTrigger asChild>
             <Button variant="ghost" size="icon" className="h-10 w-10">
@@ -164,6 +161,9 @@ export default function AdminSidebar() {
             <NavContent />
           </SheetContent>
         </Sheet>
+        <div className="flex items-center gap-3">
+          <span className="text-lg font-bold">{currentPage}</span>
+        </div>
       </div>
 
       {/* Desktop Persistent Sidebar */}

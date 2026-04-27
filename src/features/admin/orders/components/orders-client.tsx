@@ -58,8 +58,8 @@ export default function OrdersClient({
   const totalPages = Math.ceil(initialTotalCount / 20) || 1;
 
   return (
-    <div className="flex flex-col min-h-screen pb-32">
-      <div className="sticky top-0 z-10 bg-white/95 backdrop-blur-md border-b p-4 shadow-sm space-y-4">
+    <div className="flex flex-col min-h-screen pb-8">
+      <div className="sticky top-16 lg:top-0 z-10 bg-white/95 backdrop-blur-md border-b p-4 shadow-sm space-y-4">
         <div className="relative text-right">
           <Search className="absolute right-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
           <Input

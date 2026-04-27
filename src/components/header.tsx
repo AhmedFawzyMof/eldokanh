@@ -29,9 +29,7 @@ export function Header() {
     setMounted(true);
   }, []);
 
-  if (fullUrl.includes("admin")) {
-    return null;
-  }
+  if (pathname.startsWith("/admin")) return null;
 
   return (
     <header className="sticky top-0 z-50 border-b bg-card/80 backdrop-blur supports-[backdrop-filter]:bg-card/60">

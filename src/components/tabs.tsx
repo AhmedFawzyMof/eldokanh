@@ -23,6 +23,7 @@ const tabs = [
 
 export function BottomTabs() {
   const pathname = usePathname();
+  if (pathname.startsWith("/admin")) return null;
   const [mounted, setMounted] = useState(false);
 
   const cartQuantity = useCartStore((state) => state.getQuantity());

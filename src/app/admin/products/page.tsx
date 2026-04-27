@@ -35,9 +35,9 @@ export default async function ProductsPage(props: {
   const totalPages = Math.ceil(totalCount / 20) || 1;
 
   return (
-    <div className="flex flex-col min-h-screen pb-32">
+    <div className="flex flex-col min-h-screen pb-8">
       {/* Sticky Header with Search & Filters */}
-      <div className="sticky top-0 z-10 bg-white/95 backdrop-blur-md border-b p-4 shadow-sm space-y-4">
+      <div className="sticky top-16 lg:top-0 z-10 bg-white/95 backdrop-blur-md border-b p-4 shadow-sm space-y-4">
         <ProductFilters categories={categories as any} brands={brands as any} />
 
         <div className="flex items-center justify-between pt-1">

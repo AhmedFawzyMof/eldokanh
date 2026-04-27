@@ -12,8 +12,8 @@ export default async function CustomersPage(props: {
   const customers = await getCustomers(search, sort);
 
   return (
-    <div className="flex flex-col min-h-screen pb-32">
-      <div className="sticky top-0 z-10 bg-white/95 backdrop-blur-md border-b p-4 shadow-sm space-y-4">
+    <div className="flex flex-col min-h-screen pb-8">
+      <div className="sticky top-16 lg:top-0 z-10 bg-white/95 backdrop-blur-md border-b p-4 shadow-sm space-y-4">
         <CustomerFilters />
 
         <div className="flex items-center justify-between">
