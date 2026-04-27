@@ -75,6 +75,7 @@
     "@radix-ui/react-tooltip": "1.2.8",
     "@tailwindcss/postcss": "^4",
     "@types/jsonwebtoken": "^9.0.10",
+    "@types/next-auth": "^3.13.0",
     "@types/node": "^25",
     "@types/react": "^19",
     "@types/react-dom": "^19",
