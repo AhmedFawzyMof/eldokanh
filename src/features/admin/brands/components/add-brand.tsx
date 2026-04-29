@@ -16,6 +16,8 @@ import { Loader2, Plus } from "lucide-react";
 import type { Brand } from "@/types/admin/brands";
 import { useBrandMutations } from "../actions";
 import { ImageInput } from "@/app/admin/_components/ImageInput";
+import { Textarea } from "@/components/ui/textarea";
+import { Checkbox } from "@/components/ui/checkbox";
 import axios from "axios";
 
 export function AddBrand() {
@@ -27,6 +29,9 @@ export function AddBrand() {
   const [formData, setFormData] = useState<Partial<Brand>>({
     name: "",
     nameAr: "",
+    description: "",
+    descriptionAr: "",
+    isActive: true,
   });
 
   const handleChange = (field: keyof Brand, value: any) => {
@@ -42,6 +47,9 @@ export function AddBrand() {
       const formDataToSend = new FormData();
       formDataToSend.append("nameAr", formData.nameAr || "");
       formDataToSend.append("name", formData.name || "");
+      formDataToSend.append("descriptionAr", formData.descriptionAr || "");
+      formDataToSend.append("description", formData.description || "");
+      formDataToSend.append("isActive", String(formData.isActive));
       if (selectedFile) {
         formDataToSend.append("file", selectedFile);
       }
@@ -49,7 +57,13 @@ export function AddBrand() {
       addMutation.mutate(formDataToSend, {
         onSuccess: () => {
           setIsOpen(false);
-          setFormData({ name: "", nameAr: "" });
+          setFormData({
+            name: "",
+            nameAr: "",
+            description: "",
+            descriptionAr: "",
+            isActive: true,
+          });
           setSelectedFile(null);
         },
       });
@@ -104,9 +118,40 @@ export function AddBrand() {
                   className="rounded-xl h-11 border-slate-200 shadow-sm"
                 />
               </div>
+
+              <div className="space-y-2 text-right">
+                <Label className="font-bold">الوصف بالعربي</Label>
+                <Textarea
+                  value={formData.descriptionAr}
+                  onChange={(e) => handleChange("descriptionAr", e.target.value)}
+                  placeholder="وصف الشركة باللغة العربية"
+                  className="rounded-xl border-slate-200 shadow-sm min-h-[100px]"
+                />
+              </div>
+              <div className="space-y-2 text-right">
+                <Label className="font-bold">الوصف بالإنجليزي</Label>
+                <Textarea
+                  value={formData.description}
+                  onChange={(e) => handleChange("description", e.target.value)}
+                  placeholder="Brand description in English"
+                  className="rounded-xl border-slate-200 shadow-sm min-h-[100px]"
+                />
+              </div>
+
+              <div className="flex items-center gap-2 justify-end">
+                <Label htmlFor="isActive" className="font-bold cursor-pointer">
+                  نشط
+                </Label>
+                <Checkbox
+                  id="isActive"
+                  checked={formData.isActive}
+                  onCheckedChange={(checked) => handleChange("isActive", checked)}
+                />
+              </div>
             </div>
           </form>
         </ScrollArea>
+
 
         <div className="p-6 border-t bg-white shadow-[0_-4px_20px_rgba(0,0,0,0.02)]">
           <Button

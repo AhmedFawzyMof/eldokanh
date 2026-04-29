@@ -61,12 +61,20 @@ export function BrandCard({
                   <h3 className="font-bold text-sm text-slate-900 leading-tight truncate">
                     {brand.nameAr}
                   </h3>
-                  <span className="text-[10px] text-slate-400 font-medium uppercase tracking-tight">
-                    {brand.name}
-                  </span>
+                  <div className="flex items-center gap-2 justify-end">
+                    {!brand.isActive && (
+                      <span className="text-[10px] bg-red-100 text-red-600 px-1.5 py-0.5 rounded-md font-bold">
+                        غير نشط
+                      </span>
+                    )}
+                    <span className="text-[10px] text-slate-400 font-medium uppercase tracking-tight">
+                      {brand.name}
+                    </span>
+                  </div>
                 </div>
               </div>
             </div>
+
 
             <div className="flex items-center justify-between mt-2 pt-2 border-t border-slate-50">
               <div className="flex items-center gap-1.5 text-[10px] text-slate-300">

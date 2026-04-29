@@ -16,6 +16,8 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Loader2, Edit2 } from "lucide-react";
 import { useBrandMutations } from "../actions";
 import { ImageInput } from "@/app/admin/_components/ImageInput";
+import { Textarea } from "@/components/ui/textarea";
+import { Checkbox } from "@/components/ui/checkbox";
 import axios from "axios";
 
 interface EditBrandProps {
@@ -48,6 +50,9 @@ export function EditBrand({ brandEdit }: EditBrandProps) {
       const formDataToSend = new FormData();
       formDataToSend.append("nameAr", formData.nameAr || "");
       formDataToSend.append("name", formData.name || "");
+      formDataToSend.append("descriptionAr", formData.descriptionAr || "");
+      formDataToSend.append("description", formData.description || "");
+      formDataToSend.append("isActive", String(formData.isActive));
       formDataToSend.append("imageUrl", formData.imageUrl || (formData as any).image || "");
       
       if (selectedFile) {
@@ -121,9 +126,40 @@ export function EditBrand({ brandEdit }: EditBrandProps) {
                   className="rounded-xl h-11 border-slate-200 shadow-sm"
                 />
               </div>
+
+              <div className="space-y-2 text-right">
+                <Label className="font-bold">الوصف بالعربي</Label>
+                <Textarea
+                  value={formData.descriptionAr || ""}
+                  onChange={(e) => handleChange("descriptionAr", e.target.value)}
+                  placeholder="وصف الشركة باللغة العربية"
+                  className="rounded-xl border-slate-200 shadow-sm min-h-[100px]"
+                />
+              </div>
+              <div className="space-y-2 text-right">
+                <Label className="font-bold">الوصف بالإنجليزي</Label>
+                <Textarea
+                  value={formData.description || ""}
+                  onChange={(e) => handleChange("description", e.target.value)}
+                  placeholder="Brand description in English"
+                  className="rounded-xl border-slate-200 shadow-sm min-h-[100px]"
+                />
+              </div>
+
+              <div className="flex items-center gap-2 justify-end">
+                <Label htmlFor="edit-isActive" className="font-bold cursor-pointer">
+                  نشط
+                </Label>
+                <Checkbox
+                  id="edit-isActive"
+                  checked={formData.isActive}
+                  onCheckedChange={(checked) => handleChange("isActive", checked)}
+                />
+              </div>
             </div>
           </form>
         </ScrollArea>
+
 
         <div className="p-6 border-t bg-white shadow-[0_-4px_20px_rgba(0,0,0,0.02)]">
           <Button

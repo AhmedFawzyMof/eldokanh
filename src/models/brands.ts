@@ -8,9 +8,11 @@ type SelectBrands = {
   nameAr: any;
   description: any;
   descriptionAr: any;
+  isActive: any;
   image: any;
   productCount: any;
 };
+
 
 export async function createBrand(data: typeof product_brands.$inferInsert) {
   return await db.insert(product_brands).values(data).returning();
@@ -37,7 +39,9 @@ export async function getAllBrands(
     selectFields.description = product_brands.description;
     selectFields.descriptionAr = product_brands.descriptionAr;
     selectFields.image = product_brands.image;
+    selectFields.isActive = product_brands.isActive;
   }
+
 
   if (options?.productCount) {
     selectFields.productCount = sql<number>`count(${products.id})`;

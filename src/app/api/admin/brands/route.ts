@@ -35,6 +35,9 @@ export async function POST(req: NextRequest) {
   const formData = await req.formData();
   const nameAr = formData.get("nameAr") as string;
   const name = formData.get("name") as string;
+  const descriptionAr = formData.get("descriptionAr") as string;
+  const description = formData.get("description") as string;
+  const isActive = formData.get("isActive") === "true";
   const file = formData.get("file") as File | null;
 
   let imageUrl = "";
@@ -44,8 +47,9 @@ export async function POST(req: NextRequest) {
   }
 
   const { data: brand, error } = await tryCatch(() =>
-    createBrand({ nameAr, name, image: imageUrl }),
+    createBrand({ nameAr, name, description, descriptionAr, isActive, image: imageUrl }),
   );
+
 
   if (error) {
     console.log(error);

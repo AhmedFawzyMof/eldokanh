@@ -14,6 +14,9 @@ export async function PUT(
 
   const nameAr = formData.get("nameAr") as string;
   const name = formData.get("name") as string;
+  const descriptionAr = formData.get("descriptionAr") as string;
+  const description = formData.get("description") as string;
+  const isActive = formData.get("isActive") === "true";
   const oldImageUrl = formData.get("oldImageUrl") as string;
   const file = formData.get("file") as File | null;
 
@@ -38,8 +41,9 @@ export async function PUT(
   }
 
   const { data, error } = await tryCatch(() =>
-    updateBrand(Number(id), { nameAr, name, image: imageUrl }),
+    updateBrand(Number(id), { nameAr, name, description, descriptionAr, isActive, image: imageUrl }),
   );
+
 
   if (error) {
     return NextResponse.json(
