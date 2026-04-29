@@ -68,6 +68,7 @@ export const products = sqliteTable("products", {
     () => product_subcategories.id,
   ),
   stockQuantity: integer("stock_quantity").default(0),
+  buyingPrice: real("buying_price"),
   type: text("type").default("unit"),
   isActive: integer("is_active", { mode: "boolean" }).default(true),
   createdAt: text("created_at").default(sql`CURRENT_TIMESTAMP`),
@@ -97,6 +98,7 @@ export const orderItems = sqliteTable("order_items", {
   productId: integer("product_id").references(() => products.id),
   quantity: integer("quantity").notNull(),
   price: real("price").notNull(),
+  buyingPrice: real("buying_price"),
 });
 
 export const addresses = sqliteTable("addresses", {

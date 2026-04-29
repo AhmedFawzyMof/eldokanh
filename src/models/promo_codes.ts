@@ -99,6 +99,35 @@ export async function hasUserUsedPromoCode(
       ),
     )
     .get();
-
   return !!usage;
+}
+
+export async function validatePromoCode(code: string, userId: number) {
+  const [promo] = await db
+    .select()
+    .from(promoCodes)
+    .where(and(eq(promoCodes.code, code), eq(promoCodes.isActive, true)));
+
+  if (!promo) return { valid: false, message: "كود الخصم غير صحيح" };
+
+  // Check expiration
+  if (promo.expiresAt && new Date(promo.expiresAt) < new Date()) {
+    return { valid: false, message: "كود الخصم منتهي الصلاحية" };
+  }
+
+  // Check usage limit
+  if (promo.maxUses) {
+    const usageCount = await getPromoCodeUsageCount(promo.id);
+    if (usageCount >= promo.maxUses) {
+      return { valid: false, message: "تم الوصول للحد الأقصى لاستخدام الكود" };
+    }
+  }
+
+  // Check if user already used it
+  const alreadyUsed = await hasUserUsedPromoCode(promo.id, userId);
+  if (alreadyUsed) {
+    return { valid: false, message: "لقد استخدمت هذا الكود من قبل" };
+  }
+
+  return { valid: true, promo };
 }

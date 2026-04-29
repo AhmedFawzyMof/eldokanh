@@ -104,9 +104,14 @@ export default function CheckoutPage() {
         toast.error("حدث خطأ أثناء إتمام الطلب");
       }
 
-      const resData: any = response.json();
+      const resData = await response.json();
       clearCart();
-      router.push(`/order-confirmation/${resData.orderId}`);
+
+      if (resData.paymentUrl) {
+        window.location.href = resData.paymentUrl;
+      } else {
+        router.push(`/order-confirmation/${resData.orderId}`);
+      }
     } catch (err) {
       toast.error("خطأ في الاتصال بالخادم");
     } finally {

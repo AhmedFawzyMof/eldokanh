@@ -80,6 +80,7 @@ export async function getAllProducts(
       images: products.images,
       price: products.price,
       discountPrice: products.discountPrice,
+      buyingPrice: products.buyingPrice,
       category: products_category.name,
       categoryAr: products_category.nameAr,
       categoryId: products.categoryId,

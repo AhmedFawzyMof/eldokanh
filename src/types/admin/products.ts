@@ -9,6 +9,7 @@ export type Product = {
   oldImageUrl?: string;
   price?: number;
   discountPrice?: number;
+  buyingPrice?: number;
   category?: string;
   categoryAr?: string;
   categoryId?: number;

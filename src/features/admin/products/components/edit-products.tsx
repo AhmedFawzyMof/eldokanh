@@ -339,6 +339,17 @@ export function EditProduct({
                 />
               </div>
               <div className="space-y-2 text-right">
+                <Label>سعر الشراء</Label>
+                <Input
+                  type="number"
+                  value={formData.buyingPrice || 0}
+                  onChange={(e) =>
+                    handleChange("buyingPrice", Number(e.target.value))
+                  }
+                  className="rounded-xl bg-white"
+                />
+              </div>
+              <div className="space-y-2 text-right">
                 <Label>خصم (قيمة)</Label>
                 <Input
                   type="number"

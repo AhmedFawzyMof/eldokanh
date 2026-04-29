@@ -153,6 +153,7 @@ export async function getOrderById(id: number) {
         productId: orderItems.productId,
         quantity: orderItems.quantity,
         price: orderItems.price,
+        buyingPrice: orderItems.buyingPrice,
       })
       .from(orderItems)
       .innerJoin(products, eq(orderItems.productId, products.id))
@@ -235,12 +236,22 @@ export async function createUserOrder(data: any) {
 
     const orderId = newOrder.id;
 
-    const itemsToInsert = data.items.map((item: any) => ({
-      orderId: orderId,
-      productId: item.productId,
-      quantity: item.quantity,
-      price: item.price,
-    }));
+    const itemsToInsert = await Promise.all(
+      data.items.map(async (item: any) => {
+        const product = await tx
+          .select({ buyingPrice: products.buyingPrice, price: products.price })
+          .from(products)
+          .where(eq(products.id, item.productId))
+          .get();
+        return {
+          orderId: orderId,
+          productId: item.productId,
+          quantity: item.quantity,
+          price: product!.price,
+          buyingPrice: product?.buyingPrice || 0,
+        };
+      }),
+    );
     await tx.insert(orderItems).values(itemsToInsert);
 
     await tx.insert(addresses).values({
@@ -277,5 +288,25 @@ export async function createUserOrder(data: any) {
     }
 
     return { success: true, orderId };
+  });
+}
+
+export async function updatePaymentStatus(
+  orderId: number,
+  status: string,
+  transactionId?: string,
+) {
+  return await db.transaction(async (tx) => {
+    await tx
+      .update(payments)
+      .set({ status: status, transactionId: transactionId })
+      .where(eq(payments.orderId, orderId));
+
+    if (status === "paid") {
+      await tx
+        .update(orders)
+        .set({ paymentStatus: "paid" })
+        .where(eq(orders.id, orderId));
+    }
   });
 }

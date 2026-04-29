@@ -271,7 +271,7 @@ export default function OrderEditForm({
                 return (
                   <div
                     key={item.id}
-                    className="group relative flex flex-col md:flex-row gap-4 p-4 rounded-2xl border border-slate-100 bg-white hover:border-primary/20 hover:bg-primary/[0.01] transition-all"
+                    className="group relative flex flex-col md:flex-row gap-4 p-4 rounded-2xl border border-slate-100 bg-white hover:border-primary/20 hover:bg-primary/1 transition-all"
                   >
                     <div className="flex-1 space-y-1">
                       <div className="flex items-center gap-2">

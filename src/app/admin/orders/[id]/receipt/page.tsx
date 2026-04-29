@@ -212,7 +212,7 @@ export default function ReceiptPage({
                 </span>
               </div>
 
-              <div className="divider !my-2 border-slate-200" />
+              <div className="divider my-2! border-slate-200" />
 
               <div className="flex justify-between items-center text-lg">
                 <span className="font-black text-slate-900">

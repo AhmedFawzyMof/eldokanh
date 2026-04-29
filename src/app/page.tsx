@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import { getLatestProducts } from "@/models/products";
 import { CategoriesSection } from "@/features/home/components/categories-section";
 import { getAllBrands } from "@/models/brands";

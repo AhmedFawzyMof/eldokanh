@@ -21,6 +21,16 @@ export default function PaymentMethod({ value, onChange }: PaymentMethodProps) {
             </span>
           </div>
         </Label>
+
+        <Label className="flex items-center gap-3 p-4 border rounded-2xl cursor-pointer hover:bg-slate-50 transition-colors">
+          <RadioGroupItem value="card" />
+          <div className="flex flex-col">
+            <span className="font-medium">دفع الكتروني (فواتيرك)</span>
+            <span className="text-xs text-muted-foreground">
+              ادفع بأمان باستخدام البطاقات البنكية أو المحافظ الإلكترونية
+            </span>
+          </div>
+        </Label>
       </RadioGroup>
     </div>
   );

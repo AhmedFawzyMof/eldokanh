@@ -104,7 +104,12 @@ export function ProductCard({
                   </>
                 ) : (
                   <span className="text-sm font-black text-primary">
-                    {product.price?.toLocaleString()} ج.m
+                    {product.price?.toLocaleString()} ج.م
+                  </span>
+                )}
+                {product.buyingPrice && (
+                  <span className="text-[10px] text-slate-400 text-right mt-1 font-bold">
+                    تكلفة: {product.buyingPrice.toLocaleString()} ج.م
                   </span>
                 )}
               </div>

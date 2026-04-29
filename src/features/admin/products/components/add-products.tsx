@@ -42,6 +42,7 @@ export function AddProduct({ categories, brands }: AddProductProps) {
     descriptionAr: "",
     price: 0,
     discountPrice: 0,
+    buyingPrice: 0,
     categoryId: 0,
     subcategoryId: 0,
     brandId: 0,
@@ -324,6 +325,17 @@ export function AddProduct({ categories, brands }: AddProductProps) {
                   }
                   className="rounded-xl bg-white"
                   required
+                />
+              </div>
+              <div className="space-y-2 text-right">
+                <Label>سعر الشراء</Label>
+                <Input
+                  type="number"
+                  value={formData.buyingPrice}
+                  onChange={(e) =>
+                    handleChange("buyingPrice", Number(e.target.value))
+                  }
+                  className="rounded-xl bg-white"
                 />
               </div>
               <div className="space-y-2 text-right">
