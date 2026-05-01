@@ -19,17 +19,18 @@ export default async function ProductsPage(props: ProductsPageProps) {
   const params = await props.searchParams;
   const session = await getAuthSession();
 
-  const currentPage = Number(params.page || 1);
+  const currentPage = Math.max(1, Number(params.page || 1));
 
   const queryParams = new URLSearchParams();
   queryParams.set("page", currentPage.toString());
 
   const products = await getAllProducts(currentPage, null, null, null, {
     session,
+    onlyActive: true,
   });
 
-  const totalProducts = products.count!;
-  const totalPages = Math.ceil(totalProducts / PRODUCTS_PER_PAGE);
+  const totalProducts = products.count || 0;
+  const totalPages = Math.ceil(totalProducts / PRODUCTS_PER_PAGE) || 1;
 
   return (
     <div className="min-h-screen">
@@ -42,7 +43,7 @@ export default async function ProductsPage(props: ProductsPageProps) {
         </div>
         <Suspense fallback={<ProductsGridSkeleton />}>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
-            {products.products.map((product) => (
+            {products.products?.map((product) => (
               <ProductCard key={product.id} product={product} />
             ))}
           </div>

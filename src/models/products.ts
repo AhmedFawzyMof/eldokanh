@@ -40,11 +40,15 @@ export async function getAllProducts(
   search?: string | null,
   categoryId?: number | null,
   brandId?: number | null,
-  favFilter?: { session?: Session | null },
+  options?: { session?: Session | null; onlyActive?: boolean },
 ) {
   const limit = 20;
   const offset = (page - 1) * limit || 0;
   const conditions: any[] = [];
+
+  if (options?.onlyActive) {
+    conditions.push(eq(products.isActive, true));
+  }
 
   if (categoryId) {
     conditions.push(eq(products.categoryId, categoryId));
@@ -69,7 +73,7 @@ export async function getAllProducts(
     }
   }
 
-  const productsQuery = db
+  let productsQuery = db
     .select({
       id: products.id,
       name: products.name,
@@ -95,20 +99,20 @@ export async function getAllProducts(
       isActive: products.isActive,
       createdAt: products.createdAt,
       updatedAt: products.updatedAt,
-      isFav: favFilter?.session
+      isFav: options?.session
         ? sql<boolean>`favorites.id IS NOT NULL`
         : sql<boolean>`false`,
     })
     .from(products);
 
-  if (favFilter?.session) {
-    productsQuery.leftJoin(
+  if (options?.session) {
+    productsQuery = productsQuery.leftJoin(
       favorites,
       and(
         eq(favorites.productId, products.id),
-        eq(favorites.userId, Number(favFilter.session?.user.id)),
+        eq(favorites.userId, Number(options.session?.user.id)),
       ),
-    );
+    ) as any;
   }
 
   const productsData = await productsQuery
@@ -140,7 +144,7 @@ export async function getLatestProducts(favFilter?: {
 }) {
   const conditions: any[] = [];
   conditions.push(eq(products.isActive, true));
-  const productQuery = db
+  let productQuery = db
     .select({
       id: products.id,
       nameAr: products.nameAr,
@@ -157,13 +161,13 @@ export async function getLatestProducts(favFilter?: {
     .from(products);
 
   if (favFilter?.session) {
-    productQuery.leftJoin(
+    productQuery = productQuery.leftJoin(
       favorites,
       and(
         eq(favorites.productId, products.id),
         eq(favorites.userId, Number(favFilter.session?.user.id)),
       ),
-    );
+    ) as any;
   }
 
   return await productQuery
@@ -190,7 +194,7 @@ export async function getProductByCategory(
   }
 
   conditions.push(eq(products.categoryId, category));
-  const productQuery = db
+  let productQuery = db
     .select({
       id: products.id,
       nameAr: products.nameAr,
@@ -207,13 +211,13 @@ export async function getProductByCategory(
     .from(products);
 
   if (favFilter?.session) {
-    productQuery.leftJoin(
+    productQuery = productQuery.leftJoin(
       favorites,
       and(
         eq(favorites.productId, products.id),
         eq(favorites.userId, Number(favFilter.session?.user.id)),
       ),
-    );
+    ) as any;
   }
 
   const productsData = await productQuery
@@ -246,7 +250,7 @@ export async function getProductByBrand(
   const offset = (page - 1) * limit || 0;
 
   conditions.push(eq(products.brandId, brand));
-  const productQuery = db
+  let productQuery = db
     .select({
       id: products.id,
       nameAr: products.nameAr,
@@ -263,13 +267,13 @@ export async function getProductByBrand(
     .from(products);
 
   if (favFilter?.session) {
-    productQuery.leftJoin(
+    productQuery = productQuery.leftJoin(
       favorites,
       and(
         eq(favorites.productId, products.id),
         eq(favorites.userId, Number(favFilter.session?.user.id)),
       ),
-    );
+    ) as any;
   }
 
   const productsData = await productQuery

@@ -23,7 +23,7 @@ export default async function SearchPage(props: ProductsPageProps) {
   const params = await props.searchParams;
   const session = await getAuthSession();
 
-  const currentPage = Number(params.page || 1);
+  const currentPage = Math.max(1, Number(params.page || 1));
   const categoryId = params.categoryId ? Number(params.categoryId) : undefined;
   const brandId = params.brandId ? Number(params.brandId) : undefined;
   const search = params.search;
@@ -36,17 +36,14 @@ export default async function SearchPage(props: ProductsPageProps) {
 
   const categories = await getAllCategories(null, { onlyActive: true });
   const brands = await getAllBrands(null, { onlyActive: true });
-  const products = await getAllProducts(
-    currentPage,
-    search,
-    brandId,
-    categoryId,
-    { session },
-  );
+  const products = await getAllProducts(currentPage, search, categoryId, brandId, {
+    session,
+    onlyActive: true,
+  });
   const data = products;
 
-  const totalProducts = products.count!;
-  const totalPages = Math.ceil(totalProducts / PRODUCTS_PER_PAGE);
+  const totalProducts = products.count || 0;
+  const totalPages = Math.ceil(totalProducts / PRODUCTS_PER_PAGE) || 1;
 
   return (
     <div className="min-h-screen">
@@ -71,7 +68,7 @@ export default async function SearchPage(props: ProductsPageProps) {
 
         <Suspense fallback={<ProductsGridSkeleton />}>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
-            {data.products.map((product: any) => (
+            {products.products?.map((product: any) => (
               <ProductCard key={product.id} product={product} />
             ))}
           </div>
