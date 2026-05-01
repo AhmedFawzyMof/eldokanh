@@ -1,5 +1,3 @@
-export const dynamic = "force-dynamic";
-
 import { ProductCard } from "@/components/product-card";
 import PaginationComponent from "@/components/pagination";
 import { getAllProducts } from "@/models/products";
