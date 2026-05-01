@@ -13,4 +13,8 @@ export const ROUTE_PERMISSIONS: Record<string, string> = {
   "/admin/coupons": ADMIN_PERMISSIONS.PROMO_CODES_MANAGE,
   "/admin/customers": ADMIN_PERMISSIONS.USERS_MANAGE,
   "/admin/admins": ADMIN_PERMISSIONS.ADMINS_MANAGE,
+  "/admin/reports": ADMIN_PERMISSIONS.REPORTS_MANAGE,
+  "/admin/reports/categories": ADMIN_PERMISSIONS.REPORTS_MANAGE,
+  "/admin/reports/companies": ADMIN_PERMISSIONS.REPORTS_MANAGE,
+  "/admin/reports/all": ADMIN_PERMISSIONS.REPORTS_MANAGE,
 };

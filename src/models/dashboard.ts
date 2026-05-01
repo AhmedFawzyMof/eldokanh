@@ -26,6 +26,7 @@ export async function getDashboardData() {
     })
     .from(orderItems)
     .leftJoin(orders, eq(orderItems.orderId, orders.id))
+    .where(sql`${orders.createdAt} >= date('now', '-6 month')`)
     .get();
 
   const total = totals;

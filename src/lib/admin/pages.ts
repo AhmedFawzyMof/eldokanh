@@ -10,6 +10,7 @@ import {
   LayoutList,
   CreditCard,
   Motorbike,
+  BarChart,
 } from "lucide-react";
 import { ADMIN_PERMISSIONS } from "@/types/permissions";
 
@@ -104,5 +105,12 @@ export const adminPages = [
     icon: Users,
     badge: false,
     permission: ADMIN_PERMISSIONS.ADMINS_MANAGE,
+  },
+  {
+    title: "التقارير",
+    href: "/admin/reports",
+    icon: BarChart,
+    badge: false,
+    permission: ADMIN_PERMISSIONS.REPORTS_MANAGE,
   },
 ];

@@ -11,9 +11,11 @@ export const ADMIN_PERMISSIONS = {
   DELIVERY_MANAGE: "delivery:manage",
   OFFERS_MANAGE: "offers:manage",
   CONTACTS_MANAGE: "contacts:manage",
+  REPORTS_MANAGE: "reports:mange",
 } as const;
 
-export type AdminPermission = (typeof ADMIN_PERMISSIONS)[keyof typeof ADMIN_PERMISSIONS];
+export type AdminPermission =
+  (typeof ADMIN_PERMISSIONS)[keyof typeof ADMIN_PERMISSIONS];
 
 export const PERMISSION_LABELS: Record<AdminPermission, string> = {
   [ADMIN_PERMISSIONS.DASHBOARD_VIEW]: "عرض الإحصائيات",
@@ -28,14 +30,18 @@ export const PERMISSION_LABELS: Record<AdminPermission, string> = {
   [ADMIN_PERMISSIONS.DELIVERY_MANAGE]: "إدارة التوصيل",
   [ADMIN_PERMISSIONS.OFFERS_MANAGE]: "إدارة العروض",
   [ADMIN_PERMISSIONS.CONTACTS_MANAGE]: "إدارة الرسائل",
+  [ADMIN_PERMISSIONS.REPORTS_MANAGE]: "عرض التقارير",
 };
 
-export function hasPermission(userPermissions: string | null | undefined, permission: AdminPermission): boolean {
+export function hasPermission(
+  userPermissions: string | null | undefined,
+  permission: AdminPermission,
+): boolean {
   if (!userPermissions) return false;
-  
-  const permissionsList = userPermissions.split(",").map(p => p.trim());
-  
+
+  const permissionsList = userPermissions.split(",").map((p) => p.trim());
+
   if (permissionsList.includes("full")) return true;
-  
+
   return permissionsList.includes(permission);
 }

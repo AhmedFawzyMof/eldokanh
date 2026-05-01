@@ -5,7 +5,13 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { DollarSign, ShoppingCart, Users, Package, ArrowUpRight } from "lucide-react";
+import {
+  DollarSign,
+  ShoppingCart,
+  Users,
+  Package,
+  ArrowUpRight,
+} from "lucide-react";
 import { differenceInPercent } from "@/lib/admin/differenceInPercent";
 import { TopProducts } from "@/features/admin/dashboard/components/top-products";
 import { RecentOrders } from "@/features/admin/dashboard/components/recent-orders";
@@ -17,7 +23,12 @@ import { RevenueChart } from "@/features/admin/dashboard/components/revenue-char
 export default async function DashboardPage() {
   const data = await getDashboardData();
 
-  if (!data) return <div className="p-8 text-center bg-card rounded-3xl m-4">لا توجد بيانات متاحة حالياً</div>;
+  if (!data)
+    return (
+      <div className="p-8 text-center bg-card rounded-3xl m-4">
+        لا توجد بيانات متاحة حالياً
+      </div>
+    );
 
   const dashboardData = data;
 
@@ -25,21 +36,21 @@ export default async function DashboardPage() {
     differenceInPercent(
       dashboardData.order.totalRevenue.total_revenue,
       dashboardData.order.totalRevenue.total_revenue_lastmonth,
-    )
+    ),
   );
 
   const ordersTrend = Number(
     differenceInPercent(
       dashboardData.order.numberOfOrders.total_orders,
       dashboardData.order.numberOfOrders.total_orders_lastmonth,
-    )
+    ),
   );
 
   const customersTrend = Number(
     differenceInPercent(
       dashboardData.activeCustomers.total_user,
       dashboardData.activeCustomers.total_users_lastmonth,
-    )
+    ),
   );
 
   return (
@@ -100,7 +111,9 @@ export default async function DashboardPage() {
           <CardHeader className="flex flex-row items-center justify-between border-b border-secondary/50 bg-secondary/10 px-6 py-4">
             <div className="space-y-1">
               <CardTitle className="text-xl">الطلبات الأخيرة</CardTitle>
-              <CardDescription>نظرة سريعة على آخر 5 طلبات تم استلامها</CardDescription>
+              <CardDescription>
+                نظرة سريعة على آخر 5 طلبات تم استلامها
+              </CardDescription>
             </div>
             <button className="text-sm font-medium text-primary hover:underline flex items-center gap-1">
               عرض الكل <ArrowUpRight className="h-4 w-4" />
