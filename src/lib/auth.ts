@@ -88,6 +88,9 @@ export const authOptions: NextAuthOptions = {
       }
       return session;
     },
+    async redirect({ baseUrl }) {
+      return "eldokanhapp://auth";
+    },
   },
   secret: process.env.NEXTAUTH_SECRET,
 };
