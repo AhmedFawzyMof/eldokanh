@@ -90,7 +90,7 @@ export const authOptions: NextAuthOptions = {
     },
     async redirect({ url, baseUrl }) {
       if (url.includes("callback=app")) {
-        return "eldokanhapp://auth-callback";
+        return `${baseUrl}/auth/mobile-success`;
       }
 
       if (url.startsWith("/")) return `${baseUrl}${url}`;
