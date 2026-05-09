@@ -194,7 +194,30 @@
   body {
     @apply bg-background text-foreground font-sans;
     letter-spacing: var(--tracking-normal);
+
+    /* --- WEBVIEW OPTIMIZATIONS --- */
+    /* Safe Area Padding for Notches */
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+
+    /* Smoother scrolling on mobile */
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-y: none; /* Prevents "pull to refresh" if not desired */
   }
+
+  /* Remove grey tap highlight on mobile links/buttons */
+  a, button, [role="button"] {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* Disable selection on UI elements for a native feel */
+  nav, button, footer {
+    user-select: none;
+    -webkit-user-select: none;
+  }
+
   button,
   input,
   select,
