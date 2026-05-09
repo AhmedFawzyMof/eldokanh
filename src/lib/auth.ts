@@ -65,16 +65,29 @@ export const authOptions: NextAuthOptions = {
     },
     async jwt({ token, user }) {
       if (user) {
-        token.id = user.id;
-        // Check if user is an admin
-        const adminData = await db.query.admins.findFirst({
-          where: eq(admins.userId, Number(user.id)),
+        // On initial sign-in, user will be defined. 
+        // We need the database user ID, not the provider's ID.
+        const dbUser = await db.query.users.findFirst({
+          where: eq(users.email, user.email!),
         });
 
-        if (adminData) {
-          token.role = "admin";
-          token.permissions = adminData.permissions;
+        if (dbUser) {
+          token.id = dbUser.id.toString();
+          
+          // Check if user is an admin
+          const adminData = await db.query.admins.findFirst({
+            where: eq(admins.userId, dbUser.id),
+          });
+
+          if (adminData) {
+            token.role = "admin";
+            token.permissions = adminData.permissions;
+          } else {
+            token.role = "user";
+          }
         } else {
+          // Fallback if user not found (shouldn't happen with signIn callback)
+          token.id = user.id;
           token.role = "user";
         }
       }
@@ -89,12 +102,24 @@ export const authOptions: NextAuthOptions = {
       return session;
     },
     async redirect({ url, baseUrl }) {
-      if (url.includes("callback=app")) {
+      // If the URL contains 'callback=app' or is exactly 'app', 
+      // it's a request from our mobile application.
+      if (url.includes("callback=app") || url === "app") {
         return `${baseUrl}/auth/mobile-success`;
       }
 
+      // Allows relative callback URLs
       if (url.startsWith("/")) return `${baseUrl}${url}`;
-      else if (new URL(url).origin === baseUrl) return url;
+      
+      // Allows callback URLs on the same origin
+      try {
+        const urlObj = new URL(url);
+        const baseObj = new URL(baseUrl);
+        if (urlObj.origin === baseObj.origin) return url;
+      } catch (e) {
+        // If URL is invalid or relative but doesn't start with /
+      }
+
       return baseUrl;
     },
   },
