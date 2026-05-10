@@ -26,7 +26,20 @@ export default function LoginForm() {
   const searchParams = useSearchParams();
 
   useEffect(() => {
-    if (!session) return;
+    if (session) return;
+
+    const auto = searchParams.get("auto");
+    if (auto === "google" || auto === "facebook") {
+      let callbackUrl = searchParams.get("callbackUrl") || "/products";
+      
+      // If it's a mobile callback, wrap it in our relay
+      if (callbackUrl.startsWith("com.eldokanh.app://")) {
+        callbackUrl = `${window.location.origin}/api/auth/mobile-relay?target=${encodeURIComponent(callbackUrl)}`;
+      }
+      
+      signIn(auto, { callbackUrl });
+      return;
+    }
 
     const callbackUrl = searchParams.get("callbackUrl");
     router.replace(callbackUrl || "/products");

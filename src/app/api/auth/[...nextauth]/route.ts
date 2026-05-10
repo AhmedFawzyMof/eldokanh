@@ -13,8 +13,6 @@ function rewriteRequest(req: NextRequest) {
   const callbackUrl = url.searchParams.get("callbackUrl");
 
   if (callbackUrl && isMobileCallback(callbackUrl)) {
-    // Replace the deep-link callbackUrl with a server-side relay URL.
-    // The original mobile URL is stored in a separate param so auth.ts can use it.
     const relayUrl = `${url.origin}/api/auth/mobile-relay?target=${encodeURIComponent(callbackUrl)}`;
     url.searchParams.set("callbackUrl", relayUrl);
     return new NextRequest(url, req);
@@ -25,11 +23,18 @@ function rewriteRequest(req: NextRequest) {
 
 const handler = NextAuth(authOptions);
 
-export async function GET(req: NextRequest, ctx: { params: { nextauth: string[] } }) {
-  return handler(rewriteRequest(req), ctx);
+export async function GET(
+  req: NextRequest,
+  ctx: { params: Promise<{ nextauth: string[] }> },
+) {
+  const params = await ctx.params;
+  return handler(rewriteRequest(req), { params });
 }
 
-export async function POST(req: NextRequest, ctx: { params: { nextauth: string[] } }) {
-  return handler(rewriteRequest(req), ctx);
+export async function POST(
+  req: NextRequest,
+  ctx: { params: Promise<{ nextauth: string[] }> },
+) {
+  const params = await ctx.params;
+  return handler(rewriteRequest(req), { params });
 }
-
