@@ -22,11 +22,11 @@ export default function AboutPage() {
       {/* Story Section */}
       <section className="container mx-auto px-4 py-12">
         <div className="grid md:grid-cols-2 gap-12 items-center">
-          <div className="relative aspect-[4/3] rounded-3xl overflow-hidden bg-secondary">
+          <div className="relative aspect-4/3 rounded-3xl overflow-hidden bg-secondary">
             <img
               src="/logo.webp"
               alt="Frozen Food & Grocery"
-              className="w-full h-full object-cover"
+              className="w-full"
             />
           </div>
 

@@ -3,7 +3,30 @@ import { NextResponse } from "next/server";
 import { ROUTE_PERMISSIONS } from "./lib/admin/route-permissions";
 import { hasPermission } from "./types/permissions";
 
-const ALLOWED_ORIGIN = "https://admin-app-tjbd.vercel.app";
+const ALLOWED_ORIGINS = [
+  "http://localhost:3000",
+  "http://localhost:5173",
+  "http://localhost",
+  "capacitor://localhost",
+];
+
+function applyCors(req: any, res: NextResponse) {
+  const origin = req.headers.get("origin") || "";
+  const allowedOrigin = ALLOWED_ORIGINS.includes(origin)
+    ? origin
+    : ALLOWED_ORIGINS[0];
+  res.headers.set("Access-Control-Allow-Origin", allowedOrigin);
+  res.headers.set(
+    "Access-Control-Allow-Methods",
+    "GET,POST,PUT,DELETE,OPTIONS",
+  );
+  res.headers.set(
+    "Access-Control-Allow-Headers",
+    "Content-Type, Authorization",
+  );
+  res.headers.set("Access-Control-Allow-Credentials", "true");
+  return res;
+}
 
 export default withAuth(
   function middleware(req) {
@@ -11,26 +34,21 @@ export default withAuth(
     const token = req.nextauth.token;
 
     if (req.method === "OPTIONS") {
-      const response = new NextResponse(null, { status: 204 });
-      response.headers.set("Access-Control-Allow-Origin", ALLOWED_ORIGIN);
-      response.headers.set(
-        "Access-Control-Allow-Methods",
-        "GET,POST,PUT,DELETE,OPTIONS",
-      );
-      response.headers.set(
-        "Access-Control-Allow-Headers",
-        "Content-Type, Authorization",
-      );
-      response.headers.set("Access-Control-Allow-Credentials", "true");
-      return response;
+      return applyCors(req, new NextResponse(null, { status: 204 }));
     }
 
     if (pathname.startsWith("/api/admin")) {
       if (!token) {
-        return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+        return applyCors(
+          req,
+          NextResponse.json({ message: "Unauthorized" }, { status: 401 }),
+        );
       }
       if (token.role !== "admin") {
-        return NextResponse.json({ message: "Forbidden" }, { status: 403 });
+        return applyCors(
+          req,
+          NextResponse.json({ message: "Forbidden" }, { status: 403 }),
+        );
       }
 
       const userPermissions = token.permissions as string;
@@ -39,9 +57,12 @@ export default withAuth(
       // Super Admin Restriction: Only Super Admin can delete orders
       if (pathname.startsWith("/api/admin/orders") && req.method === "DELETE") {
         if (!isSuperAdmin) {
-          return NextResponse.json(
-            { message: "Only Super Admin can delete orders" },
-            { status: 403 },
+          return applyCors(
+            req,
+            NextResponse.json(
+              { message: "Only Super Admin can delete orders" },
+              { status: 403 },
+            ),
           );
         }
       }
@@ -54,11 +75,13 @@ export default withAuth(
 
       // Check granular permissions for admin pages
       const userPermissions = token.permissions as string;
-      
+
       // Find the matching route permission
       let requiredPermission: string | undefined;
-      const sortedRoutes = Object.keys(ROUTE_PERMISSIONS).sort((a, b) => b.length - a.length);
-      
+      const sortedRoutes = Object.keys(ROUTE_PERMISSIONS).sort(
+        (a, b) => b.length - a.length,
+      );
+
       for (const route of sortedRoutes) {
         if (pathname === route || pathname.startsWith(route + "/")) {
           requiredPermission = ROUTE_PERMISSIONS[route];
@@ -66,7 +89,10 @@ export default withAuth(
         }
       }
 
-      if (requiredPermission && !hasPermission(userPermissions, requiredPermission as any)) {
+      if (
+        requiredPermission &&
+        !hasPermission(userPermissions, requiredPermission as any)
+      ) {
         // If they don't have permission for this specific page, redirect to dashboard
         if (pathname !== "/admin/dashboard") {
           return NextResponse.redirect(new URL("/admin/dashboard", req.url));
@@ -74,11 +100,21 @@ export default withAuth(
       }
     }
 
-    return NextResponse.next();
+    return applyCors(req, NextResponse.next());
   },
   {
     callbacks: {
-      authorized: ({ token }) => !!token,
+      authorized: ({ req, token }) => {
+        const { pathname } = req.nextUrl;
+        // Allow public API paths to bypass the middleware token check
+        if (
+          pathname.startsWith("/api/") &&
+          !pathname.startsWith("/api/admin")
+        ) {
+          return true;
+        }
+        return !!token;
+      },
     },
     pages: {
       signIn: "/admin/login",
@@ -87,5 +123,8 @@ export default withAuth(
 );
 
 export const config = {
-  matcher: ["/admin/:path*", "/api/admin/:path*"],
+  matcher: [
+    "/admin/:path*",
+    "/api/((?!auth).*)", // match /api/* but NOT /api/auth/*
+  ],
 };

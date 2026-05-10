@@ -102,6 +102,11 @@ export const authOptions: NextAuthOptions = {
       return session;
     },
     async redirect({ url, baseUrl }) {
+      // Allow Capacitor custom app scheme
+      if (url.startsWith("com.eldokanh.app://")) {
+        return url;
+      }
+
       // If the URL contains 'callback=app' or is exactly 'app', 
       // it's a request from our mobile application.
       if (url.includes("callback=app") || url === "app") {

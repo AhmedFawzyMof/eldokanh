@@ -3,6 +3,27 @@ import { getAuthSession } from "@/lib/auth-session";
 import { db } from "@/db";
 import { favorites } from "@/db/schema";
 import { and, eq } from "drizzle-orm";
+import { getFavoriteProducts } from "@/models/products";
+
+export async function GET() {
+  try {
+    const session = await getAuthSession();
+
+    if (!session?.user?.id) {
+      return new NextResponse("Unauthorized", { status: 401 });
+    }
+
+    const data = await getFavoriteProducts(session);
+    return NextResponse.json(data);
+  } catch (error) {
+    console.error("FAVORITE_GET_API_ERROR", error);
+    return NextResponse.json(
+      { error: "Internal Server Error" },
+      { status: 500 },
+    );
+  }
+}
+
 
 export async function POST(req: Request) {
   try {

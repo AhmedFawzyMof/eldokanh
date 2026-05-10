@@ -1,11 +1,38 @@
 import { NextResponse } from "next/server";
-import { createUserOrder, updatePaymentStatus } from "@/models/orders";
+import { createUserOrder, updatePaymentStatus, getUserOrders } from "@/models/orders";
 import { getAuthSession } from "@/lib/auth-session";
 import { createFawaterkInvoice } from "@/lib/fawaterk";
 import { db } from "@/db";
 import { products } from "@/db/schema";
 import { inArray } from "drizzle-orm";
 import { validatePromoCode } from "@/models/promo_codes";
+
+export async function GET(req: Request) {
+  try {
+    const session = await getAuthSession();
+
+    if (!session || !session.user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const { searchParams } = new URL(req.url);
+    const page = Number(searchParams.get("page")) || 1;
+
+    const data = await getUserOrders(
+      Number(session.user.id),
+      page
+    );
+
+    return NextResponse.json(data);
+  } catch (error: any) {
+    console.error("Order Fetch Error:", error);
+    return NextResponse.json(
+      { error: error.message || "Failed to fetch orders" },
+      { status: 500 },
+    );
+  }
+}
+
 
 export async function POST(req: Request) {
   try {
