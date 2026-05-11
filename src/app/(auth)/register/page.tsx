@@ -15,11 +15,12 @@ import {
 } from "@/components/ui/card";
 import { Loader2 } from "lucide-react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useSession } from "next-auth/react";
 
 export default function RegisterPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { data: session } = useSession();
   const [isLoading, setIsLoading] = useState(false);
   const [form, setForm] = useState({
@@ -30,9 +31,10 @@ export default function RegisterPage() {
 
   useEffect(() => {
     if (session) {
-      router.push("/products");
+      const callbackUrl = searchParams.get("callbackUrl") || "/products";
+      window.location.href = callbackUrl;
     }
-  }, []);
+  }, [session, searchParams]);
 
   async function handleRegister(e: React.FormEvent) {
     e.preventDefault();
@@ -51,7 +53,14 @@ export default function RegisterPage() {
       }
 
       toast.success("تم إنشاء الحساب بنجاح!");
-      router.push("/login");
+      
+      const callbackUrl = searchParams.get("callbackUrl");
+      if (callbackUrl) {
+        // If we have a callback, go to login first but pass the callback along
+        router.push(`/login?callbackUrl=${encodeURIComponent(callbackUrl)}`);
+      } else {
+        router.push("/login");
+      }
     } catch (err: any) {
       toast.error(err.message || "فشل إنشاء الحساب");
     } finally {
@@ -122,7 +131,7 @@ export default function RegisterPage() {
           <p className="text-center text-sm text-muted-foreground w-full">
             لديك حساب بالفعل؟{" "}
             <Button variant="link" className="p-0 h-auto font-semibold">
-              <Link href="/login">تسجيل الدخول</Link>
+              <Link href={`/login${searchParams.get("callbackUrl") ? `?callbackUrl=${encodeURIComponent(searchParams.get("callbackUrl")!)}` : ""}`}>تسجيل الدخول</Link>
             </Button>
           </p>
         </CardFooter>

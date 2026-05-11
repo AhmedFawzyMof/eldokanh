@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
+  console.log("Mobile Success Route hit with params:", searchParams.toString());
   const cookieStore = await cookies();
 
   // NextAuth cookies can have different names based on environment (Secure prefix in production)
@@ -13,8 +14,10 @@ export async function GET(request: Request) {
   const redirectUrl = new URL("com.eldokanh.app://callback");
 
   if (token) {
+    console.log("Found token, adding to redirect");
     redirectUrl.searchParams.set("token", token);
   } else {
+    console.log("No token found in cookies");
     redirectUrl.searchParams.set("error", "no_token");
   }
 
@@ -25,5 +28,6 @@ export async function GET(request: Request) {
     }
   });
 
+  console.log("Redirecting to:", redirectUrl.toString());
   return redirect(redirectUrl.toString());
 }

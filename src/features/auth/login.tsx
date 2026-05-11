@@ -26,24 +26,26 @@ export default function LoginForm() {
   const searchParams = useSearchParams();
 
   useEffect(() => {
-    if (session) return;
-
     const auto = searchParams.get("auto");
-    if (auto === "google" || auto === "facebook") {
-      let callbackUrl = searchParams.get("callbackUrl") || "/products";
-      
-      // If it's a mobile callback, wrap it in our relay
-      if (callbackUrl.startsWith("com.eldokanh.app://")) {
-        callbackUrl = `${window.location.origin}/api/auth/mobile-relay?target=${encodeURIComponent(callbackUrl)}`;
+    const callbackUrl = searchParams.get("callbackUrl") || "/products";
+
+    if (!session) {
+      if (auto === "google" || auto === "facebook") {
+        let targetUrl = callbackUrl;
+        
+        // If it's a mobile callback, wrap it in our relay
+        if (targetUrl.startsWith("com.eldokanh.app://")) {
+          targetUrl = `${window.location.origin}/api/auth/mobile-relay?target=${encodeURIComponent(targetUrl)}`;
+        }
+        
+        signIn(auto, { callbackUrl: targetUrl });
       }
-      
-      signIn(auto, { callbackUrl });
       return;
     }
 
-    const callbackUrl = searchParams.get("callbackUrl");
-    router.replace(callbackUrl || "/products");
-  }, [session, searchParams, router]);
+    // If authenticated, redirect to callbackUrl
+    window.location.href = callbackUrl;
+  }, [session, searchParams]);
 
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault();
@@ -151,8 +153,9 @@ export default function LoginForm() {
           <p className="text-center text-sm text-muted-foreground w-full">
             ليس لديك حساب؟{" "}
             <Button variant="link" className="p-0 h-auto font-semibold">
-              <Link href="/register">إنشاء حساب</Link>
+              <Link href={`/register${searchParams.get("callbackUrl") ? `?callbackUrl=${encodeURIComponent(searchParams.get("callbackUrl")!)}` : ""}`}>إنشاء حساب</Link>
             </Button>
+
           </p>
         </CardFooter>
       </Card>
