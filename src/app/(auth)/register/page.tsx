@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -18,7 +18,7 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useSession } from "next-auth/react";
 
-export default function RegisterPage() {
+function RegisterForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { data: session } = useSession();
@@ -53,7 +53,7 @@ export default function RegisterPage() {
       }
 
       toast.success("تم إنشاء الحساب بنجاح!");
-      
+
       const callbackUrl = searchParams.get("callbackUrl");
       if (callbackUrl) {
         // If we have a callback, go to login first but pass the callback along
@@ -131,11 +131,29 @@ export default function RegisterPage() {
           <p className="text-center text-sm text-muted-foreground w-full">
             لديك حساب بالفعل؟{" "}
             <Button variant="link" className="p-0 h-auto font-semibold">
-              <Link href={`/login${searchParams.get("callbackUrl") ? `?callbackUrl=${encodeURIComponent(searchParams.get("callbackUrl")!)}` : ""}`}>تسجيل الدخول</Link>
+              <Link
+                href={`/login${searchParams.get("callbackUrl") ? `?callbackUrl=${encodeURIComponent(searchParams.get("callbackUrl")!)}` : ""}`}
+              >
+                تسجيل الدخول
+              </Link>
             </Button>
           </p>
         </CardFooter>
       </Card>
     </div>
+  );
+}
+
+export default function RegisterPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen flex items-center justify-center">
+          <Loader2 className="animate-spin" />
+        </div>
+      }
+    >
+      <RegisterForm />
+    </Suspense>
   );
 }
