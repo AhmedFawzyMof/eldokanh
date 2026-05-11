@@ -3,6 +3,7 @@ import GoogleProvider from "next-auth/providers/google";
 import FacebookProvider from "next-auth/providers/facebook";
 import CredentialsProvider from "next-auth/providers/credentials";
 import bcrypt from "bcrypt";
+import { OAuth2Client } from "google-auth-library";
 
 import { db } from "@/db";
 import { admins, users } from "@/db/schema";
@@ -12,6 +13,54 @@ export const authOptions: NextAuthOptions = {
   session: { strategy: "jwt" },
   pages: { signIn: "/login" },
   providers: [
+    CredentialsProvider({
+      id: "google-mobile",
+      name: "Google Mobile",
+      credentials: {
+        idToken: { label: "ID Token", type: "text" },
+      },
+      async authorize(credentials) {
+        if (!credentials?.idToken) return null;
+
+        const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+        try {
+          const ticket = await client.verifyIdToken({
+            idToken: credentials.idToken,
+            audience: process.env.GOOGLE_CLIENT_ID,
+          });
+          const payload = ticket.getPayload();
+          if (!payload || !payload.email) return null;
+
+          // Find or create user
+          let user = await db.query.users.findFirst({
+            where: eq(users.email, payload.email),
+          });
+
+          if (!user) {
+            const result = await db
+              .insert(users)
+              .values({
+                name: payload.name || payload.email.split("@")[0],
+                email: payload.email,
+                provider: "google",
+                providerId: payload.sub,
+                password: null,
+              })
+              .returning();
+            user = result[0];
+          }
+
+          return {
+            id: user.id.toString(),
+            name: user.name,
+            email: user.email,
+          };
+        } catch (error) {
+          console.error("Google Token Verification Error:", error);
+          return null;
+        }
+      },
+    }),
     CredentialsProvider({
       name: "Credentials",
       credentials: {
@@ -107,7 +156,7 @@ export const authOptions: NextAuthOptions = {
       const effectiveBaseUrl = baseUrl.includes("localhost:3000")
         ? "https://eldokanh.com"
         : baseUrl;
-      console.log(baseUrl);
+
       // Allow Capacitor custom app scheme
       if (url.startsWith("com.eldokanh.app://")) {
         return url;
