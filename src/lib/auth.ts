@@ -107,7 +107,7 @@ export const authOptions: NextAuthOptions = {
       const effectiveBaseUrl = baseUrl.includes("localhost:3000")
         ? "https://eldokanh.com"
         : baseUrl;
-
+      console.log(baseUrl);
       // Allow Capacitor custom app scheme
       if (url.startsWith("com.eldokanh.app://")) {
         return url;
