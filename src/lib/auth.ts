@@ -102,30 +102,36 @@ export const authOptions: NextAuthOptions = {
       return session;
     },
     async redirect({ url, baseUrl }) {
+      // Safety net: If baseUrl is localhost:3000, swap it for the production domain
+      // so physical mobile devices don't get stuck on a localhost redirect.
+      const effectiveBaseUrl = baseUrl.includes("localhost:3000")
+        ? "https://eldokanh.com"
+        : baseUrl;
+
       // Allow Capacitor custom app scheme
       if (url.startsWith("com.eldokanh.app://")) {
         return url;
       }
 
-      // If the URL contains 'callback=app' or is exactly 'app', 
+      // If the URL contains 'callback=app' or is exactly 'app',
       // it's a request from our mobile application.
       if (url.includes("callback=app") || url === "app") {
-        return `${baseUrl}/auth/mobile-success`;
+        return `${effectiveBaseUrl}/auth/mobile-success`;
       }
 
       // Allows relative callback URLs
-      if (url.startsWith("/")) return `${baseUrl}${url}`;
-      
+      if (url.startsWith("/")) return `${effectiveBaseUrl}${url}`;
+
       // Allows callback URLs on the same origin
       try {
         const urlObj = new URL(url);
-        const baseObj = new URL(baseUrl);
+        const baseObj = new URL(effectiveBaseUrl);
         if (urlObj.origin === baseObj.origin) return url;
       } catch (e) {
         // If URL is invalid or relative but doesn't start with /
       }
 
-      return baseUrl;
+      return effectiveBaseUrl;
     },
   },
   secret: process.env.NEXTAUTH_SECRET,
