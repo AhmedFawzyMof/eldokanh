@@ -65,7 +65,7 @@ export const authOptions: NextAuthOptions = {
     },
     async jwt({ token, user }) {
       if (user) {
-        // On initial sign-in, user will be defined. 
+        // On initial sign-in, user will be defined.
         // We need the database user ID, not the provider's ID.
         const dbUser = await db.query.users.findFirst({
           where: eq(users.email, user.email!),
@@ -73,7 +73,7 @@ export const authOptions: NextAuthOptions = {
 
         if (dbUser) {
           token.id = dbUser.id.toString();
-          
+
           // Check if user is an admin
           const adminData = await db.query.admins.findFirst({
             where: eq(admins.userId, dbUser.id),

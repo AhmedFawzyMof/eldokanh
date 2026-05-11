@@ -179,3 +179,19 @@ export const contacts = sqliteTable("contacts", {
   ),
   createdAt: text("created_at").default(sql`CURRENT_TIMESTAMP`),
 });
+
+/**
+ * Mobile device authentication sessions.
+ * The app registers a deviceId → user logs in on website → token is stored here → app polls to retrieve it.
+ */
+export const deviceSessions = sqliteTable("device_sessions", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  deviceId: text("device_id").notNull().unique(),
+  userId: integer("user_id").references(() => users.id),
+  token: text("token"),
+  status: text("status", { enum: ["pending", "authenticated", "expired"] })
+    .notNull()
+    .default("pending"),
+  createdAt: text("created_at").default(sql`CURRENT_TIMESTAMP`),
+  expiresAt: text("expires_at"),
+});

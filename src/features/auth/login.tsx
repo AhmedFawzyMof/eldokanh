@@ -25,19 +25,31 @@ export default function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
+  // deviceId present = request came from mobile app (device polling flow)
+  const deviceId = searchParams.get("deviceId");
+
+  /** Build the callbackUrl, injecting deviceId when present */
+  function buildCallbackUrl(base?: string | null) {
+    if (deviceId) {
+      // After login, go to device-success so we can mark the device session
+      return `/auth/device-success?deviceId=${encodeURIComponent(deviceId)}`;
+    }
+    return base || "/products";
+  }
+
   useEffect(() => {
     const auto = searchParams.get("auto");
-    const callbackUrl = searchParams.get("callbackUrl") || "/products";
+    const callbackUrl = buildCallbackUrl(searchParams.get("callbackUrl"));
 
     if (!session) {
       if (auto === "google" || auto === "facebook") {
         let targetUrl = callbackUrl;
-        
+
         // If it's a mobile callback, wrap it in our relay
         if (targetUrl.startsWith("com.eldokanh.app://")) {
           targetUrl = `${window.location.origin}/api/auth/mobile-relay?target=${encodeURIComponent(targetUrl)}`;
         }
-        
+
         signIn(auto, { callbackUrl: targetUrl });
       }
       return;
@@ -45,6 +57,7 @@ export default function LoginForm() {
 
     // If authenticated, redirect to callbackUrl
     window.location.href = callbackUrl;
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [session, searchParams]);
 
   async function handleLogin(e: React.FormEvent) {
@@ -55,7 +68,7 @@ export default function LoginForm() {
       await signIn("credentials", {
         email,
         password,
-        callbackUrl: searchParams.get("callbackUrl") || "/products",
+        callbackUrl: buildCallbackUrl(searchParams.get("callbackUrl")),
       });
     } finally {
       setIsLoading(false);
@@ -135,7 +148,7 @@ export default function LoginForm() {
           {/* Google Login */}
           <Button
             className="w-full rounded"
-            onClick={() => signIn("google", { callbackUrl: searchParams.get("callbackUrl") || "/" })}
+            onClick={() => signIn("google", { callbackUrl: buildCallbackUrl(searchParams.get("callbackUrl")) })}
           >
             Google
           </Button>
@@ -143,7 +156,7 @@ export default function LoginForm() {
           {/* Facebook Login */}
           <Button
             className="w-full rounded"
-            onClick={() => signIn("facebook", { callbackUrl: searchParams.get("callbackUrl") || "/" })}
+            onClick={() => signIn("facebook", { callbackUrl: buildCallbackUrl(searchParams.get("callbackUrl")) })}
           >
             Facebook
           </Button>
