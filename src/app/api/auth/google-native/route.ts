@@ -8,6 +8,7 @@ import { encode } from "next-auth/jwt";
 export async function POST(req: NextRequest) {
   try {
     const { idToken } = await req.json();
+    console.log("Received Google ID Token on backend:", idToken?.substring(0, 20) + "...");
 
     if (!idToken) {
       return NextResponse.json({ error: "idToken is required" }, { status: 400 });
