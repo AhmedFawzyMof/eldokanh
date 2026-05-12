@@ -5,13 +5,10 @@ import { headers } from "next/headers";
 import { NextRequest } from "next/server";
 
 export async function getAuthSession() {
-  // 1. Try standard cookie-based session
   const session = await getServerSession(authOptions);
   if (session) return session;
 
-  // 2. Fallback to Bearer token for mobile apps
   try {
-    // We need to simulate a request object for getToken
     const headerList = await headers();
     const req = {
       headers: Object.fromEntries(headerList.entries()),

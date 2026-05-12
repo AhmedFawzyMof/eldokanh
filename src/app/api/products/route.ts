@@ -14,7 +14,7 @@ export async function GET(req: Request) {
     const categoryId = searchParams.get("categoryId");
     const search = searchParams.get("search");
 
-    if (!latest) {
+    if (!latest || latest === "false") {
       const { data, error } = await tryCatch(() =>
         getAllProducts(Number(page), search, Number(categoryId)),
       );
