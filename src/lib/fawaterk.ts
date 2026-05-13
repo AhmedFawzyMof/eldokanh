@@ -19,6 +19,16 @@ export interface FawaterkInvoiceRequest {
   currency: string;
   customer: FawaterkCustomer;
   cartItems: FawaterkCartItem[];
+  redirectionUrls?: {
+    successUrl: string;
+    failUrl: string;
+    pendingUrl: string;
+  };
+  shipping?: number;
+  discountData?: {
+    type: "pcg" | "literal";
+    value: number;
+  };
   callback_url?: string;
   return_url?: string;
 }

@@ -1,5 +1,9 @@
 import { NextResponse } from "next/server";
-import { createUserOrder, updatePaymentStatus, getUserOrders } from "@/models/orders";
+import {
+  createUserOrder,
+  updatePaymentStatus,
+  getUserOrders,
+} from "@/models/orders";
 import { getAuthSession } from "@/lib/auth-session";
 import { createFawaterkInvoice } from "@/lib/fawaterk";
 import { db } from "@/db";
@@ -18,10 +22,7 @@ export async function GET(req: Request) {
     const { searchParams } = new URL(req.url);
     const page = Number(searchParams.get("page")) || 1;
 
-    const data = await getUserOrders(
-      Number(session.user.id),
-      page
-    );
+    const data = await getUserOrders(Number(session.user.id), page);
 
     return NextResponse.json(data);
   } catch (error: any) {
@@ -32,7 +33,6 @@ export async function GET(req: Request) {
     );
   }
 }
-
 
 export async function POST(req: Request) {
   try {
@@ -56,7 +56,11 @@ export async function POST(req: Request) {
     // 1. Calculate Total on Backend
     const productIds = items.map((item: any) => Number(item.productId));
     const dbProducts = await db
-      .select({ id: products.id, price: products.price, nameAr: products.nameAr })
+      .select({
+        id: products.id,
+        price: products.price,
+        nameAr: products.nameAr,
+      })
       .from(products)
       .where(inArray(products.id, productIds));
 
@@ -80,6 +84,7 @@ export async function POST(req: Request) {
 
     // 2. Validate Promo Code
     let discount = 0;
+    let promoInfo: { type: "pcg" | "literal"; value: number } | null = null;
     if (promoCodeId) {
       const promoResult = await validatePromoCode(
         promoCodeId,
@@ -90,8 +95,10 @@ export async function POST(req: Request) {
         const promo = promoResult.promo;
         if (promo.discountType === "percentage") {
           discount = (subtotal * promo.discountValue) / 100;
+          promoInfo = { type: "pcg", value: promo.discountValue };
         } else {
           discount = promo.discountValue;
+          promoInfo = { type: "literal", value: promo.discountValue };
         }
       } else {
         console.warn("Order POST - Invalid Promo Code:", promoResult.message);
@@ -103,7 +110,12 @@ export async function POST(req: Request) {
     }
 
     const finalTotal = subtotal - discount + (deliveryCost || 0);
-    console.log("Order POST - Final Total:", { subtotal, discount, deliveryCost, finalTotal });
+    console.log("Order POST - Final Total:", {
+      subtotal,
+      discount,
+      deliveryCost,
+      finalTotal,
+    });
 
     const orderPayload = {
       order: {
@@ -135,7 +147,7 @@ export async function POST(req: Request) {
       const firstName = nameParts[0] || "Customer";
       const lastName = nameParts.slice(1).join(" ") || "User";
 
-      const fawaterkData = {
+      const fawaterkData: any = {
         cartTotal: finalTotal.toFixed(2),
         currency: "EGP",
         customer: {
@@ -146,12 +158,26 @@ export async function POST(req: Request) {
         },
         cartItems: itemsWithCurrentPrices.map((item: any) => ({
           name: item.nameAr || "Product",
-          price: Number(item.price).toFixed(2),
-          quantity: item.quantity,
+          price: parseFloat(Number(item.price).toFixed(2)),
+          quantity: parseInt(item.quantity.toString()),
         })),
-        return_url: body.returnUrl || `${process.env.NEXTAUTH_URL}/order-confirmation?orderId=${result.orderId}`,
+        shipping: deliveryCost ? parseFloat(Number(deliveryCost).toFixed(2)) : 0,
+        redirectionUrls: {
+          successUrl:
+            body.returnUrl ||
+            `${process.env.NEXTAUTH_URL}/order-confirmation?orderId=${result.orderId}`,
+          failUrl: `${process.env.NEXTAUTH_URL}/checkout?error=payment_failed`,
+          pendingUrl: `${process.env.NEXTAUTH_URL}/order-confirmation?orderId=${result.orderId}&status=pending`,
+        },
+        return_url:
+          body.returnUrl ||
+          `${process.env.NEXTAUTH_URL}/order-confirmation?orderId=${result.orderId}`,
         callback_url: `${process.env.NEXTAUTH_URL}/api/webhooks/fawaterk?orderId=${result.orderId}`,
       };
+
+      if (promoInfo) {
+        fawaterkData.discountData = promoInfo;
+      }
 
       try {
         const fawaterkResponse = await createFawaterkInvoice(fawaterkData);
@@ -168,15 +194,19 @@ export async function POST(req: Request) {
           throw new Error("Fawaterk responded with failure status");
         }
       } catch (fawaterkError) {
-        console.error("Order POST - Fawaterk Invoice Creation Failed:", fawaterkError);
-        
+        console.error(
+          "Order POST - Fawaterk Invoice Creation Failed:",
+          fawaterkError,
+        );
+
         // Update payment status to failed in our DB
         await updatePaymentStatus(result.orderId, "failed");
 
         return NextResponse.json(
           {
             ...result,
-            error: "فشل إنشاء رابط الدفع، يرجى المحاولة لاحقاً من تاريخ الطلبات.",
+            error:
+              "فشل إنشاء رابط الدفع، يرجى المحاولة لاحقاً من تاريخ الطلبات.",
           },
           { status: 201 },
         );
