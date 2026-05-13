@@ -10,8 +10,14 @@ export async function getAuthSession() {
 
   try {
     const headerList = await headers();
+    const headersObj = Object.fromEntries(headerList.entries());
+    console.log("getAuthSession - Headers:", {
+      authorization: headersObj.authorization ? "Present" : "Missing",
+      cookie: headersObj.cookie ? "Present" : "Missing",
+    });
+
     const req = {
-      headers: Object.fromEntries(headerList.entries()),
+      headers: headersObj,
       cookies: {},
     } as any;
 
@@ -19,6 +25,8 @@ export async function getAuthSession() {
       req,
       secret: process.env.NEXTAUTH_SECRET,
     });
+
+    console.log("getAuthSession - Token retrieved:", token ? "Success" : "Failed");
 
     if (token) {
       return {

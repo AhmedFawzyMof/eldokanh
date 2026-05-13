@@ -223,72 +223,95 @@ export async function deleteOrderProducts(id: number, orderItemId: number) {
 }
 
 export async function createUserOrder(data: any) {
-  return await db.transaction(async (tx) => {
-    const [newOrder] = await tx
-      .insert(orders)
-      .values({
-        userId: data.order.userId,
-        status: data.order.status,
-        paymentStatus: data.order.paymentStatus,
-        paymentMethod: data.order.paymentMethod,
-      })
-      .returning();
-
-    const orderId = newOrder.id;
-
-    const itemsToInsert = await Promise.all(
-      data.items.map(async (item: any) => {
-        const product = await tx
-          .select({ buyingPrice: products.buyingPrice, price: products.price })
-          .from(products)
-          .where(eq(products.id, item.productId))
-          .get();
-        return {
-          orderId: orderId,
-          productId: item.productId,
-          quantity: item.quantity,
-          price: product!.price,
-          buyingPrice: product?.buyingPrice || 0,
-        };
-      }),
-    );
-    await tx.insert(orderItems).values(itemsToInsert);
-
-    await tx.insert(addresses).values({
-      orderId: orderId,
-      userId: data.order.userId,
-      fullName: data.address.fullName,
-      phone: data.address.phone,
-      city: data.address.city,
-      street: data.address.street,
-      building: data.address.building,
-      floor: data.address.floor,
-    });
-
-    await tx.insert(payments).values({
-      orderId: orderId,
-      amount: data.payment.amount,
-      method: data.payment.method,
-      deliveryCost: data.payment.deliveryCost,
-      status: "pending",
-    });
-
-    if (data.promoCodeId) {
-      const [promo] = await tx
-        .select()
-        .from(promoCodes)
-        .where(eq(promoCodes.code, data.promoCodeId));
-      if (promo) {
-        await tx.insert(promoCodeUsages).values({
-          promoCodeId: promo.id,
+  try {
+    return await db.transaction(async (tx) => {
+      console.log("DB Transaction - Creating Order...");
+      const [newOrder] = await tx
+        .insert(orders)
+        .values({
           userId: data.order.userId,
-          orderId: orderId,
-        });
-      }
-    }
+          status: data.order.status,
+          paymentStatus: data.order.paymentStatus,
+          paymentMethod: data.order.paymentMethod,
+        })
+        .returning();
 
-    return { success: true, orderId };
-  });
+      if (!newOrder) {
+        throw new Error("Failed to insert order - no record returned");
+      }
+
+      const orderId = newOrder.id;
+      console.log("DB Transaction - Order Created with ID:", orderId);
+
+      const itemsToInsert = await Promise.all(
+        data.items.map(async (item: any) => {
+          const product = await tx
+            .select({ buyingPrice: products.buyingPrice, price: products.price })
+            .from(products)
+            .where(eq(products.id, Number(item.productId)))
+            .get();
+          
+          if (!product) {
+            throw new Error(`Product ${item.productId} not found during transaction`);
+          }
+
+          return {
+            orderId: orderId,
+            productId: Number(item.productId),
+            quantity: item.quantity,
+            price: product.price,
+            buyingPrice: product.buyingPrice || 0,
+          };
+        }),
+      );
+      
+      console.log("DB Transaction - Inserting Order Items:", itemsToInsert.length);
+      await tx.insert(orderItems).values(itemsToInsert);
+
+      console.log("DB Transaction - Inserting Address...");
+      await tx.insert(addresses).values({
+        orderId: orderId,
+        userId: data.order.userId,
+        fullName: data.address.fullName,
+        phone: data.address.phone,
+        city: data.address.city,
+        street: data.address.street,
+        building: data.address.building,
+        floor: data.address.floor,
+      });
+
+      console.log("DB Transaction - Inserting Payment...");
+      await tx.insert(payments).values({
+        orderId: orderId,
+        amount: data.payment.amount,
+        method: data.payment.method,
+        deliveryCost: data.payment.deliveryCost,
+        status: "pending",
+      });
+
+      if (data.promoCodeId) {
+        console.log("DB Transaction - Applying Promo Code:", data.promoCodeId);
+        const [promo] = await tx
+          .select()
+          .from(promoCodes)
+          .where(eq(promoCodes.code, data.promoCodeId));
+        if (promo) {
+          await tx.insert(promoCodeUsages).values({
+            promoCodeId: promo.id,
+            userId: data.order.userId,
+            orderId: orderId,
+          });
+        } else {
+          console.warn("DB Transaction - Promo code not found in DB:", data.promoCodeId);
+        }
+      }
+
+      return { success: true, orderId };
+    });
+  } catch (error: any) {
+    console.error("DB Transaction - Error:", error);
+    throw error;
+  }
 }
 
 export async function updatePaymentStatus(

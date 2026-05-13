@@ -37,32 +37,42 @@ export async function GET(req: Request) {
 export async function POST(req: Request) {
   try {
     const session = await getAuthSession();
+    console.log("Order POST - Session:", session);
 
     if (!session || !session.user) {
+      console.warn("Order POST - Unauthorized access attempt");
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const body = await req.json();
+    console.log("Order POST - Body:", body);
     const { address, paymentMethod, items, promoCodeId, deliveryCost } = body;
 
     if (!items || items.length === 0) {
+      console.warn("Order POST - Empty items list");
       return NextResponse.json({ error: "No items in cart" }, { status: 400 });
     }
 
     // 1. Calculate Total on Backend
-    const productIds = items.map((item: any) => item.productId);
+    const productIds = items.map((item: any) => Number(item.productId));
     const dbProducts = await db
       .select({ id: products.id, price: products.price, nameAr: products.nameAr })
       .from(products)
       .where(inArray(products.id, productIds));
 
+    console.log("Order POST - DB Products:", dbProducts);
+
     let subtotal = 0;
     const itemsWithCurrentPrices = items.map((item: any) => {
-      const product = dbProducts.find((p) => p.id === item.productId);
-      if (!product) throw new Error(`Product ${item.productId} not found`);
+      const product = dbProducts.find((p) => p.id === Number(item.productId));
+      if (!product) {
+        console.error(`Order POST - Product ${item.productId} not found`);
+        throw new Error(`Product ${item.productId} not found`);
+      }
       subtotal += product.price * item.quantity;
       return {
         ...item,
+        productId: Number(item.productId),
         price: product.price,
         nameAr: product.nameAr,
       };
@@ -75,6 +85,7 @@ export async function POST(req: Request) {
         promoCodeId,
         parseInt(session.user.id),
       );
+      console.log("Order POST - Promo Result:", promoResult);
       if (promoResult.valid && promoResult.promo) {
         const promo = promoResult.promo;
         if (promo.discountType === "percentage") {
@@ -83,6 +94,7 @@ export async function POST(req: Request) {
           discount = promo.discountValue;
         }
       } else {
+        console.warn("Order POST - Invalid Promo Code:", promoResult.message);
         return NextResponse.json(
           { error: promoResult.message },
           { status: 400 },
@@ -91,6 +103,7 @@ export async function POST(req: Request) {
     }
 
     const finalTotal = subtotal - discount + (deliveryCost || 0);
+    console.log("Order POST - Final Total:", { subtotal, discount, deliveryCost, finalTotal });
 
     const orderPayload = {
       order: {
@@ -112,9 +125,12 @@ export async function POST(req: Request) {
       promoCodeId: promoCodeId,
     };
 
+    console.log("Order POST - Creating Order in DB...");
     const result = await createUserOrder(orderPayload);
+    console.log("Order POST - DB Result:", result);
 
     if (paymentMethod !== "cash" && result.success) {
+      console.log("Order POST - Initiating Fawaterk Payment...");
       const nameParts = address.fullName.split(" ");
       const firstName = nameParts[0] || "Customer";
       const lastName = nameParts.slice(1).join(" ") || "User";
@@ -139,6 +155,7 @@ export async function POST(req: Request) {
 
       try {
         const fawaterkResponse = await createFawaterkInvoice(fawaterkData);
+        console.log("Order POST - Fawaterk Response:", fawaterkResponse);
         if (fawaterkResponse.status === "success") {
           return NextResponse.json(
             {
@@ -151,7 +168,7 @@ export async function POST(req: Request) {
           throw new Error("Fawaterk responded with failure status");
         }
       } catch (fawaterkError) {
-        console.error("Fawaterk Invoice Creation Failed:", fawaterkError);
+        console.error("Order POST - Fawaterk Invoice Creation Failed:", fawaterkError);
         
         // Update payment status to failed in our DB
         await updatePaymentStatus(result.orderId, "failed");
@@ -168,7 +185,7 @@ export async function POST(req: Request) {
 
     return NextResponse.json(result, { status: 201 });
   } catch (error: any) {
-    console.error("Order Creation Error:", error);
+    console.error("Order POST - Order Creation Error:", error);
     return NextResponse.json(
       { error: error.message || "Failed to create order" },
       { status: 500 },
