@@ -1,27 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getToken } from "next-auth/jwt";
+import { getAuthSession } from "@/lib/auth-session";
 
 export async function GET(req: NextRequest) {
   try {
-    const token = await getToken({
-      req,
-      secret: process.env.NEXTAUTH_SECRET,
-    });
+    const session = await getAuthSession();
 
-    if (!token) {
+    if (!session) {
       return NextResponse.json({ user: null }, { status: 401 });
     }
 
-    return NextResponse.json({
-      user: {
-        id: token.id,
-        name: token.name,
-        email: token.email,
-        role: token.role,
-        permissions: token.permissions,
-      },
-      expires: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
-    });
+    return NextResponse.json(session);
   } catch (error) {
     console.error("Session route error:", error);
     return NextResponse.json({ user: null }, { status: 500 });

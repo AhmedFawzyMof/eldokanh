@@ -10,7 +10,11 @@ export async function getAuthSession() {
 
   try {
     const headerList = await headers();
-    const headersObj = Object.fromEntries(headerList.entries());
+    const headersObj: Record<string, string> = {};
+    headerList.forEach((value, key) => {
+      headersObj[key.toLowerCase()] = value;
+    });
+
     console.log("getAuthSession - Headers:", {
       authorization: headersObj.authorization ? "Present" : "Missing",
       cookie: headersObj.cookie ? "Present" : "Missing",
