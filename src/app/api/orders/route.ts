@@ -136,7 +136,7 @@ export async function POST(req: Request) {
       const lastName = nameParts.slice(1).join(" ") || "User";
 
       const fawaterkData = {
-        cartTotal: finalTotal.toString(),
+        cartTotal: finalTotal.toFixed(2),
         currency: "EGP",
         customer: {
           first_name: firstName,
@@ -146,7 +146,7 @@ export async function POST(req: Request) {
         },
         cartItems: itemsWithCurrentPrices.map((item: any) => ({
           name: item.nameAr || "Product",
-          price: item.price,
+          price: Number(item.price).toFixed(2),
           quantity: item.quantity,
         })),
         return_url: body.returnUrl || `${process.env.NEXTAUTH_URL}/order-confirmation?orderId=${result.orderId}`,
