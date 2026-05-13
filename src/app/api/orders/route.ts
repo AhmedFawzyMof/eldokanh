@@ -133,7 +133,7 @@ export async function POST(req: Request) {
           price: item.price,
           quantity: item.quantity,
         })),
-        return_url: `${process.env.NEXTAUTH_URL}/order-history`,
+        return_url: body.returnUrl || `${process.env.NEXTAUTH_URL}/order-confirmation?orderId=${result.orderId}`,
         callback_url: `${process.env.NEXTAUTH_URL}/api/webhooks/fawaterk?orderId=${result.orderId}`,
       };
 
