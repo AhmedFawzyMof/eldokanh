@@ -73,12 +73,12 @@ export async function POST(req: Request) {
         console.error(`Order POST - Product ${item.productId} not found`);
         throw new Error(`Product ${item.productId} not found`);
       }
-      
+
       // Use rounded price for calculations to match what's sent to Fawaterk
       const roundedPrice = Number(Number(product.price).toFixed(2));
       const itemTotal = roundedPrice * Number(item.quantity);
       subtotal += itemTotal;
-      
+
       return {
         ...item,
         productId: Number(item.productId),
@@ -116,7 +116,9 @@ export async function POST(req: Request) {
       }
     }
 
-    const finalTotal = Number((subtotal - discount + (deliveryCost || 0)).toFixed(2));
+    const finalTotal = Number(
+      (subtotal - discount + (deliveryCost || 0)).toFixed(2),
+    );
     console.log("Order POST - Final Totals:", {
       subtotal,
       discount,
@@ -189,7 +191,7 @@ export async function POST(req: Request) {
         subtotal: fawaterkData.cartTotal,
         shipping: fawaterkData.shipping,
         itemsCount: fawaterkData.cartItems.length,
-        firstItem: fawaterkData.cartItems[0]
+        firstItem: fawaterkData.cartItems[0],
       });
 
       if (promoInfo) {
