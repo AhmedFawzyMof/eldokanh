@@ -155,13 +155,14 @@ export async function POST(req: Request) {
           last_name: lastName,
           email: session.user.email || "",
           phone: address.phone,
+          address: `${address.apartment ? "Apt " + address.apartment + ", " : ""}${address.building ? "Bldg " + address.building + ", " : ""}${address.street}, ${address.city}`,
         },
         cartItems: itemsWithCurrentPrices.map((item: any) => ({
           name: item.nameAr || "Product",
-          price: parseFloat(Number(item.price).toFixed(2)),
-          quantity: parseInt(item.quantity.toString()),
+          price: Number(item.price).toFixed(2),
+          quantity: item.quantity.toString(),
         })),
-        shipping: deliveryCost ? parseFloat(Number(deliveryCost).toFixed(2)) : 0,
+        shipping: deliveryCost ? Number(deliveryCost).toFixed(2) : "0.00",
         redirectionUrls: {
           successUrl:
             body.returnUrl ||
@@ -173,6 +174,8 @@ export async function POST(req: Request) {
           body.returnUrl ||
           `${process.env.NEXTAUTH_URL}/order-confirmation?orderId=${result.orderId}`,
         callback_url: `${process.env.NEXTAUTH_URL}/api/webhooks/fawaterk?orderId=${result.orderId}`,
+        sendEmail: true,
+        sendSMS: false,
       };
 
       if (promoInfo) {
@@ -193,11 +196,12 @@ export async function POST(req: Request) {
         } else {
           throw new Error("Fawaterk responded with failure status");
         }
-      } catch (fawaterkError) {
-        console.error(
-          "Order POST - Fawaterk Invoice Creation Failed:",
-          fawaterkError,
-        );
+      } catch (fawaterkError: any) {
+        console.error("Order POST - Fawaterk Invoice Creation Failed:", {
+          message: fawaterkError.message,
+          stack: fawaterkError.stack,
+          error: fawaterkError,
+        });
 
         // Update payment status to failed in our DB
         await updatePaymentStatus(result.orderId, "failed");
