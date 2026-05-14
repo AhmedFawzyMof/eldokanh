@@ -1,4 +1,3 @@
-const FAWATERK_API_KEY = process.env.FAWATERK_API_KEY;
 const FAWATERK_BASE_URL = "https://app.fawaterk.com/api/v2";
 
 export interface FawaterkCustomer {
@@ -37,13 +36,20 @@ export interface FawaterkInvoiceRequest {
 }
 
 export async function createFawaterkInvoice(data: FawaterkInvoiceRequest) {
+  const apiKey = process.env.FAWATERK_API_KEY;
+  
+  if (!apiKey) {
+    console.error("FAWATERK_API_KEY is not defined in the environment variables.");
+    throw new Error("Missing Fawaterk API configuration.");
+  }
+
   try {
     console.log("Fawaterk - Sending Request to createInvoiceLink:", JSON.stringify(data, null, 2));
     const response = await fetch(`${FAWATERK_BASE_URL}/createInvoiceLink`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${FAWATERK_API_KEY}`,
+        Authorization: `Bearer ${apiKey}`,
       },
       body: JSON.stringify(data),
     });

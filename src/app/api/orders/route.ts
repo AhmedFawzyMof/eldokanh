@@ -156,6 +156,8 @@ export async function POST(req: Request) {
       const firstName = nameParts[0] || "Customer";
       const lastName = nameParts.slice(1).join(" ") || "User";
 
+      const baseUrl = body.returnUrl ? new URL(body.returnUrl).origin : process.env.NEXTAUTH_URL;
+
       const fawaterkData: any = {
         cartTotal: subtotal.toFixed(2), // cartTotal should be the subtotal of items
         currency: "EGP",
@@ -175,13 +177,13 @@ export async function POST(req: Request) {
         redirectionUrls: {
           successUrl:
             body.returnUrl ||
-            `${process.env.NEXTAUTH_URL}/order-confirmation?orderId=${result.orderId}`,
-          failUrl: `${process.env.NEXTAUTH_URL}/checkout?error=payment_failed`,
-          pendingUrl: `${process.env.NEXTAUTH_URL}/order-confirmation?orderId=${result.orderId}&status=pending`,
+            `${baseUrl}/order-confirmation?orderId=${result.orderId}`,
+          failUrl: `${baseUrl}/checkout?error=payment_failed`,
+          pendingUrl: `${baseUrl}/order-confirmation?orderId=${result.orderId}&status=pending`,
         },
         return_url:
           body.returnUrl ||
-          `${process.env.NEXTAUTH_URL}/order-confirmation?orderId=${result.orderId}`,
+          `${baseUrl}/order-confirmation?orderId=${result.orderId}`,
         callback_url: `${process.env.NEXTAUTH_URL}/api/webhooks/fawaterk?orderId=${result.orderId}`,
         sendEmail: true,
         sendSMS: false,
