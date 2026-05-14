@@ -64,8 +64,20 @@ export async function createFawaterkInvoice(data: FawaterkInvoiceRequest) {
         data: responseData,
       });
       
-      const errorMessage = (typeof responseData === 'object' ? responseData.message : null) 
-        || `Fawaterk API Error: ${response.status} ${response.statusText}`;
+      let errorMessage = `Fawaterk API Error: ${response.status} ${response.statusText}`;
+      
+      if (typeof responseData === 'object' && responseData !== null) {
+        if (typeof responseData.message === 'string') {
+          errorMessage = responseData.message;
+        } else if (typeof responseData.message === 'object') {
+          // If message is an object (like validation errors), stringify it
+          errorMessage = JSON.stringify(responseData.message);
+        } else if (responseData.error) {
+          errorMessage = typeof responseData.error === 'string' 
+            ? responseData.error 
+            : JSON.stringify(responseData.error);
+        }
+      }
       
       throw new Error(errorMessage);
     }

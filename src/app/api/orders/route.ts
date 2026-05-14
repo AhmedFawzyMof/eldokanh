@@ -73,14 +73,21 @@ export async function POST(req: Request) {
         console.error(`Order POST - Product ${item.productId} not found`);
         throw new Error(`Product ${item.productId} not found`);
       }
-      subtotal += product.price * item.quantity;
+      
+      // Use rounded price for calculations to match what's sent to Fawaterk
+      const roundedPrice = Number(Number(product.price).toFixed(2));
+      const itemTotal = roundedPrice * Number(item.quantity);
+      subtotal += itemTotal;
+      
       return {
         ...item,
         productId: Number(item.productId),
-        price: product.price,
+        price: roundedPrice,
         nameAr: product.nameAr,
       };
     });
+
+    console.log("Order POST - Calculated Subtotal:", subtotal);
 
     // 2. Validate Promo Code
     let discount = 0;
@@ -109,8 +116,8 @@ export async function POST(req: Request) {
       }
     }
 
-    const finalTotal = subtotal - discount + (deliveryCost || 0);
-    console.log("Order POST - Final Total:", {
+    const finalTotal = Number((subtotal - discount + (deliveryCost || 0)).toFixed(2));
+    console.log("Order POST - Final Totals:", {
       subtotal,
       discount,
       deliveryCost,
@@ -148,7 +155,7 @@ export async function POST(req: Request) {
       const lastName = nameParts.slice(1).join(" ") || "User";
 
       const fawaterkData: any = {
-        cartTotal: finalTotal.toFixed(2),
+        cartTotal: subtotal.toFixed(2), // cartTotal should be the subtotal of items
         currency: "EGP",
         customer: {
           first_name: firstName,
@@ -159,7 +166,7 @@ export async function POST(req: Request) {
         },
         cartItems: itemsWithCurrentPrices.map((item: any) => ({
           name: item.nameAr || "Product",
-          price: Number(item.price).toFixed(2),
+          price: item.price.toFixed(2),
           quantity: item.quantity.toString(),
         })),
         shipping: deliveryCost ? Number(deliveryCost).toFixed(2) : "0.00",
@@ -177,6 +184,13 @@ export async function POST(req: Request) {
         sendEmail: true,
         sendSMS: false,
       };
+
+      console.log("Order POST - Fawaterk Payload Details:", {
+        subtotal: fawaterkData.cartTotal,
+        shipping: fawaterkData.shipping,
+        itemsCount: fawaterkData.cartItems.length,
+        firstItem: fawaterkData.cartItems[0]
+      });
 
       if (promoInfo) {
         fawaterkData.discountData = promoInfo;
