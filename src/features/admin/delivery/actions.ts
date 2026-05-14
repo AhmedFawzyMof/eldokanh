@@ -1,5 +1,6 @@
 import adminApi from "@/lib/admin/api";
 import type { Delivery } from "@/types/admin/delivery";
+import { useRouter } from "next/navigation";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
@@ -34,9 +35,11 @@ export const useGetDeliveries = (params: DeliveryParams) => {
 
 export const useDeliveryMutations = () => {
   const queryClient = useQueryClient();
+  const router = useRouter();
 
   const invalidateDeliveries = () => {
     queryClient.invalidateQueries({ queryKey: ["admin", "deliveries"] });
+    router.refresh();
   };
 
   const addMutation = useMutation({

@@ -1,5 +1,6 @@
 import adminApi from "@/lib/admin/api";
 import type { Offer } from "@/types/admin/offers";
+import { useRouter } from "next/navigation";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
@@ -30,9 +31,11 @@ export const useGetOffers = () => {
 
 export const useOfferMutations = () => {
   const queryClient = useQueryClient();
+  const router = useRouter();
 
   const invalidateOffers = () => {
     queryClient.invalidateQueries({ queryKey: ["admin", "offers"] });
+    router.refresh();
   };
 
   const addMutation = useMutation({

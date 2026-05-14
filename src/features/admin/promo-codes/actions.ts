@@ -1,5 +1,6 @@
 import adminApi from "@/lib/admin/api";
 import type { PromoCode } from "@/types/admin/promo-codes";
+import { useRouter } from "next/navigation";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
@@ -38,9 +39,11 @@ export const useGetPromoCodes = (params: PromoParams) => {
 
 export const usePromoCodeMutations = () => {
   const queryClient = useQueryClient();
+  const router = useRouter();
 
   const invalidatePromos = () => {
     queryClient.invalidateQueries({ queryKey: ["admin", "promo-codes"] });
+    router.refresh();
   };
 
   const addMutation = useMutation({

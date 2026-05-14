@@ -1,5 +1,6 @@
 import adminApi from "@/lib/admin/api";
 import type { Category } from "@/types/admin/categories";
+import { useRouter } from "next/navigation";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
@@ -34,9 +35,11 @@ export const useGetCategories = (params: CategoryParams) => {
 
 export const useCategoryMutations = () => {
   const queryClient = useQueryClient();
+  const router = useRouter();
 
   const invalidateCategories = () => {
     queryClient.invalidateQueries({ queryKey: ["admin", "categories"] });
+    router.refresh();
   };
 
   const addMutation = useMutation({

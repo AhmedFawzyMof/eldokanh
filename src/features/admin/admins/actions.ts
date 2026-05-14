@@ -1,4 +1,5 @@
 import adminApi from "@/lib/admin/api";
+import { useRouter } from "next/navigation";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
@@ -34,9 +35,11 @@ export const useGetAdmins = (params: AdminsParams) => {
 
 export const useAdminMutations = () => {
   const queryClient = useQueryClient();
+  const router = useRouter();
 
   const invalidateAdmins = () => {
     queryClient.invalidateQueries({ queryKey: ["admin", "admins"] });
+    router.refresh();
   };
 
   const addMutation = useMutation({

@@ -1,5 +1,5 @@
 import adminApi from "@/lib/admin/api";
-import type { Brand } from "@/types/admin/brands";
+import { useRouter } from "next/navigation";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
@@ -34,9 +34,11 @@ export const useGetBrands = (params: BrandsParams) => {
 
 export const useBrandMutations = () => {
   const queryClient = useQueryClient();
+  const router = useRouter();
 
   const invalidateBrands = () => {
     queryClient.invalidateQueries({ queryKey: ["admin", "brands"] });
+    router.refresh();
   };
 
   const addMutation = useMutation({

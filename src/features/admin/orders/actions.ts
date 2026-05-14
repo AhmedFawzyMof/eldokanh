@@ -1,5 +1,6 @@
 import adminApi from "@/lib/admin/api";
 import type { Order } from "@/types/admin/orders";
+import { useRouter } from "next/navigation";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
@@ -55,9 +56,11 @@ export const useGetOrderById = (id?: number) => {
 
 export const useOrderMutations = () => {
   const queryClient = useQueryClient();
+  const router = useRouter();
 
   const invalidateOrders = () => {
     queryClient.invalidateQueries({ queryKey: ["admin", "orders"] });
+    router.refresh();
   };
 
   const editMutation = useMutation({
@@ -94,12 +97,14 @@ export const useOrderMutations = () => {
 
 export const useCreatePOSOrder = (onSuccessCallback?: () => void) => {
   const queryClient = useQueryClient();
+  const router = useRouter();
 
   return useMutation({
     mutationFn: (data: any) => OrderService.createPOS(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin", "orders"] });
       queryClient.invalidateQueries({ queryKey: ["admin", "products"] });
+      router.refresh();
       toast.success("تم إتمام العملية بنجاح");
       if (onSuccessCallback) onSuccessCallback();
     },
