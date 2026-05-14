@@ -1,3 +1,6 @@
+import * as dotenv from "dotenv";
+dotenv.config();
+
 const FAWATERK_BASE_URL = "https://app.fawaterk.com/api/v2";
 
 export interface FawaterkCustomer {
@@ -37,14 +40,19 @@ export interface FawaterkInvoiceRequest {
 
 export async function createFawaterkInvoice(data: FawaterkInvoiceRequest) {
   const apiKey = process.env.FAWATERK_API_KEY;
-  
+
   if (!apiKey) {
-    console.error("FAWATERK_API_KEY is not defined in the environment variables.");
+    console.error(
+      "FAWATERK_API_KEY is not defined in the environment variables.",
+    );
     throw new Error("Missing Fawaterk API configuration.");
   }
 
   try {
-    console.log("Fawaterk - Sending Request to createInvoiceLink:", JSON.stringify(data, null, 2));
+    console.log(
+      "Fawaterk - Sending Request to createInvoiceLink:",
+      JSON.stringify(data, null, 2),
+    );
     const response = await fetch(`${FAWATERK_BASE_URL}/createInvoiceLink`, {
       method: "POST",
       headers: {
@@ -56,7 +64,7 @@ export async function createFawaterkInvoice(data: FawaterkInvoiceRequest) {
 
     const contentType = response.headers.get("content-type");
     let responseData: any;
-    
+
     if (contentType && contentType.includes("application/json")) {
       responseData = await response.json();
     } else {
@@ -69,22 +77,23 @@ export async function createFawaterkInvoice(data: FawaterkInvoiceRequest) {
         statusText: response.statusText,
         data: responseData,
       });
-      
+
       let errorMessage = `Fawaterk API Error: ${response.status} ${response.statusText}`;
-      
-      if (typeof responseData === 'object' && responseData !== null) {
-        if (typeof responseData.message === 'string') {
+
+      if (typeof responseData === "object" && responseData !== null) {
+        if (typeof responseData.message === "string") {
           errorMessage = responseData.message;
-        } else if (typeof responseData.message === 'object') {
+        } else if (typeof responseData.message === "object") {
           // If message is an object (like validation errors), stringify it
           errorMessage = JSON.stringify(responseData.message);
         } else if (responseData.error) {
-          errorMessage = typeof responseData.error === 'string' 
-            ? responseData.error 
-            : JSON.stringify(responseData.error);
+          errorMessage =
+            typeof responseData.error === "string"
+              ? responseData.error
+              : JSON.stringify(responseData.error);
         }
       }
-      
+
       throw new Error(errorMessage);
     }
 
@@ -93,7 +102,7 @@ export async function createFawaterkInvoice(data: FawaterkInvoiceRequest) {
     console.error("Fawaterk Integration Exception:", {
       message: error.message,
       stack: error.stack,
-      error: error
+      error: error,
     });
     throw error;
   }
