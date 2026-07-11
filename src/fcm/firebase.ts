@@ -1,5 +1,5 @@
-import { initializeApp } from "firebase/app";
-import { getMessaging } from "firebase/messaging";
+import { initializeApp, getApps, getApp } from "firebase/app";
+import { getMessaging, isSupported } from "firebase/messaging";
 
 const firebaseConfig = {
   apiKey: "AIzaSyCMmUc5V0curZyxonDt5wAHEiW6bgbYvB8",
@@ -11,7 +11,17 @@ const firebaseConfig = {
   measurementId: "G-87V1EL3CQH",
 };
 
-const app = initializeApp(firebaseConfig);
-const messaging = getMessaging(app);
+export const app =
+  getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
 
-export { messaging };
+export async function getMessagingInstance() {
+  if (typeof window === "undefined") {
+    return null;
+  }
+
+  if (!(await isSupported())) {
+    return null;
+  }
+
+  return getMessaging(app);
+}
