@@ -1,4 +1,4 @@
-import { getToken } from "firebase/messaging";
+import { getToken, onMessage } from "firebase/messaging";
 import { getMessagingInstance } from "@/fcm/firebase";
 
 const VAPID_PUBLIC_KEY =
@@ -6,11 +6,6 @@ const VAPID_PUBLIC_KEY =
 
 /**
  * Gets the FCM registration token and invokes the callback with it.
- *
- * IMPORTANT: onRegistered() returns an Installation ID (FID) — a device
- * identifier that cannot be used as a push message target.
- * getToken() returns the actual FCM registration token that must be stored
- * and used in message.token when calling the FCM HTTP v1 send API.
  */
 export async function getFCMToken(
   onToken: (token: string) => void,
@@ -32,4 +27,17 @@ export async function getFCMToken(
   } catch (err) {
     console.error("FCM: error obtaining registration token:", err);
   }
+}
+
+/**
+ * Listens for incoming FCM messages when the app is in the foreground.
+ */
+export async function setupForegroundMessageListener(onMessageReceived: (payload: any) => void) {
+  const messaging = await getMessagingInstance();
+  if (!messaging) return;
+
+  onMessage(messaging, (payload) => {
+    console.log("FCM: foreground message received:", payload);
+    onMessageReceived(payload);
+  });
 }
