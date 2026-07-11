@@ -31,9 +31,9 @@ export default async function HomePage() {
     <div className="min-h-screen">
       <CategoriesSection categories={categories} />
       <HeroCarousel offers={offers} />
+      <PWAInstallBanner />
       <BrandsSection brands={brands} />
       <ProductsSection products={latestproducts} />
-      <PWAInstallBanner />
       <CTASection />
     </div>
   );
