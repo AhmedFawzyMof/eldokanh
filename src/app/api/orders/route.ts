@@ -7,8 +7,9 @@ import {
 import { getAuthSession } from "@/lib/auth-session";
 import { createFawaterkInvoice } from "@/lib/fawaterk";
 import { db } from "@/db";
-import { products } from "@/db/schema";
-import { inArray } from "drizzle-orm";
+import { products, admins } from "@/db/schema";
+import { inArray, isNotNull } from "drizzle-orm";
+import { sendFCMMessage } from "@/lib/fcm";
 import { validatePromoCode } from "@/models/promo_codes";
 
 export async function GET(req: Request) {
@@ -149,6 +150,28 @@ export async function POST(req: Request) {
     console.log("Order POST - Creating Order in DB...");
     const result = await createUserOrder(orderPayload);
     console.log("Order POST - DB Result:", result);
+
+    if (result.success) {
+      try {
+        const adminUsers = await db
+          .select({ fid: admins.fid })
+          .from(admins)
+          .where(isNotNull(admins.fid));
+
+        for (const admin of adminUsers) {
+          if (admin.fid) {
+            await sendFCMMessage(
+              admin.fid,
+              "طلب جديد",
+              `تم استلام طلب جديد برقم ${result.orderId}`,
+              "https://eldokanh.firebaseapp.com/dashboard/orders"
+            );
+          }
+        }
+      } catch (notificationError) {
+        console.error("Order POST - Failed to send notifications:", notificationError);
+      }
+    }
 
     if (paymentMethod !== "cash" && result.success) {
       console.log("Order POST - Initiating Fawaterk Payment...");

@@ -17,6 +17,7 @@ export const admins = sqliteTable("admins", {
     .notNull()
     .references(() => users.id),
   permissions: text("permissions").default("full"),
+  fid: text("fid"),
 });
 
 export const products_category = sqliteTable("categories", {

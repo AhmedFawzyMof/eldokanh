@@ -19,9 +19,10 @@ const cairo = Cairo({
 });
 
 export const metadata = {
-  title: "Eldokanh Market - Frozen Food & Online Supermarket ",
+  title:
+    "الدكان ماركت - سوبر ماركت اونلاين | Eldokanh Market - Online Supermarket",
   description:
-    "Eldokanh Market is your trusted online supermarket in Cairo. Order frozen food, groceries, vegetables, meat, dairy and daily essentials delivered fast to your door.",
+    "سوبر ماركت الدكان هو متجرك الموثوق عبر الإنترنت في القاهرة. اطلب الأطعمة المجمدة والبقالة والخضروات واللحوم تصلك بسرعة لباب بيتك. | Eldokanh Market is your trusted online supermarket in Cairo. Order frozen food, groceries, vegetables, meat, dairy and daily essentials delivered fast to your door.",
   authors: [
     { name: "Mohanad Refaye", url: "https://github.com/enghenzoo" },
     { name: "Ahmed Moftah", url: "https://github.com/AhmedFawzyMof" },
@@ -59,6 +60,10 @@ export const metadata = {
     "توصيل البقالة للمنزل",
     "best supermarket Cairo",
     "أفضل سوبر ماركت القاهرة",
+    "الدكان",
+    "eldokanh",
+    "eldokan",
+    "دكان ماركت",
   ],
   appleWebApp: {
     capable: true,
@@ -83,7 +88,7 @@ export default function RootLayout({
 }) {
   return (
     <html
-      lang="en"
+      lang="ar"
       className={`${cairo.variable} ${geistSans.variable} antialiased`}
     >
       <head>

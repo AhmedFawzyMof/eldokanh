@@ -42,12 +42,19 @@ export async function getAllAdmins(search?: string, permissions?: string) {
   return await query.all();
 }
 
-export async function updateAdmin(
+export const updateAdmin = async (
   id: number,
   data: Partial<typeof admins.$inferInsert>
-) {
+) => {
   return await db.update(admins).set(data).where(eq(admins.id, id)).returning();
-}
+};
+
+export const updateAdminByUserId = async (
+  userId: number,
+  data: Partial<typeof admins.$inferInsert>
+) => {
+  return await db.update(admins).set(data).where(eq(admins.userId, userId)).returning();
+};
 
 export async function deleteAdmin(id: number) {
   return await db.delete(admins).where(eq(admins.id, id));

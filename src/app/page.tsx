@@ -10,6 +10,7 @@ import { BrandsSection } from "@/features/home/components/brands-section";
 import { getAllOffers } from "@/models/offers";
 import { CTASection } from "@/features/home/components/cta-section";
 import { getAuthSession } from "@/lib/auth-session";
+import { PWAInstallBanner } from "@/components/pwa-install-banner";
 
 export default async function HomePage() {
   const session = await getAuthSession();
@@ -32,6 +33,7 @@ export default async function HomePage() {
       <HeroCarousel offers={offers} />
       <BrandsSection brands={brands} />
       <ProductsSection products={latestproducts} />
+      <PWAInstallBanner />
       <CTASection />
     </div>
   );

@@ -44,21 +44,20 @@ export default function AdminLoginPage() {
 
       if (result?.error) {
         toast.error("خطأ في تسجيل الدخول. يرجى التأكد من البيانات.");
+        setIsLoading(false);
       } else {
         toast.success("تم تسجيل الدخول بنجاح");
-        router.push("/admin/dashboard");
-        router.refresh();
+        window.location.href = "/admin/dashboard";
       }
     } catch (error) {
       toast.error("حدث خطأ ما. يرجى المحاولة لاحقاً.");
-    } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-primary/10 via-background to-background p-4">
-      <div className="absolute inset-0 bg-grid-slate-900/[0.04] bg-[center_top_-1px] [mask-image:linear-gradient(180deg,white,rgba(255,255,255,0))]" />
+    <div className="flex min-h-screen items-center justify-center bg-[radial-gradient(ellipse_at_top,var(--tw-gradient-stops))] from-primary/10 via-background to-background p-4">
+      <div className="absolute inset-0 bg-grid-slate-900/[0.04] bg-position-[center_top_-1px] mask-[linear-gradient(180deg,white,rgba(255,255,255,0))]" />
 
       <Card
         dir="rtl"

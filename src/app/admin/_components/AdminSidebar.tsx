@@ -14,6 +14,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { useQuery } from "@tanstack/react-query";
 import adminApi from "@/lib/admin/api";
 import { hasPermission } from "@/types/permissions";
+import { useNotificationManager } from "@/hooks/useInitFirebase";
 
 export default function AdminSidebar() {
   const pathname = usePathname();
@@ -24,7 +25,7 @@ export default function AdminSidebar() {
   const userPermissions = session?.user?.permissions;
   const userRole = session?.user?.role;
   const isAdmin = userRole === "admin";
-
+  useNotificationManager();
   useEffect(() => {
     if (typeof window !== "undefined") {
       const host = window.location.host;
@@ -112,8 +113,6 @@ export default function AdminSidebar() {
                           ? data?.data.orders
                           : 0;
 
-                    if (!count || count === 0) return null;
-
                     return (
                       <span
                         className={cn(
@@ -123,7 +122,7 @@ export default function AdminSidebar() {
                             : "bg-primary text-primary-foreground",
                         )}
                       >
-                        {count}
+                        {count || 0}
                       </span>
                     );
                   })()}
