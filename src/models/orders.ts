@@ -50,7 +50,7 @@ export async function getAllOrders(page: number, search: string | null) {
     })
     .from(orders)
     .leftJoin(users, eq(orders.userId, users.id))
-    .innerJoin(orderItems, eq(orders.id, orderItems.orderId))
+    .leftJoin(orderItems, eq(orders.id, orderItems.orderId))
     .groupBy(orders.id)
     .limit(limit)
     .offset(offset)
@@ -58,12 +58,9 @@ export async function getAllOrders(page: number, search: string | null) {
 
   const total = await db
     .select({
-      count: sql<number>`COUNT(${orders.id})`,
+      count: sql<number>`COUNT(DISTINCT ${orders.id})`,
     })
     .from(orders)
-    .innerJoin(users, eq(orders.userId, users.id))
-    .innerJoin(orderItems, eq(orders.id, orderItems.orderId))
-    .groupBy(orders.id)
     .get();
 
   return { orders: ordersData, count: total?.count || 0 };

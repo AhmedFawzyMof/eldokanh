@@ -1,26 +1,35 @@
-import { getMessaging, onRegistered, register } from "firebase/messaging";
+import { getToken } from "firebase/messaging";
 import { getMessagingInstance } from "@/fcm/firebase";
 
 const VAPID_PUBLIC_KEY =
   "BOtZw0iQuGdvm3V6msLqr3kENkQutVlJMVIFofW_zp5muS1BPLqO35zEUSo81osXFizkkui0mvjRRPu7Dr4zcT8";
 
-export async function setupFCMListener(
-  sendRegistrationToServer: (registrationId: string) => void,
-) {
+/**
+ * Gets the FCM registration token and invokes the callback with it.
+ *
+ * IMPORTANT: onRegistered() returns an Installation ID (FID) — a device
+ * identifier that cannot be used as a push message target.
+ * getToken() returns the actual FCM registration token that must be stored
+ * and used in message.token when calling the FCM HTTP v1 send API.
+ */
+export async function getFCMToken(
+  onToken: (token: string) => void,
+): Promise<void> {
   const messaging = await getMessagingInstance();
-  if (!messaging) return;
-  onRegistered(messaging, (installationId) => {
-    console.log("Registered installation ID:", installationId);
-    sendRegistrationToServer(installationId);
-  });
-}
-export async function triggerFCMRegistration() {
-  const messaging = await getMessagingInstance();
-  if (!messaging) return;
+  if (!messaging) {
+    console.warn("FCM: messaging not supported in this environment.");
+    return;
+  }
+
   try {
-    await register(messaging, { vapidKey: VAPID_PUBLIC_KEY });
-    console.log("FCM Registration setup initiated successfully.");
+    const token = await getToken(messaging, { vapidKey: VAPID_PUBLIC_KEY });
+    if (token) {
+      console.log("FCM: registration token obtained.");
+      onToken(token);
+    } else {
+      console.warn("FCM: no token received — notification permission may be denied.");
+    }
   } catch (err) {
-    console.error("An error occurred while registering", err);
+    console.error("FCM: error obtaining registration token:", err);
   }
 }

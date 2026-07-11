@@ -39,6 +39,8 @@ export default function AdminSidebar() {
     queryFn: async () => {
       return await adminApi.get("/counters");
     },
+    refetchInterval: 30_000, // refresh badge every 30s
+    staleTime: 20_000,
   });
 
   const effectivePermissions = userPermissions || (isAdmin ? "full" : "");
