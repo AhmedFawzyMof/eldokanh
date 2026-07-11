@@ -58,6 +58,8 @@ export async function sendFCMMessage(
         error: result.error?.message || "FCM send failed",
       };
     }
+    
+    console.log(`FCM Message sent successfully to ${targetFid.substring(0, 10)}... Message ID: ${result.name}`);
     return { success: true, messageId: result.name };
   } catch (error) {
     console.error("FCM Send Exception:", error);

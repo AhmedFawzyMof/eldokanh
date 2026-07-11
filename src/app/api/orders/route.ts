@@ -153,10 +153,13 @@ export async function POST(req: Request) {
 
     if (result.success) {
       try {
+        console.log("Order POST - Checking for admins with FCM tokens...");
         const adminUsers = await db
           .select({ fid: admins.fid })
           .from(admins)
           .where(isNotNull(admins.fid));
+
+        console.log(`Order POST - Found ${adminUsers.length} admins with tokens.`);
 
         for (const admin of adminUsers) {
           if (admin.fid) {
