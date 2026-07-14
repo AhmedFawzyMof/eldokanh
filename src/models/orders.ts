@@ -9,7 +9,7 @@ import {
   promoCodeUsages,
   promoCodes,
 } from "@/db/schema";
-import { and, count, eq, inArray, not, sql, desc } from "drizzle-orm";
+import { and, count, eq, inArray, not, sql, desc, or, like, between } from "drizzle-orm";
 
 export async function createOrder(
   data: typeof orders.$inferInsert,
@@ -29,14 +29,16 @@ export async function createOrder(
   return order;
 }
 
-export async function getAllOrders(page: number, search: string | null) {
+export async function getAllOrders(page: number, search: string | null, startDate?: string, endDate?: string) {
   const limit = 20;
   const offset = (page - 1) * limit || 0;
-  const conditions: any[] = [];
-  if (search) {
-    conditions.push(eq(orders.id, Number(search)));
-    conditions.push(eq(users.name, search));
-  }
+  
+  const searchFilter = search ? or(eq(orders.id, Number(search) || 0), like(users.name, `%${search}%`)) : undefined;
+  const dateFilter = startDate && endDate ? between(orders.createdAt, `${startDate} 00:00:00`, `${endDate} 23:59:59`) : undefined;
+  
+  const whereClause = searchFilter && dateFilter 
+    ? and(searchFilter, dateFilter)
+    : searchFilter || dateFilter;
 
   const ordersData = await db
     .select({
@@ -51,7 +53,9 @@ export async function getAllOrders(page: number, search: string | null) {
     .from(orders)
     .leftJoin(users, eq(orders.userId, users.id))
     .leftJoin(orderItems, eq(orders.id, orderItems.orderId))
+    .where(whereClause)
     .groupBy(orders.id)
+    .orderBy(desc(orders.id))
     .limit(limit)
     .offset(offset)
     .all();
@@ -61,6 +65,7 @@ export async function getAllOrders(page: number, search: string | null) {
       count: sql<number>`COUNT(DISTINCT ${orders.id})`,
     })
     .from(orders)
+    .where(whereClause)
     .get();
 
   return { orders: ordersData, count: total?.count || 0 };
@@ -243,13 +248,18 @@ export async function createUserOrder(data: any) {
       const itemsToInsert = await Promise.all(
         data.items.map(async (item: any) => {
           const product = await tx
-            .select({ buyingPrice: products.buyingPrice, price: products.price })
+            .select({
+              buyingPrice: products.buyingPrice,
+              price: products.price,
+            })
             .from(products)
             .where(eq(products.id, Number(item.productId)))
             .get();
-          
+
           if (!product) {
-            throw new Error(`Product ${item.productId} not found during transaction`);
+            throw new Error(
+              `Product ${item.productId} not found during transaction`,
+            );
           }
 
           return {
@@ -261,8 +271,11 @@ export async function createUserOrder(data: any) {
           };
         }),
       );
-      
-      console.log("DB Transaction - Inserting Order Items:", itemsToInsert.length);
+
+      console.log(
+        "DB Transaction - Inserting Order Items:",
+        itemsToInsert.length,
+      );
       await tx.insert(orderItems).values(itemsToInsert);
 
       console.log("DB Transaction - Inserting Address...");
@@ -299,7 +312,10 @@ export async function createUserOrder(data: any) {
             orderId: orderId,
           });
         } else {
-          console.warn("DB Transaction - Promo code not found in DB:", data.promoCodeId);
+          console.warn(
+            "DB Transaction - Promo code not found in DB:",
+            data.promoCodeId,
+          );
         }
       }
 

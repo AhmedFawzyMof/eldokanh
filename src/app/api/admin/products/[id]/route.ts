@@ -20,6 +20,9 @@ export async function PUT(
   const discountPrice = formData.has("discountPrice")
     ? Number(formData.get("discountPrice"))
     : null;
+  const buyingPrice = formData.has("buyingPrice")
+    ? Number(formData.get("buyingPrice"))
+    : null;
   const categoryId = Number(formData.get("categoryId"));
   const subcategoryId = formData.has("subcategoryId")
     ? Number(formData.get("subcategoryId"))
@@ -61,6 +64,7 @@ export async function PUT(
       description,
       price,
       discountPrice,
+      buyingPrice,
       categoryId,
       subcategoryId,
       brandId,

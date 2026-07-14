@@ -72,6 +72,7 @@ export async function POST(req: NextRequest) {
   const description = formData.get("description") as string;
   const price = Number(formData.get("price"));
   const discountPrice = formData.has("discountPrice") ? Number(formData.get("discountPrice")) : null;
+  const buyingPrice = formData.has("buyingPrice") ? Number(formData.get("buyingPrice")) : null;
   const categoryId = Number(formData.get("categoryId"));
   const subcategoryId = formData.has("subcategoryId") ? Number(formData.get("subcategoryId")) : null;
   const brandId = formData.has("brandId") ? Number(formData.get("brandId")) : null;
@@ -94,6 +95,7 @@ export async function POST(req: NextRequest) {
       description,
       price,
       discountPrice,
+      buyingPrice,
       categoryId,
       subcategoryId,
       brandId,

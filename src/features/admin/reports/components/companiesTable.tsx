@@ -44,6 +44,7 @@ export function CompaniesTable({ brands }: { brands: any[] }) {
             <TableRow>
               <TableHead className="text-right">الشركة</TableHead>
               <TableHead className="text-right">عدد الطلبات</TableHead>
+              <TableHead className="text-right">الكمية المباعة</TableHead>
               <TableHead className="text-right">إجمالي الإيرادات</TableHead>
               <TableHead className="text-right">صافي الربح</TableHead>
               <TableHead className="text-right"></TableHead>
@@ -56,6 +57,7 @@ export function CompaniesTable({ brands }: { brands: any[] }) {
                   {brand.name || "غير محدد"}
                 </TableCell>
                 <TableCell>{brand.orders}</TableCell>
+                <TableCell>{brand.quantity || 0}</TableCell>
                 <TableCell>
                   {brand.revenue?.toLocaleString() || 0} ج.م
                 </TableCell>

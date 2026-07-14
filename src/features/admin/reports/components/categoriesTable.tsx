@@ -49,6 +49,7 @@ export function CategoriesTable({ categories }: { categories: any[] }) {
             <TableRow>
               <TableHead className="text-right">القسم</TableHead>
               <TableHead className="text-right">عدد الطلبات</TableHead>
+              <TableHead className="text-right">الكمية المباعة</TableHead>
               <TableHead className="text-right">إجمالي الإيرادات</TableHead>
               <TableHead className="text-right">صافي الربح</TableHead>
               <TableHead className="text-right"></TableHead>
@@ -61,6 +62,7 @@ export function CategoriesTable({ categories }: { categories: any[] }) {
                   {category.name || "غير محدد"}
                 </TableCell>
                 <TableCell>{category.orders}</TableCell>
+                <TableCell>{category.quantity || 0}</TableCell>
                 <TableCell>
                   {category.revenue?.toLocaleString() || 0} ج.م
                 </TableCell>

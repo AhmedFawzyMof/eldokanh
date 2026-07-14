@@ -129,6 +129,7 @@ export function AllProductsTable({
                 <TableHead className="text-right">القسم</TableHead>
                 <TableHead className="text-right">الشركة</TableHead>
                 <TableHead className="text-right">عدد الطلبات</TableHead>
+                <TableHead className="text-right">الكمية المباعة</TableHead>
                 <TableHead className="text-right">إجمالي الإيرادات</TableHead>
                 <TableHead className="text-right">صافي الربح</TableHead>
               </TableRow>
@@ -136,7 +137,7 @@ export function AllProductsTable({
             <TableBody>
               {products.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={6} className="text-center py-10 text-muted-foreground">
+                  <TableCell colSpan={7} className="text-center py-10 text-muted-foreground">
                     لا توجد منتجات مطابقة لهذا الفلتر في هذه الفترة
                   </TableCell>
                 </TableRow>
@@ -147,6 +148,7 @@ export function AllProductsTable({
                     <TableCell>{p.categoryName || "-"}</TableCell>
                     <TableCell>{p.brandName || "-"}</TableCell>
                     <TableCell>{p.orders}</TableCell>
+                    <TableCell>{p.quantity || 0}</TableCell>
                     <TableCell>{p.revenue?.toLocaleString() || 0} ج.م</TableCell>
                     <TableCell className="text-primary font-bold">
                       {p.profit?.toLocaleString() || 0} ج.م
