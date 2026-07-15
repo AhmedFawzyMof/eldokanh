@@ -5,6 +5,9 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { EditProduct } from "@/features/admin/products/components/edit-products";
+import { useProductMutations } from "../actions";
+import { Loader2, Power } from "lucide-react";
+import { useState } from "react";
 
 export function ProductCard({
   product,
@@ -20,12 +23,41 @@ export function ProductCard({
   setSelectedProducts: (prev: any) => void;
 }) {
   const isSelected = selectedProducts.includes(product.id!);
+  const [isToggling, setIsToggling] = useState(false);
+  const { editMutation } = useProductMutations();
 
   const toggleSelect = (id: number) => {
     setSelectedProducts((prev: any) =>
       prev.includes(id) ? prev.filter((i: number) => i !== id) : [...prev, id],
     );
   };
+
+  const handleToggleActive = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (isToggling) return;
+    
+    setIsToggling(true);
+    const formDataToSend = new FormData();
+    const updatedProduct = { ...product, isActive: !product.isActive };
+    
+    Object.entries(updatedProduct).forEach(([key, value]) => {
+      if (value !== undefined && value !== null) {
+        if (key === "images" && value) {
+          formDataToSend.append(key, JSON.stringify(value));
+        } else {
+          formDataToSend.append(key, String(value));
+        }
+      }
+    });
+
+    editMutation.mutate({
+      id: product.id!,
+      data: formDataToSend,
+    }, {
+      onSettled: () => setIsToggling(false)
+    });
+  };
+
   return (
     <Card
       key={product.id}
@@ -55,12 +87,21 @@ export function ProductCard({
           <div className="flex-1 flex flex-col justify-between min-w-0 text-right">
             <div>
               <div className="flex justify-between items-start gap-1">
-                <Badge
-                  variant={product.isActive ? "secondary" : "destructive"}
-                  className="text-[10px] px-1.5 h-5 shrink-0"
+                <button
+                  onClick={handleToggleActive}
+                  disabled={isToggling}
+                  className="shrink-0 transition-opacity hover:opacity-80 disabled:opacity-50 flex items-center gap-1"
                 >
-                  {product.isActive ? "متاح" : "غير متاح"}
-                </Badge>
+                  {isToggling ? (
+                    <Loader2 className="h-4 w-4 animate-spin text-primary" />
+                  ) : null}
+                  <Badge
+                    variant={product.isActive ? "secondary" : "destructive"}
+                    className="text-[10px] px-1.5 h-5 cursor-pointer"
+                  >
+                    {product.isActive ? "متاح" : "غير متاح"}
+                  </Badge>
+                </button>
                 <h3 className="font-bold text-sm text-slate-900 leading-snug truncate flex-1">
                   {product.nameAr}
                 </h3>

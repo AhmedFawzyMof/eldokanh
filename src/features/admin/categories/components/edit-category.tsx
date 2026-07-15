@@ -73,6 +73,8 @@ export function EditCategory({ categoryEdit }: EditCategoryProps) {
         );
       }
 
+      formDataToSend.append("isActive", String(formData.isActive));
+
       editMutation.mutate(
         {
           id: formData.id,
@@ -172,7 +174,7 @@ export function EditCategory({ categoryEdit }: EditCategoryProps) {
             <div className="space-y-2 text-right">
               <Label>حالة العرض</Label>
               <Select
-                defaultValue="1"
+                value={formData.isActive ? "1" : "0"}
                 onValueChange={(val) => handleChange("isActive", val === "1")}
               >
                 <SelectTrigger dir="rtl" className="rounded-xl bg-white">
