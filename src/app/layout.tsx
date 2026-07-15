@@ -5,6 +5,7 @@ import { Header } from "@/components/header";
 import Providers from "./providers";
 import { Toaster } from "@/components/ui/sonner";
 import { BottomTabs } from "@/components/tabs";
+import { StoreStatusBanner } from "@/components/store-status-banner";
 
 const geistSans = Geist({
   subsets: ["latin"],
@@ -98,6 +99,7 @@ export default function RootLayout({
       </head>
       <body className="font-(--font-cairo) bg-slate-50">
         <Providers>
+          <StoreStatusBanner />
           <Header />
           {children}
           <BottomTabs />

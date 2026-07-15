@@ -8,6 +8,7 @@ interface SummaryProps {
   finalTotal: number;
   isProcessing: boolean;
   citySelected: boolean;
+  isClosed?: boolean;
 }
 
 export default function OrderSummary({
@@ -17,6 +18,7 @@ export default function OrderSummary({
   finalTotal,
   isProcessing,
   citySelected,
+  isClosed = false,
 }: SummaryProps) {
   return (
     <div className="sticky top-24 bg-white rounded-3xl p-6 shadow-sm border space-y-6">
@@ -57,8 +59,8 @@ export default function OrderSummary({
         form="checkout-form"
         type="submit"
         size="lg"
-        className="w-full rounded-full text-lg h-12"
-        disabled={isProcessing}
+        className="w-full rounded-full text-lg h-12 disabled:opacity-50"
+        disabled={isProcessing || isClosed}
       >
         {isProcessing ? <Loader2 className="animate-spin" /> : "تأكيد الطلب"}
       </Button>

@@ -27,6 +27,14 @@ export default function CheckoutPage() {
   const [deliveryOptions, setDeliveryOptions] = useState<DeliveryOption[]>([]);
   const [selectedCity, setSelectedCity] = useState<string>("");
   const [paymentMethod, setPaymentMethod] = useState("cash");
+  const [isClosed, setIsClosed] = useState(false);
+
+  useEffect(() => {
+    const hour = new Date().getHours();
+    if (hour >= 0 && hour < 11) {
+      setIsClosed(true);
+    }
+  }, []);
 
   const {
     cart,
@@ -164,6 +172,7 @@ export default function CheckoutPage() {
               finalTotal={finalTotal}
               isProcessing={isProcessing}
               citySelected={!!selectedCity}
+              isClosed={isClosed}
             />
           </div>
         </div>
