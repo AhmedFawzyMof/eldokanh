@@ -42,7 +42,7 @@ export default function LoginForm() {
     const callbackUrl = buildCallbackUrl(searchParams.get("callbackUrl"));
 
     if (!session) {
-      if (auto === "google" || auto === "facebook") {
+      if (auto === "google") {
         let targetUrl = callbackUrl;
 
         // If it's a mobile callback, wrap it in our relay
@@ -153,13 +153,7 @@ export default function LoginForm() {
             Google
           </Button>
 
-          {/* Facebook Login */}
-          <Button
-            className="w-full rounded"
-            onClick={() => signIn("facebook", { callbackUrl: buildCallbackUrl(searchParams.get("callbackUrl")) })}
-          >
-            Facebook
-          </Button>
+
         </CardContent>
 
         <CardFooter>

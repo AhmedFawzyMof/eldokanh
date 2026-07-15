@@ -16,18 +16,34 @@ export default function PromoCodeSection() {
     if (!promoInput) return;
     setIsValidatingPromo(true);
     try {
-      const res = await fetch(`/api/promo?code=${promoInput}`);
+      const res = await fetch("/api/promo", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code: promoInput }),
+      });
       const data = await res.json();
 
       if (res.ok) {
         applyPromoCode(data);
-        toast.success("تم تطبيق كود الخصم بنجاح");
+        const discount =
+          data.discountType === "percentage"
+            ? `خصم ${data.discountValue}%`
+            : `خصم ${data.discountValue} ج.م`;
+        toast.success(`🎉 تم تطبيق كود "${data.code}" بنجاح — ${discount}`);
         setPromoInput("");
       } else {
-        toast.error(data.error || "كود الخصم غير صحيح");
+        const msg: string = data.error || "";
+        if (msg.includes("already used"))
+          toast.error("⚠️ لقد استخدمت هذا الكود من قبل ولا يمكن استخدامه مرة أخرى");
+        else if (msg.includes("usage limit"))
+          toast.error("❌ عذراً، تجاوز هذا الكود الحد الأقصى للاستخدام");
+        else if (msg.includes("expired") || msg.includes("Invalid"))
+          toast.error("❌ كود الخصم غير صحيح أو انتهت صلاحيته");
+        else
+          toast.error(`❌ ${msg || "كود الخصم غير صحيح"}`);
       }
     } catch (err) {
-      toast.error("حدث خطأ أثناء التحقق من الكود");
+      toast.error("🚫 حدث خطأ أثناء التحقق من الكود، يرجى المحاولة لاحقاً");
     } finally {
       setIsValidatingPromo(false);
     }

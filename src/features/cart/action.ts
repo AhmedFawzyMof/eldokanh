@@ -26,11 +26,23 @@ export const usePromoCodeMutation = ({
     },
     onSuccess: (data) => {
       applyPromoCode(data);
-      toast.success(`Promo "${data.code}" applied successfully`);
+      const discount =
+        data.discountType === "percentage"
+          ? `خصم ${data.discountValue}%`
+          : `خصم ${data.discountValue} ج.م`;
+      toast.success(`🎉 تم تطبيق كود "${data.code}" بنجاح — ${discount}`);
     },
     onError: (error: any) => {
       removePromoCode();
-      toast.error(error.message || "Failed to apply promo code");
+      const msg: string = error.message || "";
+      if (msg.includes("already used"))
+        toast.error("⚠️ لقد استخدمت هذا الكود من قبل ولا يمكن استخدامه مرة أخرى");
+      else if (msg.includes("usage limit"))
+        toast.error("❌ عذراً، تجاوز هذا الكود الحد الأقصى للاستخدام");
+      else if (msg.includes("expired") || msg.includes("Invalid"))
+        toast.error("❌ كود الخصم غير صحيح أو انتهت صلاحيته");
+      else
+        toast.error(`❌ ${msg || "فشل تطبيق كود الخصم، يرجى المحاولة لاحقاً"}`);
     },
   });
 };

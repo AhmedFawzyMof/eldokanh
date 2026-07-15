@@ -1,6 +1,5 @@
 import { NextAuthOptions } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
-import FacebookProvider from "next-auth/providers/facebook";
 import CredentialsProvider from "next-auth/providers/credentials";
 import bcrypt from "bcrypt";
 import { OAuth2Client } from "google-auth-library";
@@ -86,16 +85,13 @@ export const authOptions: NextAuthOptions = {
       clientId: process.env.GOOGLE_CLIENT_ID!,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
     }),
-    FacebookProvider({
-      clientId: process.env.FACEBOOK_CLIENT_ID!,
-      clientSecret: process.env.FACEBOOK_CLIENT_SECRET!,
-    }),
+
   ],
   callbacks: {
     async signIn({ user, account }) {
       if (!account) return false;
 
-      if (account.provider === "google" || account.provider === "facebook") {
+      if (account.provider === "google") {
         const existingUser = await db.query.users.findFirst({
           where: eq(users.email, user.email!),
         });

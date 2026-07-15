@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useRef } from "react";
 import { Brand } from "@/db/schema.types";
 
@@ -64,17 +65,20 @@ export function BrandsSection(brands: { brands: Partial<BrandSectionType>[] }) {
           {doubledBrands.map((brand, i: number) => (
             <div
               key={`${brand.nameAr}-${i}`}
-              className="group cursor-pointer flex-shrink-0 w-32 bg-background border border-border/50 rounded-2xl p-2 transition-all duration-300 hover:shadow-lg hover:border-primary/20"
+              className="group cursor-pointer shrink-0 w-32 bg-background border border-border/50 rounded-2xl p-2 transition-all duration-300 hover:shadow-lg hover:border-primary/20"
             >
               <Link
                 href={`/brand/${brand.id}`}
                 className="flex flex-col items-center"
               >
                 <div className="relative w-full aspect-square rounded-xl overflow-hidden bg-muted">
-                  <img
+                  <Image
                     src={brand.image!}
-                    alt={brand.nameAr}
-                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                    alt={brand.nameAr ?? ""}
+                    fill
+                    sizes="128px"
+                    className="object-cover transition-transform duration-500 group-hover:scale-110"
+                    loading="lazy"
                     draggable={false}
                   />
                 </div>
