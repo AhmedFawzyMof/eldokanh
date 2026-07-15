@@ -10,7 +10,8 @@ import { toast } from "sonner";
 export default function PromoCodeSection() {
   const [promoInput, setPromoInput] = useState("");
   const [isValidatingPromo, setIsValidatingPromo] = useState(false);
-  const { promoCode, applyPromoCode, removePromoCode, getSubtotal } = useCartStore();
+  const { promoCode, applyPromoCode, removePromoCode, getSubtotal } =
+    useCartStore();
 
   const MINIMUM_ORDER_FOR_PROMO = 100;
 
@@ -18,8 +19,10 @@ export default function PromoCodeSection() {
     if (!promoInput) return;
 
     const subtotal = getSubtotal();
-    if (subtotal < MINIMUM_ORDER_FOR_PROMO) {
-      toast.error(`🛒 الحد الأدنى لتطبيق كود الخصم هو ${MINIMUM_ORDER_FOR_PROMO} ج.م`);
+    if (subtotal <= MINIMUM_ORDER_FOR_PROMO) {
+      toast.error(
+        `🛒 الحد الأدنى لتطبيق كود الخصم هو ${MINIMUM_ORDER_FOR_PROMO} ج.م`,
+      );
       return;
     }
     setIsValidatingPromo(true);
@@ -42,13 +45,14 @@ export default function PromoCodeSection() {
       } else {
         const msg: string = data.error || "";
         if (msg.includes("already used"))
-          toast.error("⚠️ لقد استخدمت هذا الكود من قبل ولا يمكن استخدامه مرة أخرى");
+          toast.error(
+            "⚠️ لقد استخدمت هذا الكود من قبل ولا يمكن استخدامه مرة أخرى",
+          );
         else if (msg.includes("usage limit"))
           toast.error("❌ عذراً، تجاوز هذا الكود الحد الأقصى للاستخدام");
         else if (msg.includes("expired") || msg.includes("Invalid"))
           toast.error("❌ كود الخصم غير صحيح أو انتهت صلاحيته");
-        else
-          toast.error(`❌ ${msg || "كود الخصم غير صحيح"}`);
+        else toast.error(`❌ ${msg || "كود الخصم غير صحيح"}`);
       }
     } catch (err) {
       toast.error("🚫 حدث خطأ أثناء التحقق من الكود، يرجى المحاولة لاحقاً");

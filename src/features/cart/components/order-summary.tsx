@@ -23,6 +23,7 @@ export function OrderSummary({
     usePromoCodeMutation({
       applyPromoCode,
       removePromoCode,
+      getSubtotal,
     });
 
   const handleApplyPromo = () => {
