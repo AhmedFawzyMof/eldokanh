@@ -144,6 +144,7 @@ export async function getLatestProducts(favFilter?: {
 }) {
   const conditions: any[] = [];
   conditions.push(eq(products.isActive, true));
+  conditions.push(eq(products.categoryId, 1));
   let productQuery = db
     .select({
       id: products.id,
