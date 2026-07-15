@@ -1,5 +1,4 @@
 import adminApi from "@/lib/admin/api";
-import { useRouter } from "next/navigation";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
@@ -54,11 +53,9 @@ export const useGetSubcategories = (
 
 export const useProductMutations = () => {
   const queryClient = useQueryClient();
-  const router = useRouter();
 
   const invalidateProducts = () => {
     queryClient.invalidateQueries({ queryKey: ["admin", "products"] });
-    router.refresh();
   };
 
   const addMutation = useMutation({

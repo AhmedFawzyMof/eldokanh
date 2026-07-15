@@ -111,7 +111,6 @@ export async function getSubcategoryById(id: number) {
 }
 
 export async function getSubcategoryByCategory(category: number) {
-  console.log("category", category);
   return await db
     .select({
       id: product_subcategories.id,
@@ -120,8 +119,13 @@ export async function getSubcategoryByCategory(category: number) {
       productCount: sql<number>`count(case when ${products.isActive} = true then 1 end)`,
     })
     .from(product_subcategories)
-    .innerJoin(products, eq(products.subcategoryId, product_subcategories.id))
-    .where(eq(product_subcategories.categoryId, category))
+    .leftJoin(products, eq(products.subcategoryId, product_subcategories.id))
+    .where(
+      and(
+        eq(product_subcategories.categoryId, category),
+        eq(product_subcategories.isActive, true),
+      ),
+    )
     .groupBy(product_subcategories.id);
 }
 
