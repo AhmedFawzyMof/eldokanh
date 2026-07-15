@@ -27,7 +27,7 @@ export default function PaymentMethod({ value, onChange }: PaymentMethodProps) {
           <div className="flex flex-col">
             <span className="font-medium">دفع الكتروني (فواتيرك)</span>
             <span className="text-xs text-muted-foreground">
-              ادفع بأمان باستخدام البطاقات البنكية أو المحافظ الإلكترونية
+              ادفع بأمان باستخدام المحافظ الإلكترونية
             </span>
           </div>
         </Label>

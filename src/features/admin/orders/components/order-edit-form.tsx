@@ -80,7 +80,7 @@ export default function OrderEditForm({
     if (section) {
       setFormData({
         ...formData,
-        [section]: { ...formData[section], [field]: value },
+        [section]: { ...(formData[section] || {}), [field]: value },
       });
     } else {
       setFormData({ ...formData, [field]: value });
@@ -178,7 +178,8 @@ export default function OrderEditForm({
                 <div className="space-y-2 md:col-span-2">
                   <Label className="font-bold">الاسم بالكامل</Label>
                   <Input
-                    value={formData.address.fullName || ""}
+                    required
+                    value={formData.address?.fullName || ""}
                     onChange={(e) =>
                       update("address", "fullName", e.target.value)
                     }
@@ -189,7 +190,8 @@ export default function OrderEditForm({
                 <div className="space-y-2">
                   <Label className="font-bold">رقم الهاتف</Label>
                   <Input
-                    value={formData.address.phone || ""}
+                    required
+                    value={formData.address?.phone || ""}
                     onChange={(e) => update("address", "phone", e.target.value)}
                     className="h-12 rounded-xl border-slate-200 shadow-none"
                   />
@@ -198,9 +200,10 @@ export default function OrderEditForm({
                 <div className="space-y-2">
                   <Label className="font-bold">المدينة / المنطقة</Label>
                   <Select
+                    required
                     onValueChange={(city) => setSelectedCity(JSON.parse(city))}
                     defaultValue={JSON.stringify(
-                      cities.find((c) => c.city === formData.address.city),
+                      cities.find((c) => c.city === formData.address?.city),
                     )}
                   >
                     <SelectTrigger className="h-12 rounded-xl border-slate-200 shadow-none">
@@ -221,7 +224,8 @@ export default function OrderEditForm({
                 <div className="space-y-2 md:col-span-2">
                   <Label className="font-bold">الشارع</Label>
                   <Input
-                    value={formData.address.street || ""}
+                    required
+                    value={formData.address?.street || ""}
                     onChange={(e) =>
                       update("address", "street", e.target.value)
                     }
@@ -233,7 +237,7 @@ export default function OrderEditForm({
                   <div className="space-y-2">
                     <Label className="font-bold">المبنى</Label>
                     <Input
-                      value={formData.address.building || ""}
+                      value={formData.address?.building || ""}
                       onChange={(e) =>
                         update("address", "building", e.target.value)
                       }
@@ -243,7 +247,7 @@ export default function OrderEditForm({
                   <div className="space-y-2">
                     <Label className="font-bold">الدور</Label>
                     <Input
-                      value={formData.address.floor || ""}
+                      value={formData.address?.floor || ""}
                       onChange={(e) =>
                         update("address", "floor", e.target.value)
                       }
@@ -355,7 +359,8 @@ export default function OrderEditForm({
                   <div className="space-y-2">
                     <Label className="font-bold">طريقة الدفع</Label>
                     <Input
-                      value={formData.payment.method}
+                      required
+                      value={formData.payment?.method || ""}
                       onChange={(e) =>
                         update("payment", "method", e.target.value)
                       }
@@ -366,7 +371,7 @@ export default function OrderEditForm({
                     <Label className="font-bold">تكلفة التوصيل (ج.م)</Label>
                     <Input
                       type="number"
-                      value={formData.payment.deliveryCost}
+                      value={formData.payment?.deliveryCost || ""}
                       onChange={(e) =>
                         update(
                           "payment",
@@ -404,7 +409,7 @@ export default function OrderEditForm({
                   <div className="flex justify-between text-sm text-slate-500">
                     <span>تكلفة التوصيل</span>
                     <span className="font-bold font-mono">
-                      {formData.payment.deliveryCost?.toLocaleString()} ج.م
+                      {formData.payment?.deliveryCost?.toLocaleString() || 0} ج.م
                     </span>
                   </div>
 
@@ -414,7 +419,7 @@ export default function OrderEditForm({
                     </span>
                     <span className="text-2xl font-black text-primary font-mono tracking-tight">
                       {(
-                        finalAmount + (formData.payment.deliveryCost || 0)
+                        finalAmount + (formData.payment?.deliveryCost || 0)
                       ).toLocaleString()}{" "}
                       ج.م
                     </span>

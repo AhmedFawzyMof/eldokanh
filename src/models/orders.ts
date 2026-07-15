@@ -180,8 +180,20 @@ export async function getOrderById(id: number) {
   return {
     ...order,
     items,
-    address,
-    payment,
+    address: address || {
+      fullName: "",
+      phone: "",
+      city: "",
+      street: "",
+      building: "",
+      floor: "",
+    },
+    payment: payment || {
+      amount: 0,
+      method: order.paymentMethod || "cash",
+      deliveryCost: 0,
+      status: order.paymentStatus || "pending",
+    },
     promo,
   };
 }
@@ -215,6 +227,7 @@ export async function deleteOrder(ids: number[]) {
   await db.delete(orderItems).where(inArray(orderItems.orderId, ids));
   await db.delete(addresses).where(inArray(addresses.orderId, ids));
   await db.delete(payments).where(inArray(payments.orderId, ids));
+  await db.delete(promoCodeUsages).where(inArray(promoCodeUsages.orderId, ids));
   return await db.delete(orders).where(inArray(orders.id, ids));
 }
 
