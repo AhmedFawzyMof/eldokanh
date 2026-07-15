@@ -6,6 +6,7 @@ import Providers from "./providers";
 import { Toaster } from "@/components/ui/sonner";
 import { BottomTabs } from "@/components/tabs";
 import { StoreStatusBanner } from "@/components/store-status-banner";
+import { GoogleAnalytics } from "@next/third-parties/google";
 
 const geistSans = Geist({
   subsets: ["latin"],
@@ -110,6 +111,7 @@ export default function RootLayout({
           toastOptions={{ duration: 5000 }}
           closeButton
         />
+        <GoogleAnalytics gaId="G-87V1EL3CQH" />
       </body>
     </html>
   );
