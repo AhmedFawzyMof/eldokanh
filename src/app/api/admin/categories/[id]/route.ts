@@ -17,7 +17,8 @@ export async function PUT(
   const descriptionAr = formData.get("descriptionAr") as string;
   const description = formData.get("description") as string;
   const oldImageUrl = formData.get("oldImageUrl") as string;
-  const isActive = formData.get("isActive") === "true";
+  const isActiveStr = formData.get("isActive");
+  const isActive = isActiveStr === "true" || isActiveStr === "1";
   const file = formData.get("file") as File | null;
 
   if (isNaN(Number(id))) {

@@ -58,12 +58,20 @@ export function CategoryCard({
           <div className="flex-1 flex flex-col justify-between min-w-0 text-right">
             <div>
               <div className="flex justify-between items-start gap-2">
-                <Badge
-                  variant={category.productCount ? "secondary" : "outline"}
-                  className="text-[10px] px-1.5 h-5 shrink-0"
-                >
-                  {category.productCount || 0} منتج
-                </Badge>
+                <div className="flex gap-1 flex-col">
+                  <Badge
+                    variant={category.isActive ? "secondary" : "destructive"}
+                    className="text-[10px] px-1.5 h-5 shrink-0"
+                  >
+                    {category.isActive ? "متاح" : "غير متاح"}
+                  </Badge>
+                  <Badge
+                    variant="outline"
+                    className="text-[10px] px-1.5 h-5 shrink-0"
+                  >
+                    {category.productCount || 0} منتج
+                  </Badge>
+                </div>
                 <div className="flex flex-col flex-1">
                   <h3 className="font-bold text-sm text-slate-900 leading-tight truncate">
                     {category.nameAr}
