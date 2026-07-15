@@ -9,10 +9,12 @@ import { EditSubCategory } from "@/features/admin/subcategories/components/edit-
 
 export function SubCategoryCard({
   subcategory,
+  categories,
   selectedSubCategories,
   setSelectedSubCategories,
 }: {
   subcategory: SubCategory;
+  categories: { id: number; nameAr: string }[];
   selectedSubCategories: number[];
   setSelectedSubCategories: (prev: any) => void;
 }) {
@@ -64,9 +66,21 @@ export function SubCategoryCard({
                   <h3 className="font-bold text-base text-slate-900 leading-tight truncate">
                     {subcategory.nameAr}
                   </h3>
-                  <span className="text-[10px] text-slate-400 font-medium uppercase tracking-tight">
-                    {subcategory.name}
-                  </span>
+                  {subcategory.name ? (
+                    <span className="text-[10px] text-slate-400 font-medium uppercase tracking-tight">
+                      {subcategory.name}
+                    </span>
+                  ) : null}
+                  {(subcategory as any).category ? (
+                    <span className="text-[11px] text-primary/70 font-semibold mt-0.5">
+                      {(subcategory as any).category}
+                    </span>
+                  ) : null}
+                  {subcategory.descriptionAr ? (
+                    <span className="text-[11px] text-slate-500 mt-0.5 line-clamp-1">
+                      {subcategory.descriptionAr}
+                    </span>
+                  ) : null}
                 </div>
               </div>
             </div>
@@ -79,7 +93,7 @@ export function SubCategoryCard({
                 <Info className="h-3 w-3" />
               </div>
 
-              <EditSubCategory subCategoryEdit={subcategory} />
+              <EditSubCategory subCategoryEdit={subcategory} categories={categories} />
             </div>
           </div>
         </div>

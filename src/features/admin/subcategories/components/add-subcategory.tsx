@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Loader2, Plus } from "lucide-react";
 import type { SubCategory } from "@/types/admin/subcategories";
@@ -27,6 +28,8 @@ export function AddSubCategory({ categories }: AddSubCategoryProps) {
   const [formData, setFormData] = useState<Partial<SubCategory>>({
     name: "",
     nameAr: "",
+    description: "",
+    descriptionAr: "",
     categoryId: 0,
   });
 
@@ -34,15 +37,14 @@ export function AddSubCategory({ categories }: AddSubCategoryProps) {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
-
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.categoryId) return;
-    
+
     addMutation.mutate(formData, {
       onSuccess: () => {
         setIsOpen(false);
-        setFormData({ name: "", nameAr: "", categoryId: 0 });
+        setFormData({ name: "", nameAr: "", description: "", descriptionAr: "", categoryId: 0 });
       },
     });
   };
@@ -63,7 +65,8 @@ export function AddSubCategory({ categories }: AddSubCategoryProps) {
           </DialogTitle>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit={handleSubmit} className="space-y-4 overflow-y-auto max-h-[70vh] pr-1">
+          {/* Parent Category */}
           <div className="space-y-2 text-right">
             <Label className="font-bold">القسم الرئيسي</Label>
             <Select
@@ -83,30 +86,56 @@ export function AddSubCategory({ categories }: AddSubCategoryProps) {
             </Select>
           </div>
 
+          {/* Arabic Name */}
           <div className="space-y-2 text-right">
             <Label className="font-bold">اسم القسم بالعربي</Label>
             <Input
               value={formData.nameAr}
               onChange={(e) => handleChange("nameAr", e.target.value)}
-              placeholder="مثال: مناديل ورقية"
+              placeholder="مثال: مكونات الطهي"
               className="rounded-xl h-11 border-slate-200 shadow-sm"
               required
             />
           </div>
-          
+
+          {/* English Name */}
           <div className="space-y-2 text-right">
-            <Label className="font-bold">اسم القسم للإنجليزي</Label>
+            <Label className="font-bold">اسم القسم بالإنجليزي</Label>
             <Input
               value={formData.name}
               onChange={(e) => handleChange("name", e.target.value)}
-              placeholder="مثال: Tissues"
+              placeholder="مثال: Cooking Ingredients"
               className="rounded-xl h-11 border-slate-200 shadow-sm"
+            />
+          </div>
+
+          {/* Arabic Description */}
+          <div className="space-y-2 text-right">
+            <Label className="font-bold">الوصف بالعربي</Label>
+            <Textarea
+              value={formData.descriptionAr}
+              onChange={(e) => handleChange("descriptionAr", e.target.value)}
+              placeholder="مثال: يشمل جميع مكونات الطهي الأساسية"
+              className="rounded-xl border-slate-200 shadow-sm resize-none"
+              rows={3}
+            />
+          </div>
+
+          {/* English Description */}
+          <div className="space-y-2 text-right">
+            <Label className="font-bold">الوصف بالإنجليزي</Label>
+            <Textarea
+              value={formData.description}
+              onChange={(e) => handleChange("description", e.target.value)}
+              placeholder="e.g. Includes all basic cooking ingredients"
+              className="rounded-xl border-slate-200 shadow-sm resize-none"
+              rows={3}
             />
           </div>
 
           <Button
             type="submit"
-            className="w-full h-12 text-lg font-black rounded-xl shadow-lg shadow-primary/20 mt-4"
+            className="w-full h-12 text-lg font-black rounded-xl shadow-lg shadow-primary/20 mt-2"
             disabled={addMutation.isPending || !formData.categoryId}
           >
             {addMutation.isPending ? (

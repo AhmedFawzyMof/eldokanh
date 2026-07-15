@@ -123,7 +123,7 @@ export async function getAllProducts(
     )
     .leftJoin(product_brands, eq(products.brandId, product_brands.id))
     .where(and(...conditions))
-    .orderBy(asc(products.categoryId))
+    .orderBy(asc(products.categoryId), desc(products.isActive))
     .limit(limit)
     .offset(offset)
     .execute();
@@ -223,7 +223,7 @@ export async function getProductByCategory(
   const productsData = await productQuery
     .innerJoin(products_category, eq(products.categoryId, products_category.id))
     .where(and(...conditions))
-    .orderBy(desc(products.id))
+    .orderBy(desc(products.isActive))
     .limit(limit)
     .offset(offset)
     .execute();

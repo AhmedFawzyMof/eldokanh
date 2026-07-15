@@ -111,6 +111,7 @@ export async function getSubcategoryById(id: number) {
 }
 
 export async function getSubcategoryByCategory(category: number) {
+  console.log("category", category);
   return await db
     .select({
       id: product_subcategories.id,
@@ -120,13 +121,8 @@ export async function getSubcategoryByCategory(category: number) {
     })
     .from(product_subcategories)
     .innerJoin(products, eq(products.subcategoryId, product_subcategories.id))
-    .where(
-      and(
-        eq(product_subcategories.categoryId, category),
-        eq(products.categoryId, category),
-        eq(products.isActive, true),
-      ),
-    );
+    .where(eq(product_subcategories.categoryId, category))
+    .groupBy(product_subcategories.id);
 }
 
 export async function updateSubCategory(

@@ -62,9 +62,9 @@ export default async function CategoryPage(props: CategoryPageProps) {
   queryParams.set("page", currentPage.toString());
 
   const category = await getCategoryById(Number(categoryParams.id));
-  // const subcategories = await getSubcategoryByCategory(
-  //   Number(categoryParams.id),
-  // );
+  const subcategories = await getSubcategoryByCategory(
+    Number(categoryParams.id),
+  );
 
   if (!category) {
     notFound();
@@ -111,9 +111,9 @@ export default async function CategoryPage(props: CategoryPageProps) {
           </div>
         </div>
       </section>
-      {/* {subcategories.length > 0 && (
-        <SubCategoriesSection categories={subcategories} />
-      )} */}
+      {subcategories && subcategories.length > 0 && (
+        <SubCategoriesSection categories={subcategories as any} />
+      )}
       <section className="container mx-auto px-4 pb-16">
         <div className="flex items-center justify-between mb-8">
           <h2 className="font-serif text-2xl font-bold">

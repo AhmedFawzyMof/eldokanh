@@ -5,6 +5,33 @@ import { motion } from "framer-motion";
 import { ChevronLeft, ChevronRight, X } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 
+const containerVariants = {
+  hidden: {},
+  visible: {
+    transition: {
+      staggerChildren: 0.07,
+      delayChildren: 0.05,
+    },
+  },
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 18, scale: 0.96 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    scale: 1,
+    transition: {
+      type: "spring",
+      stiffness: 280,
+      damping: 22,
+      mass: 0.8,
+    },
+  },
+};
+
+const hoverSpring = { type: "spring", stiffness: 400, damping: 20 } as const;
+
 export function SubCategoriesSection(categories: any) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
@@ -75,31 +102,52 @@ export function SubCategoriesSection(categories: any) {
           </div>
         )}
 
-        <div
+        <motion.div
           ref={scrollRef}
-          className="flex gap-5 overflow-x-auto scrollbar-hide pb-4 -mx-1 px-1"
+          variants={containerVariants}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, amount: 0.1 }}
+          className="flex gap-3 overflow-x-auto scrollbar-hide pb-4 -mx-1 px-1"
           style={{ scrollbarWidth: "none" }}
         >
-          {categories.categories.map((cat: any, i: number) => (
-            <motion.div
-              key={`${cat.nameAr}-${i}`}
-              initial={{ opacity: 0, y: 12 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: i * 0.05 }}
-              onClick={() => handleClick(cat.id)}
-              className="group cursor-pointer flex-shrink-0 w-40 bg-card rounded shadow"
-            >
-              <h3 className="font-body text-sm font-medium text-foreground text-center">
-                {cat.nameAr}
-              </h3>
-
-              <p className="text-muted-foreground text-xs text-center font-body pb-2">
-                {cat.productCount} منتج
-              </p>
-            </motion.div>
-          ))}
-        </div>
+          {categories.categories.map((cat: any, i: number) => {
+            const isActive = activeSub === cat.id.toString();
+            return (
+              <motion.div
+                key={`${cat.nameAr}-${i}`}
+                variants={itemVariants as any}
+                whileHover={{
+                  y: -4,
+                  boxShadow: "0 10px 28px rgba(0,0,0,0.13)",
+                  transition: hoverSpring,
+                }}
+                whileTap={{ scale: 0.95, transition: hoverSpring }}
+                onClick={() => handleClick(cat.id)}
+                className={`group cursor-pointer shrink-0 flex flex-col items-center gap-1.5 px-5 py-3.5 rounded-2xl border transition-colors duration-300 select-none ${
+                  isActive
+                    ? "bg-primary border-primary text-primary-foreground shadow-md"
+                    : "bg-card border-border text-foreground hover:border-primary/40 hover:bg-accent/60"
+                }`}
+              >
+                <span
+                  className={`font-medium text-sm leading-tight text-center whitespace-nowrap ${isActive ? "text-primary-foreground" : "text-foreground"}`}
+                >
+                  {cat.nameAr}
+                </span>
+                <span
+                  className={`text-xs px-2 py-0.5 rounded-full font-medium tabular-nums transition-colors duration-300 ${
+                    isActive
+                      ? "bg-white/20 text-primary-foreground"
+                      : "bg-muted text-muted-foreground group-hover:bg-primary/10 group-hover:text-primary"
+                  }`}
+                >
+                  {cat.productCount} منتج
+                </span>
+              </motion.div>
+            );
+          })}
+        </motion.div>
       </div>
     </section>
   );

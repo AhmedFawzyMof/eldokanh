@@ -41,7 +41,10 @@ export default async function SubCategoriesPage(props: {
         </div>
       </div>
 
-      <SubCategoryListContainer initialSubCategories={subcategories as any} />
+      <SubCategoryListContainer
+        initialSubCategories={subcategories as any}
+        categories={categories as any}
+      />
 
       <div className="p-4 flex justify-center">
         <PaginationComponent

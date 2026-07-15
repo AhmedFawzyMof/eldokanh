@@ -9,10 +9,12 @@ import type { SubCategory } from "@/types/admin/subcategories";
 
 interface SubCategoryListContainerProps {
   initialSubCategories: SubCategory[];
+  categories: { id: number; nameAr: string }[];
 }
 
 export function SubCategoryListContainer({
   initialSubCategories,
+  categories,
 }: SubCategoryListContainerProps) {
   const [selectedSubCategories, setSelectedSubCategories] = useState<number[]>([]);
   const { deleteMutation } = useSubCategoryMutations();
@@ -31,6 +33,7 @@ export function SubCategoryListContainer({
             <SubCategoryCard
               key={subcategory.id}
               subcategory={subcategory}
+              categories={categories}
               selectedSubCategories={selectedSubCategories}
               setSelectedSubCategories={setSelectedSubCategories}
             />

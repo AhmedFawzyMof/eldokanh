@@ -43,7 +43,7 @@ export default function PaginationComponent({
   const visiblePages = getVisiblePages();
 
   return (
-    <Pagination dir="rtl" className="mt-8">
+    <Pagination dir="rtl" className="mt-8 mb-10 lg:mb-0">
       <PaginationContent>
         <PaginationItem>
           <PaginationNext

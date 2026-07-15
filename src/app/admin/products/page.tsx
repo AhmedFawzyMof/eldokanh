@@ -16,7 +16,9 @@ export default async function ProductsPage(props: {
 }) {
   const searchParams = await props.searchParams;
   const search = searchParams.search || "";
-  const categoryId = searchParams.categoryId ? Number(searchParams.categoryId) : null;
+  const categoryId = searchParams.categoryId
+    ? Number(searchParams.categoryId)
+    : null;
   const brandId = searchParams.brandId ? Number(searchParams.brandId) : null;
   const page = searchParams.page ? Number(searchParams.page) : 1;
 

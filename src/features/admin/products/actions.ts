@@ -48,6 +48,7 @@ export const useGetSubcategories = (
     queryKey: ["admin", "subcategories", params.category],
     queryFn: () => ProductService.getSubcategoriesByCategory(params),
     enabled: Boolean(params.category) && isOpen,
+    staleTime: 0,
   });
 };
 

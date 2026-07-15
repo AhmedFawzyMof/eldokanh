@@ -12,15 +12,17 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Loader2, Edit2 } from "lucide-react";
 import { useSubCategoryMutations } from "../actions";
 
 interface EditSubCategoryProps {
   subCategoryEdit: SubCategory;
+  categories: { id: number; nameAr: string }[];
 }
 
-export function EditSubCategory({ subCategoryEdit }: EditSubCategoryProps) {
+export function EditSubCategory({ subCategoryEdit, categories }: EditSubCategoryProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [formData, setFormData] = useState<SubCategory>(subCategoryEdit);
   const { editMutation } = useSubCategoryMutations();
@@ -70,7 +72,28 @@ export function EditSubCategory({ subCategoryEdit }: EditSubCategoryProps) {
           </DialogTitle>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit={handleSubmit} className="space-y-4 overflow-y-auto max-h-[70vh] pr-1">
+          {/* Parent Category */}
+          <div className="space-y-2 text-right">
+            <Label className="font-bold">القسم الرئيسي</Label>
+            <Select
+              value={String(formData.categoryId || "")}
+              onValueChange={(v) => handleChange("categoryId", Number(v))}
+            >
+              <SelectTrigger dir="rtl" className="h-11 rounded-xl shadow-sm">
+                <SelectValue placeholder="اختر القسم الرئيسي" />
+              </SelectTrigger>
+              <SelectContent>
+                {categories.map((cat) => (
+                  <SelectItem key={cat.id} value={String(cat.id)}>
+                    {cat.nameAr}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Arabic Name */}
           <div className="space-y-2 text-right">
             <Label className="font-bold">اسم القسم بالعربي</Label>
             <Input
@@ -80,7 +103,8 @@ export function EditSubCategory({ subCategoryEdit }: EditSubCategoryProps) {
               required
             />
           </div>
-          
+
+          {/* English Name */}
           <div className="space-y-2 text-right">
             <Label className="font-bold">اسم القسم بالإنجليزي</Label>
             <Input
@@ -90,6 +114,29 @@ export function EditSubCategory({ subCategoryEdit }: EditSubCategoryProps) {
             />
           </div>
 
+          {/* Arabic Description */}
+          <div className="space-y-2 text-right">
+            <Label className="font-bold">الوصف بالعربي</Label>
+            <Textarea
+              value={formData.descriptionAr || ""}
+              onChange={(e) => handleChange("descriptionAr", e.target.value)}
+              className="rounded-xl border-slate-200 shadow-sm resize-none"
+              rows={3}
+            />
+          </div>
+
+          {/* English Description */}
+          <div className="space-y-2 text-right">
+            <Label className="font-bold">الوصف بالإنجليزي</Label>
+            <Textarea
+              value={formData.description || ""}
+              onChange={(e) => handleChange("description", e.target.value)}
+              className="rounded-xl border-slate-200 shadow-sm resize-none"
+              rows={3}
+            />
+          </div>
+
+          {/* Status */}
           <div className="space-y-2 text-right">
             <Label className="font-bold">الحالة</Label>
             <Select
@@ -108,7 +155,7 @@ export function EditSubCategory({ subCategoryEdit }: EditSubCategoryProps) {
 
           <Button
             type="submit"
-            className="w-full h-12 text-lg font-black rounded-xl shadow-lg shadow-primary/20 mt-4"
+            className="w-full h-12 text-lg font-black rounded-xl shadow-lg shadow-primary/20 mt-2"
             disabled={editMutation.isPending}
           >
             {editMutation.isPending ? (

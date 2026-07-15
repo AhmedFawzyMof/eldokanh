@@ -56,12 +56,13 @@ export function AddProduct({ categories, brands }: AddProductProps) {
   const {
     data: subcategories,
     isLoading: isLoadingSubs,
-    refetch,
   } = useGetSubcategories({ category: formData.categoryId! }, isOpen);
 
   const handleChange = (field: keyof Product, value: any) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
+
+  console.log(subcategories?.data?.subcategories, "subcategories");
 
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -224,14 +225,11 @@ export function AddProduct({ categories, brands }: AddProductProps) {
                   value={formData.categoryId ? String(formData.categoryId) : ""}
                   onValueChange={(val) => {
                     const categoryId = Number(val);
-
                     setFormData((prev) => ({
                       ...prev,
                       categoryId,
                       subcategoryId: undefined,
                     }));
-
-                    refetch();
                   }}
                 >
                   <SelectTrigger dir="rtl" className="rounded-xl">
