@@ -10,10 +10,18 @@ import { toast } from "sonner";
 export default function PromoCodeSection() {
   const [promoInput, setPromoInput] = useState("");
   const [isValidatingPromo, setIsValidatingPromo] = useState(false);
-  const { promoCode, applyPromoCode, removePromoCode } = useCartStore();
+  const { promoCode, applyPromoCode, removePromoCode, getSubtotal } = useCartStore();
+
+  const MINIMUM_ORDER_FOR_PROMO = 100;
 
   const handleApplyPromo = async () => {
     if (!promoInput) return;
+
+    const subtotal = getSubtotal();
+    if (subtotal < MINIMUM_ORDER_FOR_PROMO) {
+      toast.error(`🛒 الحد الأدنى لتطبيق كود الخصم هو ${MINIMUM_ORDER_FOR_PROMO} ج.م`);
+      return;
+    }
     setIsValidatingPromo(true);
     try {
       const res = await fetch("/api/promo", {
