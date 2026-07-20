@@ -26,6 +26,7 @@ export async function getAllPromoCodes(search: string | null, page: number) {
       isActive: promoCodes.isActive,
       createdAt: promoCodes.createdAt,
       usageCount: sql<number>`COUNT(${promoCodeUsages.id})`,
+      appliesTo: promoCodes.appliesTo,
     })
     .from(promoCodes)
     .leftJoin(
