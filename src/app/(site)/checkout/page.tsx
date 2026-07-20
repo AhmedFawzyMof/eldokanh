@@ -41,6 +41,7 @@ export default function CheckoutPage() {
     getSubtotal,
     getTotal,
     getDiscountAmount,
+    getDeliveryDiscount,
     promoCode,
     clearCart,
   } = useCartStore();
@@ -71,7 +72,8 @@ export default function CheckoutPage() {
 
   const subtotal = getSubtotal();
   const discount = getDiscountAmount();
-  const finalTotal = getTotal() + deliveryCost;
+  const deliveryDiscount = getDeliveryDiscount(deliveryCost);
+  const finalTotal = getTotal() + deliveryCost - deliveryDiscount;
 
   const handlePlaceOrder = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -169,6 +171,7 @@ export default function CheckoutPage() {
               subtotal={subtotal}
               discount={discount}
               deliveryCost={deliveryCost}
+              deliveryDiscount={deliveryDiscount}
               finalTotal={finalTotal}
               isProcessing={isProcessing}
               citySelected={!!selectedCity}

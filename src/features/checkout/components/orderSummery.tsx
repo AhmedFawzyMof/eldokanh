@@ -5,6 +5,7 @@ interface SummaryProps {
   subtotal: number;
   discount: number;
   deliveryCost: number;
+  deliveryDiscount?: number;
   finalTotal: number;
   isProcessing: boolean;
   citySelected: boolean;
@@ -15,6 +16,7 @@ export default function OrderSummary({
   subtotal,
   discount,
   deliveryCost,
+  deliveryDiscount = 0,
   finalTotal,
   isProcessing,
   citySelected,
@@ -48,6 +50,13 @@ export default function OrderSummary({
             {citySelected ? `${deliveryCost.toFixed(2)} ج.م` : "حدد المدينة"}
           </span>
         </div>
+
+        {deliveryDiscount > 0 && citySelected && (
+          <div className="flex justify-between text-sm text-green-600">
+            <span>خصم الشحن (كود)</span>
+            <span>-{deliveryDiscount.toFixed(2)} ج.م</span>
+          </div>
+        )}
 
         <div className="flex justify-between text-lg font-bold pt-4 border-t text-primary">
           <span>الإجمالي النهائي</span>

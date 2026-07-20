@@ -92,6 +92,7 @@ export async function POST(req: Request) {
 
     // 2. Validate Promo Code
     let discount = 0;
+    let deliveryDiscount = 0;
     let promoInfo: { type: "pcg" | "literal"; value: number } | null = null;
     if (promoCodeId) {
       const promoResult = await validatePromoCode(
@@ -101,12 +102,26 @@ export async function POST(req: Request) {
       console.log("Order POST - Promo Result:", promoResult);
       if (promoResult.valid && promoResult.promo) {
         const promo = promoResult.promo;
-        if (promo.discountType === "percentage") {
-          discount = (subtotal * promo.discountValue) / 100;
-          promoInfo = { type: "pcg", value: promo.discountValue };
+        const appliesTo = (promo as any).appliesTo ?? "subtotal";
+
+        if (appliesTo === "delivery") {
+          // Apply discount to delivery cost
+          const rawDelivery = deliveryCost || 0;
+          if (promo.discountType === "percentage") {
+            deliveryDiscount = (rawDelivery * promo.discountValue) / 100;
+          } else {
+            deliveryDiscount = Math.min(promo.discountValue, rawDelivery);
+          }
+          promoInfo = { type: promo.discountType === "percentage" ? "pcg" : "literal", value: promo.discountValue };
         } else {
-          discount = promo.discountValue;
-          promoInfo = { type: "literal", value: promo.discountValue };
+          // Apply discount to subtotal
+          if (promo.discountType === "percentage") {
+            discount = (subtotal * promo.discountValue) / 100;
+            promoInfo = { type: "pcg", value: promo.discountValue };
+          } else {
+            discount = promo.discountValue;
+            promoInfo = { type: "literal", value: promo.discountValue };
+          }
         }
       } else {
         console.warn("Order POST - Invalid Promo Code:", promoResult.message);
@@ -118,12 +133,13 @@ export async function POST(req: Request) {
     }
 
     const finalTotal = Number(
-      (subtotal - discount + (deliveryCost || 0)).toFixed(2),
+      (subtotal - discount + (deliveryCost || 0) - deliveryDiscount).toFixed(2),
     );
     console.log("Order POST - Final Totals:", {
       subtotal,
       discount,
       deliveryCost,
+      deliveryDiscount,
       finalTotal,
     });
 

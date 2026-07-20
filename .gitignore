@@ -47,3 +47,4 @@ test*
 
 # Firebase Admin Credentials
 src/config/service-account-file.json
+scripts/

@@ -31,6 +31,7 @@ export function AddPromoCode() {
     discountType: "percentage",
     discountValue: 0,
     maxUses: 100,
+    appliesTo: "subtotal",
     expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
       .toISOString()
       .split("T")[0],
@@ -51,6 +52,7 @@ export function AddPromoCode() {
           discountType: "percentage",
           discountValue: 0,
           maxUses: 100,
+          appliesTo: "subtotal",
           expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
             .toISOString()
             .split("T")[0],
@@ -146,6 +148,22 @@ export function AddPromoCode() {
               className="rounded-xl h-11 border-slate-200 shadow-sm"
               required
             />
+          </div>
+
+          <div className="space-y-2 text-right">
+            <Label className="font-bold">يُطبق على</Label>
+            <Select
+              value={formData.appliesTo ?? "subtotal"}
+              onValueChange={(v) => handleChange("appliesTo", v)}
+            >
+              <SelectTrigger dir="rtl" className="h-11 rounded-xl shadow-sm">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="subtotal">المجموع الفرعي (المنتجات)</SelectItem>
+                <SelectItem value="delivery">مصاريف الشحن</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
 
           <Button

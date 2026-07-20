@@ -54,7 +54,7 @@ export function PromoCodeCard({
     >
       <CardContent className="p-4">
         <div className="flex gap-4">
-          <div className="relative shrink-0 flex flex-col items-center justify-center bg-slate-50 rounded-2xl px-4 border border-slate-100 min-w-[100px] h-24">
+          <div className="relative shrink-0 flex flex-col items-center justify-center bg-slate-50 rounded-2xl px-4 border border-slate-100 min-w-25 h-24">
             <div
               className={`absolute -top-1 -right-1 transition-opacity ${isSelected ? "opacity-100" : "opacity-0"}`}
             >
@@ -104,6 +104,15 @@ export function PromoCodeCard({
                       <XCircle className="h-3 w-3 ml-1" />
                     )}
                     {promo.isActive ? "نشط" : "متوقف"}
+                  </Badge>
+                  <Badge
+                    className={`rounded-full px-2 py-0 text-[10px] h-5 ${
+                      promo.appliesTo === "delivery"
+                        ? "bg-blue-50 text-blue-700 border-blue-100"
+                        : "bg-amber-50 text-amber-700 border-amber-100"
+                    }`}
+                  >
+                    {promo.appliesTo === "delivery" ? "شحن" : "منتجات"}
                   </Badge>
                 </div>
               </div>

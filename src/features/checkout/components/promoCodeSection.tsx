@@ -71,7 +71,11 @@ export default function PromoCodeSection() {
         <div className="flex items-center justify-between bg-green-50 border border-green-100 p-3 rounded-xl">
           <div className="text-sm">
             <span className="font-bold text-green-700">{promoCode.code}</span>
-            <p className="text-xs text-green-600">تم تطبيق الخصم</p>
+            <p className="text-xs text-green-600">
+              {promoCode.appliesTo === "delivery"
+                ? "تم تطبيق الخصم على مصاريف الشحن"
+                : "تم تطبيق الخصم"}
+            </p>
           </div>
           <Button
             variant="ghost"

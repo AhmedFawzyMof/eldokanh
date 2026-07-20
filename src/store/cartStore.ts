@@ -16,6 +16,7 @@ interface PromoCode {
   code: string;
   discountType: DiscountType;
   discountValue: number;
+  appliesTo?: "subtotal" | "delivery";
 }
 
 interface CartState {
@@ -33,6 +34,7 @@ interface CartState {
   getQuantity: () => number;
   getSubtotal: () => number;
   getDiscountAmount: () => number;
+  getDeliveryDiscount: (deliveryCost: number) => number;
   getTotal: () => number;
 
   clearCart: () => void;
@@ -138,12 +140,26 @@ export const useCartStore = create<CartState>()(
         const subtotal = get().getSubtotal();
 
         if (!promoCode) return 0;
+        // Delivery-targeted promos don't affect subtotal
+        if (promoCode.appliesTo === "delivery") return 0;
 
         if (promoCode.discountType === "percentage") {
           return (subtotal * promoCode.discountValue) / 100;
         }
 
         return Math.min(promoCode.discountValue, subtotal);
+      },
+
+      getDeliveryDiscount: (deliveryCost: number) => {
+        const { promoCode } = get();
+
+        if (!promoCode || promoCode.appliesTo !== "delivery") return 0;
+
+        if (promoCode.discountType === "percentage") {
+          return (deliveryCost * promoCode.discountValue) / 100;
+        }
+
+        return Math.min(promoCode.discountValue, deliveryCost);
       },
 
       getTotal: () => {

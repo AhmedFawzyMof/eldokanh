@@ -149,6 +149,22 @@ export function EditPromoCode({ promoEdit }: EditPromoCodeProps) {
             </div>
           </div>
 
+          <div className="space-y-2 text-right">
+            <Label className="font-bold">يُطبق على</Label>
+            <Select
+              value={(formData.appliesTo as string) ?? "subtotal"}
+              onValueChange={(v) => handleChange("appliesTo", v)}
+            >
+              <SelectTrigger dir="rtl" className="h-11 rounded-xl shadow-sm">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="subtotal">المجموع الفرعي (المنتجات)</SelectItem>
+                <SelectItem value="delivery">مصاريف الشحن</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
           <Button
             type="submit"
             className="w-full h-12 text-lg font-black rounded-xl shadow-lg shadow-primary/20 mt-4"

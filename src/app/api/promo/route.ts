@@ -25,6 +25,7 @@ export async function POST(req: Request) {
         code: promoCodes.code,
         discountValue: promoCodes.discountValue,
         discountType: promoCodes.discountType,
+        appliesTo: promoCodes.appliesTo,
         canUse: sql<boolean>`COUNT(${promoCodeUsages.id}) < ${promoCodes.maxUses}`,
       })
       .from(promoCodes)
@@ -73,6 +74,7 @@ export async function POST(req: Request) {
       code: promo.code,
       discountType: promo.discountType,
       discountValue: promo.discountValue,
+      appliesTo: promo.appliesTo ?? "subtotal",
     });
   } catch (error) {
     console.error("Error applying promo code:", error);

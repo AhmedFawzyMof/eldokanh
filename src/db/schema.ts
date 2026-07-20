@@ -133,6 +133,7 @@ export const promoCodes = sqliteTable("promo_codes", {
   maxUses: integer("max_uses"),
   expiresAt: text("expires_at"),
   isActive: integer("is_active", { mode: "boolean" }).default(true),
+  appliesTo: text("applies_to").default("subtotal"),
   createdAt: text("created_at").default(sql`CURRENT_TIMESTAMP`),
 });
 
