@@ -38,7 +38,7 @@ export async function PUT(
   context: { params: Promise<{ id: string }> },
 ) {
   const { id } = await context.params;
-  
+
   let body;
   try {
     body = await req.json();
@@ -50,9 +50,23 @@ export async function PUT(
     return NextResponse.json({ error: "Invalid ID" }, { status: 400 });
   }
 
-  const { id: orderId, userId, status, paymentStatus, paymentMethod, createdAt } = body;
-  const orderData = { id: orderId, userId, status, paymentStatus, paymentMethod, createdAt };
-  const hasOrderData = Object.values(orderData).some(v => v !== undefined);
+  const {
+    id: orderId,
+    userId,
+    status,
+    paymentStatus,
+    paymentMethod,
+    createdAt,
+  } = body;
+  const orderData = {
+    id: orderId,
+    userId,
+    status,
+    paymentStatus,
+    paymentMethod,
+    createdAt,
+  };
+  const hasOrderData = Object.values(orderData).some((v) => v !== undefined);
 
   if (body.items && body.address && body.payment) {
     const orderItems = body.items;
@@ -91,17 +105,24 @@ export async function PUT(
       );
     }
   } else if (hasOrderData) {
-    // Partial update (like just status)
-    const { db } = require("@/db");
-    const { orders } = require("@/db/schema");
-    const { eq } = require("drizzle-orm");
-    const { data: _, error } = await tryCatch(() => 
-      db.update(orders).set(orderData).where(eq(orders.id, Number(id)))
-    );
-    
+    const { data: _, error } = await tryCatch(async () => {
+      const { db } = await import("@/db");
+      const { orders } = await import("@/db/schema");
+      const { eq } = await import("drizzle-orm");
+
+      const updateData = { ...orderData };
+      delete updateData.id;
+
+      return db
+        .update(orders)
+        .set(updateData)
+        .where(eq(orders.id, Number(id)));
+    });
+
     if (error) {
+      console.error("Partial update error:", error);
       return NextResponse.json(
-        { message: "something went wrong" },
+        { message: "something went wrong", error: error.message },
         { status: 500 },
       );
     }
