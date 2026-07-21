@@ -7,6 +7,14 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { CalendarDays, User, CreditCard } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { useOrderMutations } from "../actions";
 
 export function OrderCard({
   order,
@@ -18,6 +26,7 @@ export function OrderCard({
   setSelectedOrders: (prev: any) => void;
 }) {
   const isSelected = selectedOrders.includes(order.id);
+  const { editMutation } = useOrderMutations();
 
   const toggleSelect = (id: number) => {
     setSelectedOrders((prev: any) =>
@@ -78,12 +87,30 @@ export function OrderCard({
                 {(order.totalAmount || 0).toLocaleString()} ج.م
               </span>
               <div className="flex items-center gap-2">
-                <Badge
-                  variant="outline"
-                  className={`text-[10px] font-bold ${getStatusColor(order.status)}`}
-                >
-                  {getStatusInArabic(order.status)}
-                </Badge>
+                <div onClick={(e) => e.stopPropagation()}>
+                  <Select
+                    defaultValue={order.status}
+                    onValueChange={(val) => {
+                      editMutation.mutate({
+                        id: order.id,
+                        data: { status: val },
+                      });
+                    }}
+                  >
+                    <SelectTrigger
+                      className={`h-7 px-2 text-[10px] font-bold border-none shadow-none rounded-full ${getStatusColor(order.status)}`}
+                    >
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="confirmed">مؤكد</SelectItem>
+                      <SelectItem value="cancelled">ملغي</SelectItem>
+                      <SelectItem value="pending">قيد الانتظار</SelectItem>
+                      <SelectItem value="processing">جاري التجهيز</SelectItem>
+                      <SelectItem value="delivered">تم التوصيل</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
                 <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
                   Order #{order.id}
                 </span>

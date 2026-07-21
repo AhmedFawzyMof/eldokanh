@@ -142,7 +142,7 @@ export default function OrderEditForm({
                     <SelectItem value="cancelled">ملغي</SelectItem>
                     <SelectItem value="pending">قيد الانتظار</SelectItem>
                     <SelectItem value="processing">جاري التجهيز</SelectItem>
-                    <SelectItem value="delivered">تم التسليم</SelectItem>
+                    <SelectItem value="delivered">تم التوصيل</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -204,9 +204,10 @@ export default function OrderEditForm({
                   <Select
                     required
                     onValueChange={(city) => setSelectedCity(JSON.parse(city))}
-                    defaultValue={JSON.stringify(
-                      cities.find((c) => c.city === formData.address?.city),
-                    )}
+                    value={(() => {
+                      const found = cities.find((c) => c.city === formData.address?.city);
+                      return found ? JSON.stringify(found) : undefined;
+                    })()}
                   >
                     <SelectTrigger className="h-12 rounded-xl border-slate-200 shadow-none">
                       <SelectValue placeholder={"اختر المدينة"} />

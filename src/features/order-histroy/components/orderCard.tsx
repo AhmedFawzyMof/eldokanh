@@ -27,7 +27,7 @@ export default function OrderCard({ order }: { order: any }) {
       case "pending":
         return "قيد الانتظار";
       case "processing":
-        return "قيد التجهيز";
+        return "جاري التجهيز";
       case "confirmed":
         return "مؤكد";
       case "cancelled":
@@ -118,7 +118,9 @@ export default function OrderCard({ order }: { order: any }) {
             <Badge variant="secondary" className="font-normal">
               {order.paymentMethod === "cash"
                 ? "الدفع عند الاستلام"
-                : "بطاقة ائتمان"}
+                : order.paymentMethod === "fawaterk"
+                  ? "فواتيرك"
+                  : "بطاقة ائتمان"}
             </Badge>
           </div>
         </div>
