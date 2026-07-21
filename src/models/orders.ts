@@ -170,6 +170,7 @@ export async function getOrderById(id: number) {
         code: promoCodes.code,
         discountType: promoCodes.discountType,
         discountValue: promoCodes.discountValue,
+        appliesTo: promoCodes.appliesTo,
       })
       .from(promoCodeUsages)
       .innerJoin(promoCodes, eq(promoCodeUsages.promoCodeId, promoCodes.id))
