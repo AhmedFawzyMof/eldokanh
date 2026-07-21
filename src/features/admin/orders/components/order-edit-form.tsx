@@ -47,13 +47,15 @@ export default function OrderEditForm({
 
   const discount = useMemo(() => {
     if (!initialData.promo) return 0;
-    const { discountType, discountValue } = initialData.promo;
+    const { discountType, discountValue, appliesTo } = initialData.promo;
+
+    const baseAmount = appliesTo === "delivery" ? (formData.payment?.deliveryCost || 0) : subtotal;
 
     if (discountType === "percentage") {
-      return (subtotal * discountValue) / 100;
+      return (baseAmount * discountValue) / 100;
     }
     return discountValue;
-  }, [subtotal, initialData.promo]);
+  }, [subtotal, initialData.promo, formData.payment?.deliveryCost]);
 
   const finalAmount = subtotal - discount;
 

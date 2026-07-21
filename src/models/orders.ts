@@ -44,7 +44,7 @@ export async function getAllOrders(page: number, search: string | null, startDat
     .select({
       id: orders.id,
       user: users.name,
-      totalAmount: sql<number>`SUM(${orderItems.price} * ${orderItems.quantity})`,
+      totalAmount: sql<number>`COALESCE(${payments.amount}, SUM(${orderItems.price} * ${orderItems.quantity}))`,
       status: orders.status,
       paymentStatus: orders.paymentStatus,
       paymentMethod: orders.paymentMethod,
@@ -53,6 +53,7 @@ export async function getAllOrders(page: number, search: string | null, startDat
     .from(orders)
     .leftJoin(users, eq(orders.userId, users.id))
     .leftJoin(orderItems, eq(orders.id, orderItems.orderId))
+    .leftJoin(payments, eq(orders.id, payments.orderId))
     .where(whereClause)
     .groupBy(orders.id)
     .orderBy(desc(orders.id))
@@ -100,7 +101,7 @@ export async function getUserOrders(userId: number, page: number = 1) {
       paymentStatus: orders.paymentStatus,
       paymentMethod: orders.paymentMethod,
       createdAt: orders.createdAt,
-      totalAmount: sql<number>`SUM(${orderItems.price} * ${orderItems.quantity})`,
+      totalAmount: sql<number>`COALESCE(${payments.amount}, SUM(${orderItems.price} * ${orderItems.quantity}))`,
       address: sql`JSON_OBJECT(
         'fullName', ${addresses.fullName},
         'phone', ${addresses.phone},
@@ -119,6 +120,7 @@ export async function getUserOrders(userId: number, page: number = 1) {
     .innerJoin(orderItems, eq(orders.id, orderItems.orderId))
     .innerJoin(products, eq(orderItems.productId, products.id))
     .leftJoin(addresses, eq(orders.id, addresses.orderId))
+    .leftJoin(payments, eq(orders.id, payments.orderId))
     .where(eq(orders.userId, userId))
     .groupBy(orders.id)
     .orderBy(desc(orders.createdAt))

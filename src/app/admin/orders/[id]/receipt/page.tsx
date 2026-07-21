@@ -36,13 +36,15 @@ export default function ReceiptPage({
 
   const discount = useMemo(() => {
     if (!orderData?.promo) return 0;
-    const { discountType, discountValue } = orderData.promo;
+    const { discountType, discountValue, appliesTo } = orderData.promo;
+
+    const baseAmount = appliesTo === "delivery" ? (orderData?.payment?.deliveryCost || 0) : subtotal;
 
     if (discountType === "percentage") {
-      return (subtotal * discountValue) / 100;
+      return (baseAmount * discountValue) / 100;
     }
     return discountValue;
-  }, [subtotal, orderData?.promo]);
+  }, [subtotal, orderData?.promo, orderData?.payment?.deliveryCost]);
 
   const deliveryCost = orderData?.payment?.deliveryCost || 0;
   const finalAmount = subtotal - discount + deliveryCost;
