@@ -27,8 +27,12 @@ export default async function ReportsPage(props: {
 }) {
   const searchParams = await props.searchParams;
   const date = searchParams.date || "";
-  let from = new Date().toISOString().split("T")[0];
-  let to = new Date().toISOString().split("T")[0];
+  const today = new Date();
+  const thirtyDaysAgo = new Date();
+  thirtyDaysAgo.setDate(today.getDate() - 30);
+
+  let from = thirtyDaysAgo.toISOString().split("T")[0];
+  let to = today.toISOString().split("T")[0];
 
   if (searchParams.from) {
     from = new Date(searchParams.from).toISOString().split("T")[0];
@@ -59,7 +63,7 @@ export default async function ReportsPage(props: {
     revenueTrend = Number(
       differenceInPercent(
         reportData.stats?.totalRevenue,
-        reportData.stats.totalOrdersLastMonth,
+        reportData.stats.totalRevenueLastMonth,
       ),
     );
     ordersTrend = Number(

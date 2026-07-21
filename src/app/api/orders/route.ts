@@ -5,7 +5,6 @@ import {
   getUserOrders,
 } from "@/models/orders";
 import { getAuthSession } from "@/lib/auth-session";
-import { createFawaterkInvoice } from "@/lib/fawaterk";
 import { db } from "@/db";
 import { products, admins } from "@/db/schema";
 import { inArray, isNotNull } from "drizzle-orm";
@@ -192,90 +191,8 @@ export async function POST(req: Request) {
       }
     }
 
-    if (paymentMethod !== "cash" && result.success) {
-      console.log("Order POST - Initiating Fawaterk Payment...");
-      const nameParts = address.fullName.split(" ");
-      const firstName = nameParts[0] || "Customer";
-      const lastName = nameParts.slice(1).join(" ") || "User";
-
-      const baseUrl = body.returnUrl ? new URL(body.returnUrl).origin : process.env.NEXTAUTH_URL;
-
-      const fawaterkData: any = {
-        cartTotal: subtotal.toFixed(2), // cartTotal should be the subtotal of items
-        currency: "EGP",
-        customer: {
-          first_name: firstName,
-          last_name: lastName,
-          email: session.user.email || "",
-          phone: address.phone,
-          address: `${address.apartment ? "Apt " + address.apartment + ", " : ""}${address.building ? "Bldg " + address.building + ", " : ""}${address.street}, ${address.city}`,
-        },
-        cartItems: itemsWithCurrentPrices.map((item: any) => ({
-          name: item.nameAr || "Product",
-          price: item.price.toFixed(2),
-          quantity: item.quantity.toString(),
-        })),
-        shipping: deliveryCost ? Number(deliveryCost).toFixed(2) : "0.00",
-        redirectionUrls: {
-          successUrl:
-            body.returnUrl ||
-            `${baseUrl}/order-confirmation?orderId=${result.orderId}`,
-          failUrl: `${baseUrl}/checkout?error=payment_failed`,
-          pendingUrl: `${baseUrl}/order-confirmation?orderId=${result.orderId}&status=pending`,
-        },
-        return_url:
-          body.returnUrl ||
-          `${baseUrl}/order-confirmation?orderId=${result.orderId}`,
-        callback_url: `${process.env.NEXTAUTH_URL}/api/webhooks/fawaterk?orderId=${result.orderId}`,
-        sendEmail: true,
-        sendSMS: false,
-      };
-
-      console.log("Order POST - Fawaterk Payload Details:", {
-        subtotal: fawaterkData.cartTotal,
-        shipping: fawaterkData.shipping,
-        itemsCount: fawaterkData.cartItems.length,
-        firstItem: fawaterkData.cartItems[0],
-      });
-
-      if (promoInfo) {
-        fawaterkData.discountData = promoInfo;
-      }
-
-      try {
-        const fawaterkResponse = await createFawaterkInvoice(fawaterkData);
-        console.log("Order POST - Fawaterk Response:", fawaterkResponse);
-        if (fawaterkResponse.status === "success") {
-          return NextResponse.json(
-            {
-              ...result,
-              paymentUrl: fawaterkResponse.data.url,
-            },
-            { status: 201 },
-          );
-        } else {
-          throw new Error("Fawaterk responded with failure status");
-        }
-      } catch (fawaterkError: any) {
-        console.error("Order POST - Fawaterk Invoice Creation Failed:", {
-          message: fawaterkError.message,
-          stack: fawaterkError.stack,
-          error: fawaterkError,
-        });
-
-        // Update payment status to failed in our DB
-        await updatePaymentStatus(result.orderId, "failed");
-
-        return NextResponse.json(
-          {
-            ...result,
-            error:
-              "فشل إنشاء رابط الدفع، يرجى المحاولة لاحقاً من تاريخ الطلبات.",
-          },
-          { status: 201 },
-        );
-      }
-    }
+    // TODO: Fawaterk payment gateway is temporarily disabled.
+    // Re-enable by restoring the invoice creation block here.
 
     return NextResponse.json(result, { status: 201 });
   } catch (error: any) {

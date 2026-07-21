@@ -54,7 +54,7 @@ export default async function DashboardPage() {
   );
 
   return (
-    <div className="flex flex-col p-6 space-y-8 max-w-[1600px] mx-auto">
+    <div className="flex flex-col p-6 space-y-8 max-w-400 mx-auto">
       <DashboardHeader />
 
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">

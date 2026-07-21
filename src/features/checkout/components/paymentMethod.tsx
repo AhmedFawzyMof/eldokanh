@@ -22,15 +22,21 @@ export default function PaymentMethod({ value, onChange }: PaymentMethodProps) {
           </div>
         </Label>
 
-        <Label className="flex items-center gap-3 p-4 border rounded-2xl cursor-pointer hover:bg-slate-50 transition-colors">
-          <RadioGroupItem value="card" />
-          <div className="flex flex-col">
-            <span className="font-medium">دفع الكتروني (فواتيرك)</span>
+        {/* Fawaterk — temporarily disabled */}
+        <div className="flex items-center gap-3 p-4 border rounded-2xl opacity-50 cursor-not-allowed select-none bg-slate-50">
+          <RadioGroupItem value="card" disabled />
+          <div className="flex flex-col flex-1">
+            <div className="flex items-center gap-2">
+              <span className="font-medium text-muted-foreground">دفع الكتروني (فواتيرك)</span>
+              <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-amber-100 text-amber-700 border border-amber-200">
+                قريباً
+              </span>
+            </div>
             <span className="text-xs text-muted-foreground">
               ادفع بأمان باستخدام المحافظ الإلكترونية
             </span>
           </div>
-        </Label>
+        </div>
       </RadioGroup>
     </div>
   );

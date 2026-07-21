@@ -32,7 +32,10 @@ export async function getStatData(from: string, to: string, date?: string) {
       sql`${orders.createdAt} >= date('now', ${filterdate(date)})`,
     );
   } else {
-    conditions.push(between(orders.createdAt, from, to));
+    // Extend `to` to end-of-day so datetime rows on that date are included
+    conditions.push(
+      sql`${orders.createdAt} >= ${from} AND ${orders.createdAt} <= ${to + " 23:59:59"}`,
+    );
   }
 
   const stats = await db
