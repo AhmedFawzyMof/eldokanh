@@ -3,6 +3,7 @@ import {
   deleteOrderProducts,
   getOrderById,
   updateOrder,
+  updateOrderPartial,
 } from "@/models/orders";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -105,19 +106,12 @@ export async function PUT(
       );
     }
   } else if (hasOrderData) {
-    const { data: _, error } = await tryCatch(async () => {
-      const { db } = await import("@/db");
-      const { orders } = await import("@/db/schema");
-      const { eq } = await import("drizzle-orm");
+    // Strip undefined values — only update fields that were explicitly sent
+    const updateData = Object.fromEntries(
+      Object.entries(orderData).filter(([k, v]) => k !== "id" && v !== undefined)
+    );
 
-      const updateData = { ...orderData };
-      delete updateData.id;
-
-      return db
-        .update(orders)
-        .set(updateData)
-        .where(eq(orders.id, Number(id)));
-    });
+    const { data: _, error } = await tryCatch(() => updateOrderPartial(Number(id), updateData));
 
     if (error) {
       console.error("Partial update error:", error);

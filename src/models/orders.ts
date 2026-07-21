@@ -234,6 +234,10 @@ export async function deleteOrder(ids: number[]) {
   return await db.delete(orders).where(inArray(orders.id, ids));
 }
 
+export async function updateOrderPartial(id: number, data: Partial<typeof orders.$inferInsert>) {
+  return await db.update(orders).set(data).where(eq(orders.id, id));
+}
+
 export async function deleteOrderProducts(id: number, orderItemId: number) {
   return await db
     .delete(orderItems)

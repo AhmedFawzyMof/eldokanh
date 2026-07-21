@@ -12,17 +12,17 @@ export async function getDashboardData() {
           THEN ${orderItems.price} * ${orderItems.quantity} 
         END)
       `,
-      totalOrdersLastMonth: sql<number>`
-        COUNT(CASE WHEN strftime('%Y-%m', ${orders.createdAt}) = strftime('%Y-%m', 'now', '-1 month') THEN 1 END)
-      `,
       activeUsers: sql<number>`COUNT(DISTINCT ${orders.userId})`,
       activeUsersLastMonth: sql<number>`
-        COUNT(DISTINCT CASE 
-          WHEN strftime('%Y-%m', ${orders.createdAt}) = strftime('%Y-%m', 'now', '-1 month') 
-          THEN ${orders.userId} 
-        END)
+      COUNT(DISTINCT CASE 
+      WHEN strftime('%Y-%m', ${orders.createdAt}) = strftime('%Y-%m', 'now', '-1 month') 
+      THEN ${orders.userId} 
+      END)
       `,
-      totalOrders: sql<number>`COUNT(${orders.id})`,
+      totalOrders: sql<number>`COUNT(DISTINCT ${orders.id})`,
+      totalOrdersLastMonth: sql<number>`
+        COUNT(DISTINCT CASE WHEN strftime('%Y-%m', ${orders.createdAt}) = strftime('%Y-%m', 'now', '-1 month') THEN ${orders.id} END)
+      `,
     })
     .from(orderItems)
     .leftJoin(orders, eq(orderItems.orderId, orders.id))
