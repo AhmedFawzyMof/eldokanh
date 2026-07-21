@@ -38,55 +38,73 @@ export async function PUT(
   context: { params: Promise<{ id: string }> },
 ) {
   const { id } = await context.params;
-  const body = await req.json();
+  
+  let body;
+  try {
+    body = await req.json();
+  } catch (e) {
+    return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
+  }
 
   if (isNaN(Number(id))) {
     return NextResponse.json({ error: "Invalid ID" }, { status: 400 });
   }
 
-  const orderData = {
-    id: body.id,
-    userId: body.userId,
-    status: body.status,
-    paymentStatus: body.paymentStatus,
-    paymentMethod: body.paymentMethod,
-    createdAt: body.createdAt,
-  };
+  const { id: orderId, userId, status, paymentStatus, paymentMethod, createdAt } = body;
+  const orderData = { id: orderId, userId, status, paymentStatus, paymentMethod, createdAt };
+  const hasOrderData = Object.values(orderData).some(v => v !== undefined);
 
-  const orderItems = body.items;
+  if (body.items && body.address && body.payment) {
+    const orderItems = body.items;
 
-  const addressData = {
-    id: body.address.id,
-    userId: body.address.userId,
-    orderId: body.address.orderId,
-    fullName: body.address.fullName,
-    phone: body.address.phone,
-    street: body.address.street,
-    city: body.address.city,
-    building: body.address.building,
-    floor: body.address.floor,
-  };
+    const addressData = {
+      id: body.address.id,
+      userId: body.address.userId,
+      orderId: body.address.orderId,
+      fullName: body.address.fullName,
+      phone: body.address.phone,
+      street: body.address.street,
+      city: body.address.city,
+      building: body.address.building,
+      floor: body.address.floor,
+    };
 
-  const payment = {
-    id: body.payment.id,
-    orderId: body.payment.orderId,
-    amount: body.payment.amount,
-    method: body.paymentMethod,
-    status: body.paymentStatus,
-    deliveryCost: body.payment.deliveryCost,
-    transactionId: body.payment.transactionId,
-    createdAt: body.payment.createdAt,
-  };
+    const payment = {
+      id: body.payment.id,
+      orderId: body.payment.orderId,
+      amount: body.payment.amount,
+      method: body.paymentMethod || body.payment.method,
+      status: body.paymentStatus || body.payment.status,
+      deliveryCost: body.payment.deliveryCost,
+      transactionId: body.payment.transactionId,
+      createdAt: body.payment.createdAt,
+    };
 
-  const { data: _, error } = await tryCatch(() =>
-    updateOrder(Number(id), orderData, orderItems, addressData, payment),
-  );
-
-  if (error) {
-    return NextResponse.json(
-      { message: "somthing went wrong" },
-      { status: 500 },
+    const { data: _, error } = await tryCatch(() =>
+      updateOrder(Number(id), orderData, orderItems, addressData, payment),
     );
+
+    if (error) {
+      return NextResponse.json(
+        { message: "something went wrong" },
+        { status: 500 },
+      );
+    }
+  } else if (hasOrderData) {
+    // Partial update (like just status)
+    const { db } = require("@/db");
+    const { orders } = require("@/db/schema");
+    const { eq } = require("drizzle-orm");
+    const { data: _, error } = await tryCatch(() => 
+      db.update(orders).set(orderData).where(eq(orders.id, Number(id)))
+    );
+    
+    if (error) {
+      return NextResponse.json(
+        { message: "something went wrong" },
+        { status: 500 },
+      );
+    }
   }
 
   return NextResponse.json({}, { status: 201 });
