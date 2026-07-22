@@ -104,7 +104,9 @@ export async function getStatData(from: string, to: string, date?: string) {
   let totalPromoDiscountLastMonth = 0;
 
   if (promoOrders.length > 0) {
-    const promoOrderIds = promoOrders.map((po) => po.orderId);
+    const promoOrderIds = promoOrders
+      .map((po) => po.orderId)
+      .filter((id): id is number => id !== null);
 
     const subtotals = await db
       .select({
