@@ -12,6 +12,8 @@ import Image from "next/image";
 
 const METHODS = {
   cash: "نقدي (عند الاستلام)",
+  "e-wallet": "محفظة إلكترونية",
+  "credit-card": "بطاقة ائتمان",
   fawaterk: "بطاقة ائتمان / ميزة",
 } as const;
 

@@ -1,3 +1,5 @@
+import { db } from "@/db";
+import { promoCodeUsages, promoCodes, orders } from "@/db/schema";
 import { tryCatch } from "@/lib/tryCatch";
 import {
   deleteOrderProducts,
@@ -5,6 +7,7 @@ import {
   updateOrder,
   updateOrderPartial,
 } from "@/models/orders";
+import { eq } from "drizzle-orm";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(
@@ -119,6 +122,35 @@ export async function PUT(
         { message: "something went wrong", error: error.message },
         { status: 500 },
       );
+    }
+  }
+
+  // Handle promo code changes
+  if (body.hasOwnProperty("promoCode")) {
+    await db.delete(promoCodeUsages).where(eq(promoCodeUsages.orderId, Number(id)));
+
+    if (body.promoCode) {
+      const promo = await db
+        .select()
+        .from(promoCodes)
+        .where(eq(promoCodes.code, body.promoCode))
+        .get();
+
+      if (promo) {
+        const order = await db
+          .select({ userId: orders.userId })
+          .from(orders)
+          .where(eq(orders.id, Number(id)))
+          .get();
+
+        if (order?.userId) {
+          await db.insert(promoCodeUsages).values({
+            promoCodeId: promo.id,
+            userId: order.userId,
+            orderId: Number(id),
+          });
+        }
+      }
     }
   }
 

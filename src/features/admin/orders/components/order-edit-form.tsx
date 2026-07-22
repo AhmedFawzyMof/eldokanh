@@ -23,8 +23,8 @@ import {
   CreditCard,
   ChevronRight,
 } from "lucide-react";
-import { useGetDeliveries } from "@/features/admin/delivery/actions";
 import { useOrderMutations } from "../actions";
+import { useGetPromoCodes } from "@/features/admin/promo-codes/actions";
 import type { Delivery } from "@/types/admin/delivery";
 import Link from "next/link";
 
@@ -37,7 +37,14 @@ export default function OrderEditForm({
 }) {
   const [formData, setFormData] = useState(initialData);
   const [selectedCity, setSelectedCity] = useState<Delivery | null>(null);
+  const [promoCodeInput, setPromoCodeInput] = useState("");
+  const [appliedPromo, setAppliedPromo] = useState<any>(
+    initialData.promo || null,
+  );
+  const [promoError, setPromoError] = useState("");
   const { editMutation, deleteOrderItemMutation } = useOrderMutations();
+  const { data: promoCodesData } = useGetPromoCodes({});
+  const promoCodes = promoCodesData?.data?.promoCodes?.promoCodes || [];
 
   const subtotal = useMemo(() => {
     return formData.items.reduce((acc: number, item: any) => {
@@ -46,16 +53,17 @@ export default function OrderEditForm({
   }, [formData.items]);
 
   const discount = useMemo(() => {
-    if (!initialData.promo) return 0;
-    const { discountType, discountValue, appliesTo } = initialData.promo;
+    if (!appliedPromo) return 0;
+    const { discountType, discountValue, appliesTo } = appliedPromo;
 
-    const baseAmount = appliesTo === "delivery" ? (formData.payment?.deliveryCost || 0) : subtotal;
+    const baseAmount =
+      appliesTo === "delivery" ? formData.payment?.deliveryCost || 0 : subtotal;
 
     if (discountType === "percentage") {
       return (baseAmount * discountValue) / 100;
     }
     return discountValue;
-  }, [subtotal, initialData.promo, formData.payment?.deliveryCost]);
+  }, [subtotal, appliedPromo, formData.payment?.deliveryCost]);
 
   const finalAmount = subtotal - discount;
 
@@ -68,6 +76,26 @@ export default function OrderEditForm({
       },
     }));
   }, [finalAmount]);
+
+  const handleApplyPromo = () => {
+    const trimmed = promoCodeInput.trim();
+    if (!trimmed) return;
+    const found = promoCodes.find(
+      (p: any) => p.code.toLowerCase() === trimmed.toLowerCase(),
+    );
+    if (!found) {
+      setPromoError("كود الخصم غير صحيح");
+      return;
+    }
+    setAppliedPromo(found);
+    setPromoError("");
+    setPromoCodeInput("");
+  };
+
+  const handleRemovePromo = () => {
+    setAppliedPromo(null);
+    setPromoError("");
+  };
 
   useEffect(() => {
     if (!selectedCity) return;
@@ -89,11 +117,14 @@ export default function OrderEditForm({
     }
   };
 
-  const cities: Delivery[] = deliveryData?.data || [];
+  const cities: Delivery[] = deliveryData || [];
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    editMutation.mutate({ id: initialData.id, data: formData });
+    editMutation.mutate({
+      id: initialData.id,
+      data: { ...formData, promoCode: appliedPromo?.code || null },
+    });
   };
 
   const handleDeleteItem = (orderItemId: number) => {
@@ -205,7 +236,9 @@ export default function OrderEditForm({
                     required
                     onValueChange={(city) => setSelectedCity(JSON.parse(city))}
                     value={(() => {
-                      const found = cities.find((c) => c.city === formData.address?.city);
+                      const found = cities.find(
+                        (c) => c.city === formData.address?.city,
+                      );
                       return found ? JSON.stringify(found) : undefined;
                     })()}
                   >
@@ -361,14 +394,23 @@ export default function OrderEditForm({
                 <div className="space-y-4">
                   <div className="space-y-2">
                     <Label className="font-bold">طريقة الدفع</Label>
-                    <Input
-                      required
-                      value={formData.payment?.method || ""}
-                      onChange={(e) =>
-                        update("payment", "method", e.target.value)
-                      }
-                      className="h-12 rounded-xl border-slate-200 shadow-none text-right"
-                    />
+                    <Select
+                      value={formData.payment?.method || "cash"}
+                      onValueChange={(v) => update("payment", "method", v)}
+                    >
+                      <SelectTrigger className="h-12 rounded-xl border-slate-200 shadow-none text-right">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="cash">نقدي</SelectItem>
+                        <SelectItem value="e-wallet">
+                          محفظة إلكترونية
+                        </SelectItem>
+                        <SelectItem value="credit-card">
+                          بطاقة ائتمان
+                        </SelectItem>
+                      </SelectContent>
+                    </Select>
                   </div>
                   <div className="space-y-2">
                     <Label className="font-bold">تكلفة التوصيل (ج.م)</Label>
@@ -387,6 +429,63 @@ export default function OrderEditForm({
                   </div>
                 </div>
 
+                {/* Promo Code Section */}
+                <div className="space-y-2">
+                  <Label className="font-bold">كود الخصم</Label>
+                  {appliedPromo ? (
+                    <div className="flex items-center justify-between p-3 rounded-xl bg-emerald-50 border border-emerald-200">
+                      <div className="flex items-center gap-2">
+                        <Tag className="h-4 w-4 text-emerald-600" />
+                        <span className="font-bold text-emerald-700">
+                          {appliedPromo.code}
+                        </span>
+                        {appliedPromo.discountType === "percentage" ? (
+                          <span className="text-xs text-emerald-500">
+                            ({appliedPromo.discountValue}%)
+                          </span>
+                        ) : (
+                          <span className="text-xs text-emerald-500">
+                            (-{appliedPromo.discountValue} ج.م)
+                          </span>
+                        )}
+                      </div>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        onClick={handleRemovePromo}
+                        className="text-red-500 hover:text-red-700 hover:bg-red-50 rounded-xl h-8 px-3 text-xs"
+                      >
+                        إزالة
+                      </Button>
+                    </div>
+                  ) : (
+                    <div className="flex gap-2">
+                      <Input
+                        value={promoCodeInput}
+                        onChange={(e) => {
+                          setPromoCodeInput(e.target.value);
+                          setPromoError("");
+                        }}
+                        placeholder="أدخل كود الخصم"
+                        className="h-12 rounded-xl border-slate-200 shadow-none text-right flex-1"
+                      />
+                      <Button
+                        type="button"
+                        onClick={handleApplyPromo}
+                        className="h-12 rounded-xl px-6 font-bold"
+                      >
+                        تطبيق
+                      </Button>
+                    </div>
+                  )}
+                  {promoError && (
+                    <p className="text-xs text-red-500 font-bold">
+                      {promoError}
+                    </p>
+                  )}
+                </div>
+
                 <Separator className="bg-slate-100" />
 
                 <div className="space-y-3">
@@ -401,7 +500,7 @@ export default function OrderEditForm({
                     <div className="flex justify-between text-sm">
                       <div className="flex items-center gap-1.5 text-emerald-600">
                         <Tag className="h-3.5 w-3.5" />
-                        <span>كود الخصم ({initialData.promo.code})</span>
+                        <span>كود الخصم ({appliedPromo?.code})</span>
                       </div>
                       <span className="font-bold font-mono text-emerald-600">
                         -{discount.toLocaleString()} ج.م
@@ -412,7 +511,8 @@ export default function OrderEditForm({
                   <div className="flex justify-between text-sm text-slate-500">
                     <span>تكلفة التوصيل</span>
                     <span className="font-bold font-mono">
-                      {formData.payment?.deliveryCost?.toLocaleString() || 0} ج.م
+                      {formData.payment?.deliveryCost?.toLocaleString() || 0}{" "}
+                      ج.م
                     </span>
                   </div>
 
