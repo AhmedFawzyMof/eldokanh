@@ -2,11 +2,14 @@ import { db } from "@/db";
 import {
   orderItems,
   orders,
+  payments,
   product_brands,
   products,
   products_category,
+  promoCodes,
+  promoCodeUsages,
 } from "@/db/schema";
-import { sql, eq, between, and } from "drizzle-orm";
+import { sql, eq, between, and, inArray } from "drizzle-orm";
 
 export async function getStatData(from: string, to: string, date?: string) {
   const filterdate = (date: string) => {
@@ -81,7 +84,90 @@ export async function getStatData(from: string, to: string, date?: string) {
     .orderBy(sql`strftime('%Y-%m', ${orders.createdAt})`)
     .all();
 
-  return { stats, revenue };
+  const lastMonth = sql`strftime('%Y-%m', 'now', '-1 month')`;
+
+  const promoOrders = await db
+    .select({
+      orderId: promoCodeUsages.orderId,
+      discountType: promoCodes.discountType,
+      discountValue: promoCodes.discountValue,
+      appliesTo: promoCodes.appliesTo,
+      createdAt: orders.createdAt,
+    })
+    .from(promoCodeUsages)
+    .innerJoin(promoCodes, eq(promoCodeUsages.promoCodeId, promoCodes.id))
+    .innerJoin(orders, eq(promoCodeUsages.orderId, orders.id))
+    .where(and(...conditions))
+    .all();
+
+  let totalPromoDiscount = 0;
+  let totalPromoDiscountLastMonth = 0;
+
+  if (promoOrders.length > 0) {
+    const promoOrderIds = promoOrders.map((po) => po.orderId);
+
+    const subtotals = await db
+      .select({
+        orderId: orderItems.orderId,
+        subtotal: sql<number>`COALESCE(SUM(${orderItems.price} * ${orderItems.quantity}), 0)`,
+      })
+      .from(orderItems)
+      .where(inArray(orderItems.orderId, promoOrderIds))
+      .groupBy(orderItems.orderId)
+      .all();
+
+    const deliveries = await db
+      .select({
+        orderId: payments.orderId,
+        deliveryCost: payments.deliveryCost,
+      })
+      .from(payments)
+      .where(inArray(payments.orderId, promoOrderIds))
+      .all();
+
+    const isLastMonth = (createdAt: string | null) =>
+      createdAt?.startsWith(
+        new Date(
+          new Date().getFullYear(),
+          new Date().getMonth() - 1,
+          1,
+        )
+          .toISOString()
+          .slice(0, 7),
+      ) ?? false;
+
+    for (const po of promoOrders) {
+      const subtotal = Number(
+        subtotals.find((s) => s.orderId === po.orderId)?.subtotal || 0,
+      );
+      const deliveryCost = Number(
+        deliveries.find((d) => d.orderId === po.orderId)?.deliveryCost || 0,
+      );
+
+      let discount = 0;
+      if (po.discountType === "fixed") {
+        discount = po.discountValue;
+      } else if (po.discountType === "percentage") {
+        const base =
+          po.appliesTo === "delivery" ? deliveryCost : subtotal;
+        discount = (base * po.discountValue) / 100;
+      }
+
+      totalPromoDiscount += discount;
+      if (isLastMonth(po.createdAt)) {
+        totalPromoDiscountLastMonth += discount;
+      }
+    }
+  }
+
+  return {
+    stats: {
+      ...stats,
+      totalPromoDiscount,
+      totalPromoDiscountLastMonth,
+    },
+    revenue,
+  };
 }
 
 export async function getCategoriesReports(

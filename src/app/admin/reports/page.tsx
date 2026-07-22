@@ -12,6 +12,7 @@ import {
   Users,
   Package,
   ArrowUpRight,
+  BadgePercent,
 } from "lucide-react";
 import { TopProducts } from "@/features/admin/dashboard/components/top-products";
 import { RecentOrders } from "@/features/admin/dashboard/components/recent-orders";
@@ -87,6 +88,22 @@ export default async function ReportsPage(props: {
     );
   }
 
+  const netProfet =
+    ((reportData.stats?.totalProfet || 0) -
+      (reportData.stats?.totalPromoDiscount || 0)) / 2;
+  const netProfetLastMonth =
+    ((reportData.stats?.totalProfetLastMonth || 0) -
+      (reportData.stats?.totalPromoDiscountLastMonth || 0)) / 2;
+  const totalPromoDiscount = reportData.stats?.totalPromoDiscount || 0;
+  const totalPromoDiscountLastMonth =
+    reportData.stats?.totalPromoDiscountLastMonth || 0;
+  const promoDiscountTrend = Number(
+    differenceInPercent(totalPromoDiscount, totalPromoDiscountLastMonth),
+  );
+  const netProfetTrend = Number(
+    differenceInPercent(netProfet, netProfetLastMonth),
+  );
+
   return (
     <div className="flex flex-col p-6 space-y-8 max-w-[1600px] mx-auto">
       <DateButtons />
@@ -136,11 +153,27 @@ export default async function ReportsPage(props: {
         />
 
         <StatCard
-          title="صافي الربح"
+          title="اجمالي الربح"
           value={`${reportData.stats?.totalProfet || 0} ج.م`}
           description="من الشهر الماضي"
           icon={BanknoteArrowUp}
           trend={profetTrend}
+        />
+
+        <StatCard
+          title="خصم أكواد الترويج"
+          value={`${totalPromoDiscount} ج.م`}
+          description="من الشهر الماضي"
+          icon={BadgePercent}
+          trend={promoDiscountTrend}
+        />
+
+        <StatCard
+          title="صافي الربح للتطبيق"
+          value={`${netProfet} ج.م`}
+          description="من الشهر الماضي"
+          icon={BanknoteArrowUp}
+          trend={netProfetTrend}
         />
       </div>
 
