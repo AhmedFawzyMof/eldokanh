@@ -63,27 +63,27 @@ export default async function ReportsPage(props: {
   if (reportData.stats) {
     revenueTrend = Number(
       differenceInPercent(
-        reportData.stats.totalRevenue,
-        reportData.stats.totalRevenueLastMonth,
+        reportData.stats.totalRevenue ?? 0,
+        reportData.stats.totalRevenueLastMonth ?? 0,
       ),
     );
     ordersTrend = Number(
       differenceInPercent(
-        reportData.stats.totalOrders,
-        reportData.stats.totalOrdersLastMonth,
+        reportData.stats.totalOrders ?? 0,
+        reportData.stats.totalOrdersLastMonth ?? 0,
       ),
     );
 
     customersTrend = Number(
       differenceInPercent(
-        reportData.stats.activeUsers,
-        reportData.stats.activeUsersLastMonth,
+        reportData.stats.activeUsers ?? 0,
+        reportData.stats.activeUsersLastMonth ?? 0,
       ),
     );
     profetTrend = Number(
       differenceInPercent(
-        reportData.stats.totalProfet,
-        reportData.stats.totalProfetLastMonth,
+        reportData.stats.totalProfet ?? 0,
+        reportData.stats.totalProfetLastMonth ?? 0,
       ),
     );
   }
