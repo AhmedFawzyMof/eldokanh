@@ -63,7 +63,7 @@ export default async function ReportsPage(props: {
   if (reportData.stats) {
     revenueTrend = Number(
       differenceInPercent(
-        reportData.stats?.totalRevenue,
+        reportData.stats.totalRevenue,
         reportData.stats.totalRevenueLastMonth,
       ),
     );
