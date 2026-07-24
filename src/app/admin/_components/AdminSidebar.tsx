@@ -72,13 +72,13 @@ export default function AdminSidebar() {
   }
 
   const NavContent = () => (
-    <div className="flex flex-col h-full bg-card border-l">
+    <div className="flex flex-col h-full bg-card border-l overflow-y-scroll">
       <div className="p-6">
         <Link href="/admin/dashboard" className="flex items-center gap-3">
           <div className="h-10 w-10 rounded-xl bg-primary flex items-center justify-center text-primary-foreground shadow-lg shadow-primary/20">
             <Home className="h-6 w-6" />
           </div>
-          <span className="font-bold text-xl tracking-tight">الدكان ماركت</span>
+          <span className="font-bold text-xl tracking-tight">الدكانة ماركت</span>
         </Link>
       </div>
 
