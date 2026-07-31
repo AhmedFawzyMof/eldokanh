@@ -50,9 +50,9 @@ export async function getStatData(from: string, to: string, date?: string) {
           THEN ${orderItems.price} * ${orderItems.quantity} 
         END)
       `,
-      totalOrders: sql<number>`COUNT(${orders.id})`,
+      totalOrders: sql<number>`COUNT(DISTINCT ${orders.id})`,
       totalOrdersLastMonth: sql<number>`
-        COUNT(CASE WHEN strftime('%Y-%m', ${orders.createdAt}) = strftime('%Y-%m', 'now', '-1 month') THEN 1 END)
+        COUNT(DISTINCT CASE WHEN strftime('%Y-%m', ${orders.createdAt}) = strftime('%Y-%m', 'now', '-1 month') THEN ${orders.id} END)
       `,
       activeUsers: sql<number>`COUNT(DISTINCT ${orders.userId})`,
       activeUsersLastMonth: sql<number>`
@@ -192,9 +192,9 @@ export async function getCategoriesReports(
           THEN ${orderItems.price} * ${orderItems.quantity} 
         END)
       `,
-      totalOrders: sql<number>`COUNT(${orders.id})`,
+      totalOrders: sql<number>`COUNT(DISTINCT ${orders.id})`,
       totalOrdersLastMonth: sql<number>`
-        COUNT(CASE WHEN strftime('%Y-%m', ${orders.createdAt}) = strftime('%Y-%m', 'now', '-1 month') THEN 1 END)
+        COUNT(DISTINCT CASE WHEN strftime('%Y-%m', ${orders.createdAt}) = strftime('%Y-%m', 'now', '-1 month') THEN ${orders.id} END)
       `,
       totalProfet: sql<number>`SUM((${orderItems.price} * ${orderItems.quantity}) - (COALESCE(${orderItems.buyingPrice}, ${products.buyingPrice}, 0) * ${orderItems.quantity}))`,
       totalProfetLastMonth: sql<number>`SUM(CASE 
@@ -214,7 +214,7 @@ export async function getCategoriesReports(
       name: products_category.nameAr,
       revenue: sql<number>`SUM(${orderItems.price} * ${orderItems.quantity})`,
       profit: sql<number>`SUM((${orderItems.price} * ${orderItems.quantity}) - (COALESCE(${orderItems.buyingPrice}, ${products.buyingPrice}, 0) * ${orderItems.quantity}))`,
-      orders: sql<number>`COUNT(${orders.id})`,
+      orders: sql<number>`COUNT(DISTINCT ${orders.id})`,
       quantity: sql<number>`SUM(${orderItems.quantity})`,
     })
     .from(orderItems)
@@ -247,9 +247,9 @@ export async function getBrandsReports(
           THEN ${orderItems.price} * ${orderItems.quantity} 
         END)
       `,
-      totalOrders: sql<number>`COUNT(${orders.id})`,
+      totalOrders: sql<number>`COUNT(DISTINCT ${orders.id})`,
       totalOrdersLastMonth: sql<number>`
-        COUNT(CASE WHEN strftime('%Y-%m', ${orders.createdAt}) = strftime('%Y-%m', 'now', '-1 month') THEN 1 END)
+        COUNT(DISTINCT CASE WHEN strftime('%Y-%m', ${orders.createdAt}) = strftime('%Y-%m', 'now', '-1 month') THEN ${orders.id} END)
       `,
       totalProfet: sql<number>`SUM((${orderItems.price} * ${orderItems.quantity}) - (COALESCE(${orderItems.buyingPrice}, ${products.buyingPrice}, 0) * ${orderItems.quantity}))`,
       totalProfetLastMonth: sql<number>`SUM(CASE 
@@ -269,7 +269,7 @@ export async function getBrandsReports(
       name: product_brands.nameAr,
       revenue: sql<number>`SUM(${orderItems.price} * ${orderItems.quantity})`,
       profit: sql<number>`SUM((${orderItems.price} * ${orderItems.quantity}) - (COALESCE(${orderItems.buyingPrice}, ${products.buyingPrice}, 0) * ${orderItems.quantity}))`,
-      orders: sql<number>`COUNT(${orders.id})`,
+      orders: sql<number>`COUNT(DISTINCT ${orders.id})`,
       quantity: sql<number>`SUM(${orderItems.quantity})`,
     })
     .from(orderItems)
@@ -318,7 +318,7 @@ export async function getAllProductsReports({
       buyingPrice: sql<number>`COALESCE(${products.buyingPrice}, 0)`,
       profit: sql<number>`SUM((${orderItems.price} * ${orderItems.quantity}) - (COALESCE(${orderItems.buyingPrice}, ${products.buyingPrice}, 0) * ${orderItems.quantity}))`,
       totalCost: sql<number>`SUM(COALESCE(${orderItems.buyingPrice}, ${products.buyingPrice}, 0) * ${orderItems.quantity})`,
-      orders: sql<number>`COUNT(${orders.id})`,
+      orders: sql<number>`COUNT(DISTINCT ${orders.id})`,
       quantity: sql<number>`SUM(${orderItems.quantity})`,
     })
     .from(orderItems)
