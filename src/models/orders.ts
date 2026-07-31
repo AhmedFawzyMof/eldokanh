@@ -23,7 +23,24 @@ export async function createOrder(
   const orderId = order?.id;
 
   if (items && items.length > 0) {
-    await db.insert(orderItems).values(items.map((i) => ({ ...i, orderId })));
+    const itemsToInsert = await Promise.all(
+      items.map(async (item) => {
+        const product = item.productId
+          ? await db
+              .select({ buyingPrice: products.buyingPrice })
+              .from(products)
+              .where(eq(products.id, item.productId))
+              .get()
+          : null;
+
+        return {
+          ...item,
+          orderId,
+          buyingPrice: item.buyingPrice ?? product?.buyingPrice ?? 0,
+        };
+      }),
+    );
+    await db.insert(orderItems).values(itemsToInsert);
   }
 
   return order;

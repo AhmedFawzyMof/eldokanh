@@ -339,6 +339,14 @@ export default function OrderEditForm({
                           {item.price?.toLocaleString()} ج.م
                         </div>
                       </div>
+                      <div className="w-24">
+                        <Label className="text-[10px] text-slate-400 mb-1 block">
+                          التكلفة
+                        </Label>
+                        <div className="font-bold text-sm text-amber-600">
+                          {item.buyingPrice?.toLocaleString() || 0} ج.م
+                        </div>
+                      </div>
                       <div className="w-28 space-y-1">
                         <Label className="text-[10px] text-slate-400">
                           الكمية
