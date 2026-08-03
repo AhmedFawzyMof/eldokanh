@@ -144,8 +144,7 @@ export default function OrderEditForm({
             i.productId === product.id
               ? {
                   ...i,
-                  quantity:
-                    i.quantity + (product.type === "unit" ? 1 : 0.5),
+                  quantity: i.quantity + (product.type === "unit" ? 1 : 0.5),
                 }
               : i,
           ),
@@ -467,7 +466,7 @@ export default function OrderEditForm({
                   <div className="space-y-2">
                     <Label className="font-bold">طريقة الدفع</Label>
                     <Select
-                      value={formData.payment?.method || "cash"}
+                      value={formData.paymentMethod || "cash"}
                       onValueChange={(v) => update("payment", "method", v)}
                     >
                       <SelectTrigger className="h-12 rounded-xl border-slate-200 shadow-none text-right">
