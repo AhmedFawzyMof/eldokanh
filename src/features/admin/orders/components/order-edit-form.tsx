@@ -22,11 +22,15 @@ import {
   Truck,
   CreditCard,
   ChevronRight,
+  CalendarDays,
 } from "lucide-react";
 import { useOrderMutations } from "../actions";
+import { AddProductDialog } from "./add-product-dialog";
 import { useGetPromoCodes } from "@/features/admin/promo-codes/actions";
 import type { Delivery } from "@/types/admin/delivery";
+import type { Product } from "@/types/admin/products";
 import Link from "next/link";
+import { formatEgyptDateTime } from "@/lib/format-egypt-date";
 
 export default function OrderEditForm({
   initialData,
@@ -121,13 +125,59 @@ export default function OrderEditForm({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    const items = formData.items.map((item: any) =>
+      item.id < 0 ? { ...item, id: undefined } : item,
+    );
     editMutation.mutate({
       id: initialData.id,
-      data: { ...formData, promoCode: appliedPromo?.code || null },
+      data: { ...formData, items, promoCode: appliedPromo?.code || null },
+    });
+  };
+
+  const handleAddProduct = (product: Product) => {
+    setFormData((prev: any) => {
+      const existing = prev.items.find((i: any) => i.productId === product.id);
+      if (existing) {
+        return {
+          ...prev,
+          items: prev.items.map((i: any) =>
+            i.productId === product.id
+              ? {
+                  ...i,
+                  quantity:
+                    i.quantity + (product.type === "unit" ? 1 : 0.5),
+                }
+              : i,
+          ),
+        };
+      }
+      return {
+        ...prev,
+        items: [
+          ...prev.items,
+          {
+            id: -Date.now() - Math.floor(Math.random() * 1000),
+            productId: product.id,
+            nameAr: product.nameAr,
+            type: product.type || "unit",
+            quantity: product.type === "unit" ? 1 : 0.5,
+            price: product.price,
+            buyingPrice: product.buyingPrice || 0,
+          },
+        ],
+      };
     });
   };
 
   const handleDeleteItem = (orderItemId: number) => {
+    const item = formData.items.find((i: any) => i.id === orderItemId);
+    if (item && item.id < 0) {
+      setFormData((prev: any) => ({
+        ...prev,
+        items: prev.items.filter((i: any) => i.id !== orderItemId),
+      }));
+      return;
+    }
     deleteOrderItemMutation.mutate({ id: initialData.id, orderItemId });
   };
 
@@ -143,6 +193,16 @@ export default function OrderEditForm({
         <ChevronRight className="h-4 w-4" />
         <span className="text-slate-900 font-bold">
           تعديل الطلب #{initialData.id}
+        </span>
+      </div>
+
+      <div className="flex items-center gap-2 text-sm text-slate-500 bg-slate-50 border border-slate-100 rounded-2xl px-4 py-3 w-fit">
+        <CalendarDays className="h-4 w-4 text-primary" />
+        <span>
+          تم إنشاء الطلب في{" "}
+          <span className="font-bold text-slate-700">
+            {formatEgyptDateTime(initialData.createdAt)}
+          </span>
         </span>
       </div>
 
@@ -304,6 +364,10 @@ export default function OrderEditForm({
                 </div>
                 محتويات الطلب
               </CardTitle>
+              <AddProductDialog
+                existingProductIds={formData.items.map((i: any) => i.productId)}
+                onAdd={handleAddProduct}
+              />
             </CardHeader>
             <CardContent className="p-6 space-y-4">
               {formData.items.map((item: any, i: number) => {

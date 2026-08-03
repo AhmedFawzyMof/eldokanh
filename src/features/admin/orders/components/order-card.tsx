@@ -15,6 +15,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useOrderMutations } from "../actions";
+import { formatEgyptDateTime } from "@/lib/format-egypt-date";
 
 export function OrderCard({
   order,
@@ -120,7 +121,7 @@ export function OrderCard({
             <div className="grid grid-cols-2 gap-2">
               <div className="flex items-center gap-2 text-slate-600 justify-end order-1">
                 <span className="text-xs">
-                  {new Date(order.createdAt).toLocaleDateString("ar-EG")}
+                  {formatEgyptDateTime(order.createdAt)}
                 </span>
                 <CalendarDays className="h-3.5 w-3.5" />
               </div>
