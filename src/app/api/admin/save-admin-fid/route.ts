@@ -1,11 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { tryCatch } from "@/lib/tryCatch";
 import { updateAdminByUserId } from "@/models/admins";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { getAuthSession } from "@/lib/auth-session";
 
 export async function POST(req: NextRequest) {
-  const session = await getServerSession(authOptions);
+  const session = await getAuthSession();
   
   if (!session?.user?.id) {
     return NextResponse.json(

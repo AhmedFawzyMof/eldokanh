@@ -19,6 +19,7 @@
 
 # production
 /build
+/mobile
 
 # misc
 .DS_Store

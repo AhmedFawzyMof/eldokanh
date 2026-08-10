@@ -11,6 +11,7 @@ import {
   CreditCard,
   Motorbike,
   BarChart,
+  Bell,
 } from "lucide-react";
 import { ADMIN_PERMISSIONS } from "@/types/permissions";
 
@@ -105,6 +106,13 @@ export const adminPages = [
     icon: Users,
     badge: false,
     permission: ADMIN_PERMISSIONS.ADMINS_MANAGE,
+  },
+  {
+    title: "إشعارات الزوار",
+    href: "/admin/notifications",
+    icon: Bell,
+    badge: false,
+    permission: ADMIN_PERMISSIONS.NOTIFICATIONS_SEND,
   },
   {
     title: "التقارير",

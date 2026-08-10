@@ -11,6 +11,7 @@ export const ADMIN_PERMISSIONS = {
   DELIVERY_MANAGE: "delivery:manage",
   OFFERS_MANAGE: "offers:manage",
   CONTACTS_MANAGE: "contacts:manage",
+  NOTIFICATIONS_SEND: "notifications:send",
   REPORTS_MANAGE: "reports:mange",
 } as const;
 
@@ -30,6 +31,7 @@ export const PERMISSION_LABELS: Record<AdminPermission, string> = {
   [ADMIN_PERMISSIONS.DELIVERY_MANAGE]: "إدارة التوصيل",
   [ADMIN_PERMISSIONS.OFFERS_MANAGE]: "إدارة العروض",
   [ADMIN_PERMISSIONS.CONTACTS_MANAGE]: "إدارة الرسائل",
+  [ADMIN_PERMISSIONS.NOTIFICATIONS_SEND]: "إرسال إشعارات الزوار",
   [ADMIN_PERMISSIONS.REPORTS_MANAGE]: "عرض التقارير",
 };
 

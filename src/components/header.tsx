@@ -8,6 +8,7 @@ import Image from "next/image";
 import { useSession, signOut } from "next-auth/react";
 import { useCartStore } from "@/store/cartStore";
 import { usePathname } from "next/navigation";
+import { NotificationBell } from "@/components/notification-bell";
 
 export function Header() {
   const pathname = usePathname();
@@ -95,6 +96,8 @@ export function Header() {
               <Search className="h-5 w-5" />
             </Link>
           </Button>
+
+          <NotificationBell />
 
           <Button
             variant="ghost"
