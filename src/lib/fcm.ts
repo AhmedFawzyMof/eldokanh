@@ -89,6 +89,7 @@ export async function subscribeTokenToTopic(fid: string, topic: string) {
         headers: {
           Authorization: `Bearer ${accessToken}`,
           "Content-Type": "application/json",
+          "access_token_auth": "true",
         },
         body: JSON.stringify({
           to: `/topics/${topic}`,
@@ -101,9 +102,16 @@ export async function subscribeTokenToTopic(fid: string, topic: string) {
     if (!response.ok) {
       console.error("FCM Subscribe Error Response:", result);
       const firstError = result.results?.[0]?.error;
+      const apiError =
+        typeof result.error === "string"
+          ? result.error
+          : result.error?.message;
       return {
         success: false,
-        error: firstError || result.error?.message || "FCM subscribe failed",
+        error:
+          firstError ||
+          apiError ||
+          `FCM subscribe failed (HTTP ${response.status})`,
       };
     }
 
