@@ -22,11 +22,32 @@ messaging.onBackgroundMessage((payload) => {
     payload,
   );
 
-  const notificationTitle = payload.notification.title || "New Admin Alert";
-  const notificationOptions = {
-    body: payload.notification.body || "You have a new update.",
-    icon: "/icon-192x192.png",
-  };
+  const title = payload.notification?.title || "New Admin Alert";
+  const body = payload.notification?.body || "You have a new update.";
+  const link = payload.fcmOptions?.link || "https://eldokanh.com";
 
-  self.registration.showNotification(notificationTitle, notificationOptions);
+  self.registration
+    .showNotification(title, {
+      body,
+      icon: "/icon-192x192.png",
+      data: { link },
+    })
+    .catch((err) => {
+      console.error("[firebase-messaging-sw.js] showNotification failed:", err);
+    });
+});
+
+self.addEventListener("notificationclick", (event) => {
+  event.notification.close();
+  const url = event.notification.data?.link || "https://eldokanh.com";
+  event.waitUntil(
+    clients.matchAll({ type: "window", includeUncontrolled: true }).then((list) => {
+      for (const client of list) {
+        if (client.url.startsWith(url) && "focus" in client) {
+          return client.focus();
+        }
+      }
+      return clients.openWindow(url);
+    }),
+  );
 });
