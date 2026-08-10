@@ -4,7 +4,12 @@
 // used by order notifications). Nothing is stored in the DB.
 import { NextRequest, NextResponse } from "next/server";
 import { getAuthSession } from "@/lib/auth-session";
-import { sendFCMMessage, sendFCMToTopic, VISITORS_TOPIC } from "@/lib/fcm";
+import {
+  checkFCMConfig,
+  sendFCMMessage,
+  sendFCMToTopic,
+  VISITORS_TOPIC,
+} from "@/lib/fcm";
 import { db } from "@/db";
 import { admins } from "@/db/schema";
 import { isNotNull } from "drizzle-orm";
@@ -20,6 +25,14 @@ export async function POST(req: NextRequest) {
     return NextResponse.json(
       { error: "Admin access required" },
       { status: 403 },
+    );
+  }
+
+  const configError = checkFCMConfig();
+  if (configError) {
+    return NextResponse.json(
+      { error: `إعدادات الإشعارات غير مكتملة: ${configError}` },
+      { status: 500 },
     );
   }
 
@@ -84,7 +97,7 @@ export async function POST(req: NextRequest) {
   } catch (error) {
     console.error("Admin notification broadcast exception:", error);
     return NextResponse.json(
-      { error: "Internal Server Error" },
+      { error: (error as Error).message || "Internal Server Error" },
       { status: 500 },
     );
   }

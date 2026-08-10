@@ -1,19 +1,6 @@
 // src/app/api/admin/send-alert/route.ts
-import { NextResponse } from "next/server";
-import { GoogleAuth } from "google-auth-library";
-import path from "path";
-
-const keyFilePath = path.join(
-  process.cwd(),
-  "src/config/eldokanh-firebase-adminsdk-fbsvc-c50f7769b9.json",
-);
-
-const auth = new GoogleAuth({
-  keyFile: keyFilePath,
-  scopes: ["https://www.googleapis.com/auth/firebase.messaging"],
-});
-
-import { NextRequest } from "next/server";
+import { NextResponse, NextRequest } from "next/server";
+import { getFirebaseAuth } from "@/lib/fcm";
 
 export async function POST(request: NextRequest) {
   try {
@@ -27,6 +14,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    const auth = getFirebaseAuth();
     const client = await auth.getClient();
     const tokenResponse = await client.getAccessToken();
     const accessToken = tokenResponse.token;

@@ -3,9 +3,21 @@
 // The token itself is NEVER persisted in the DB — FCM manages the
 // token-to-topic mapping; we just relay the subscription.
 import { NextRequest, NextResponse } from "next/server";
-import { subscribeTokenToTopic, VISITORS_TOPIC } from "@/lib/fcm";
+import {
+  checkFCMConfig,
+  subscribeTokenToTopic,
+  VISITORS_TOPIC,
+} from "@/lib/fcm";
 
 export async function POST(req: NextRequest) {
+  const configError = checkFCMConfig();
+  if (configError) {
+    return NextResponse.json(
+      { error: `Notification setup incomplete: ${configError}` },
+      { status: 500 },
+    );
+  }
+
   try {
     const { token } = await req.json();
 

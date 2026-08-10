@@ -23,7 +23,11 @@ import {
 } from "@/components/ui/select";
 import adminApi from "@/lib/admin/api";
 
-export function SendNotification() {
+export function SendNotification({
+  configError = false,
+}: {
+  configError?: boolean;
+}) {
   const [title, setTitle] = useState("");
   const [body, setBody] = useState("");
   const [link, setLink] = useState("");
@@ -127,7 +131,7 @@ export function SendNotification() {
           <Button
             type="submit"
             className="w-full h-12 text-lg font-black rounded-xl shadow-lg shadow-primary/20 mt-4"
-            disabled={isSending}
+            disabled={isSending || configError}
           >
             {isSending ? (
               <>

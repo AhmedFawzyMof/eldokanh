@@ -48,4 +48,6 @@ test*
 
 # Firebase Admin Credentials
 src/config/service-account-file.json
+src/config/*adminsdk*.json
+src/config/*firebase*.json
 scripts/

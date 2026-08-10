@@ -1,15 +1,60 @@
 import { GoogleAuth } from "google-auth-library";
+import fs from "fs";
 import path from "path";
 
-const keyFilePath = path.join(
-  process.cwd(),
-  "src/config/eldokanh-firebase-adminsdk-fbsvc-c50f7769b9.json",
-);
+const FCM_SCOPE = "https://www.googleapis.com/auth/firebase.messaging";
 
-const auth = new GoogleAuth({
-  keyFile: keyFilePath,
-  scopes: ["https://www.googleapis.com/auth/firebase.messaging"],
-});
+/**
+ * Resolves Firebase service-account credentials from, in order:
+ *  1. FIREBASE_SERVICE_ACCOUNT      – env var containing the raw JSON
+ *  2. FIREBASE_SERVICE_ACCOUNT_PATH – env var pointing to a JSON file
+ *  3. GOOGLE_APPLICATION_CREDENTIALS– env var pointing to a JSON file
+ *  4. any *.json file in src/config/
+ * Throws a clear error if none is found so failures are visible.
+ */
+export function getFirebaseAuth(): GoogleAuth {
+  const inline = process.env.FIREBASE_SERVICE_ACCOUNT;
+  if (inline) {
+    const parsed = JSON.parse(inline);
+    return new GoogleAuth({ credentials: parsed, scopes: [FCM_SCOPE] });
+  }
+
+  const explicitPath =
+    process.env.FIREBASE_SERVICE_ACCOUNT_PATH ||
+    process.env.GOOGLE_APPLICATION_CREDENTIALS;
+  if (explicitPath && fs.existsSync(explicitPath)) {
+    return new GoogleAuth({ keyFile: explicitPath, scopes: [FCM_SCOPE] });
+  }
+
+  const configDir = path.join(process.cwd(), "src/config");
+  if (fs.existsSync(configDir)) {
+    const keyFile = fs
+      .readdirSync(configDir)
+      .find((f) => f.endsWith(".json"));
+    if (keyFile) {
+      return new GoogleAuth({
+        keyFile: path.join(configDir, keyFile),
+        scopes: [FCM_SCOPE],
+      });
+    }
+  }
+
+  throw new Error(
+    "Firebase service-account key not found. Add your service account JSON to src/config/ (e.g. src/config/service-account-file.json) or set the FIREBASE_SERVICE_ACCOUNT env var.",
+  );
+}
+
+/**
+ * Validates that FCM credentials are configured. Returns error string or null.
+ */
+export function checkFCMConfig(): string | null {
+  try {
+    getFirebaseAuth();
+    return null;
+  } catch (error) {
+    return (error as Error).message;
+  }
+}
 
 // Topic that every website visitor's browser subscribes to.
 // Messages broadcast to this topic reach all visitors that opted in.
@@ -18,6 +63,7 @@ export const VISITORS_TOPIC = "visitors";
 
 export async function subscribeTokenToTopic(fid: string, topic: string) {
   try {
+    const auth = getFirebaseAuth();
     const client = await auth.getClient();
     const tokenResponse = await client.getAccessToken();
     const accessToken = tokenResponse.token;
@@ -57,7 +103,10 @@ export async function subscribeTokenToTopic(fid: string, topic: string) {
     return { success: true };
   } catch (error) {
     console.error("FCM Subscribe Exception:", error);
-    return { success: false, error: "Internal Server Error" };
+    return {
+      success: false,
+      error: (error as Error).message || "FCM subscribe failed",
+    };
   }
 }
 
@@ -69,6 +118,7 @@ export async function sendFCMMessage(
 ) {
   try {
     const projectId = "eldokanh";
+    const auth = getFirebaseAuth();
     const client = await auth.getClient();
     const tokenResponse = await client.getAccessToken();
     const accessToken = tokenResponse.token;
@@ -113,7 +163,10 @@ export async function sendFCMMessage(
     return { success: true, messageId: result.name };
   } catch (error) {
     console.error("FCM Send Exception:", error);
-    return { success: false, error: "Internal Server Error" };
+    return {
+      success: false,
+      error: (error as Error).message || "FCM send failed",
+    };
   }
 }
 
@@ -125,6 +178,7 @@ export async function sendFCMToTopic(
 ) {
   try {
     const projectId = "eldokanh";
+    const auth = getFirebaseAuth();
     const client = await auth.getClient();
     const tokenResponse = await client.getAccessToken();
     const accessToken = tokenResponse.token;
@@ -169,6 +223,9 @@ export async function sendFCMToTopic(
     return { success: true, messageId: result.name };
   } catch (error) {
     console.error("FCM Topic Send Exception:", error);
-    return { success: false, error: "Internal Server Error" };
+    return {
+      success: false,
+      error: (error as Error).message || "FCM send failed",
+    };
   }
 }

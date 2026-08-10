@@ -22,7 +22,6 @@ export function NotificationBell() {
     ) {
       subscribeToVisitors();
     }
-
     setupForegroundMessageListener((payload) => {
       const title = payload.notification?.title || "إشعار جديد";
       const body = payload.notification?.body || "لديك إشعار جديد.";
@@ -35,11 +34,11 @@ export function NotificationBell() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const subscribeToVisitors = async () => {
+  const subscribeToVisitors = async (): Promise<boolean> => {
     const token = await new Promise<string | null>((resolve) => {
       getFCMToken((t) => resolve(t));
     });
-    if (!token) return;
+    if (!token) return false;
 
     try {
       const res = await fetch("/api/notifications/subscribe", {
@@ -47,9 +46,16 @@ export function NotificationBell() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ token }),
       });
-      if (res.ok) setEnabled(true);
+      if (res.ok) {
+        setEnabled(true);
+        return true;
+      }
+      const data = await res.json().catch(() => ({}));
+      console.error("Notification subscribe error:", data.error);
+      return false;
     } catch (err) {
       console.error("Notification subscribe error:", err);
+      return false;
     }
   };
 
@@ -68,8 +74,8 @@ export function NotificationBell() {
         return;
       }
 
-      await subscribeToVisitors();
-      if (enabled) {
+      const ok = await subscribeToVisitors();
+      if (ok) {
         toast.success("تم تفعيل الإشعارات بنجاح");
       } else {
         toast.error("تعذر تفعيل الإشعارات حالياً، حاول مرة أخرى");
