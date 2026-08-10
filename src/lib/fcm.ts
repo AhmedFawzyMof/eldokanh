@@ -6,7 +6,8 @@ const FCM_SCOPE = "https://www.googleapis.com/auth/firebase.messaging";
 
 /**
  * Resolves Firebase service-account credentials from, in order:
- *  1. FIREBASE_SERVICE_ACCOUNT      – env var containing the raw JSON
+ *  1. FIREBASE_SERVICE_ACCOUNT      – env var containing the raw JSON,
+ *                                     or a path to a JSON key file
  *  2. FIREBASE_SERVICE_ACCOUNT_PATH – env var pointing to a JSON file
  *  3. GOOGLE_APPLICATION_CREDENTIALS– env var pointing to a JSON file
  *  4. any *.json file in src/config/
@@ -15,8 +16,21 @@ const FCM_SCOPE = "https://www.googleapis.com/auth/firebase.messaging";
 export function getFirebaseAuth(): GoogleAuth {
   const inline = process.env.FIREBASE_SERVICE_ACCOUNT;
   if (inline) {
-    const parsed = JSON.parse(inline);
-    return new GoogleAuth({ credentials: parsed, scopes: [FCM_SCOPE] });
+    const trimmed = inline.trim();
+    if (trimmed.startsWith("{")) {
+      const parsed = JSON.parse(trimmed);
+      return new GoogleAuth({ credentials: parsed, scopes: [FCM_SCOPE] });
+    }
+    // Value is a path to the key file (e.g. src/config/xyz.json)
+    const keyFilePath = path.isAbsolute(trimmed)
+      ? trimmed
+      : path.join(process.cwd(), trimmed);
+    if (fs.existsSync(keyFilePath)) {
+      return new GoogleAuth({ keyFile: keyFilePath, scopes: [FCM_SCOPE] });
+    }
+    throw new Error(
+      `FIREBASE_SERVICE_ACCOUNT points to a missing file: ${trimmed}`,
+    );
   }
 
   const explicitPath =
