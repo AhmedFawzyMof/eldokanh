@@ -88,12 +88,8 @@ export default async function ReportsPage(props: {
     );
   }
 
-  const netProfet =
-    ((reportData.stats?.totalProfet || 0) -
-      (reportData.stats?.totalPromoDiscount || 0)) / 2;
-  const netProfetLastMonth =
-    ((reportData.stats?.totalProfetLastMonth || 0) -
-      (reportData.stats?.totalPromoDiscountLastMonth || 0)) / 2;
+  const netProfet = (reportData.stats?.totalProfet || 0) / 2;
+  const netProfetLastMonth = (reportData.stats?.totalProfetLastMonth || 0) / 2;
   const totalPromoDiscount = reportData.stats?.totalPromoDiscount || 0;
   const totalPromoDiscountLastMonth =
     reportData.stats?.totalPromoDiscountLastMonth || 0;
