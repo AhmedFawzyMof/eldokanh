@@ -152,6 +152,12 @@ export async function sendFCMMessage(
           title,
           body,
         },
+        android: {
+          notification: {
+            sound: "notification_sound",
+            channel_id: "orders",
+          },
+        },
         webpush: {
           fcmOptions: {
             link: link || "https://eldokanh.firebaseapp.com/dashboard",
@@ -205,20 +211,42 @@ export async function sendFCMToTopic(
     const tokenResponse = await client.getAccessToken();
     const accessToken = tokenResponse.token;
 
-    const fcmPayload = {
-      message: {
-        topic,
-        notification: {
-          title,
-          body,
-        },
-        webpush: {
-          fcmOptions: {
-            link: link || "https://eldokanh.firebaseapp.com/dashboard",
+    const defaultLink = "https://eldokanh.firebaseapp.com/dashboard";
+
+    // The "new-orders" topic is only used by the native admin notifier app.
+    // Data-only messages guarantee onMessageReceived fires even when the app
+    // is killed, so the app itself displays the notification with the custom
+    // sound from res/raw (channel-based sound is unreliable on first run).
+    const dataOnly = topic === "new-orders";
+
+    const fcmPayload = dataOnly
+      ? {
+          message: {
+            topic,
+            data: {
+              title,
+              body,
+              url: link || defaultLink,
+            },
+            android: {
+              priority: "HIGH",
+            },
           },
-        },
-      },
-    };
+        }
+      : {
+          message: {
+            topic,
+            notification: {
+              title,
+              body,
+            },
+            webpush: {
+              fcmOptions: {
+                link: link || defaultLink,
+              },
+            },
+          },
+        };
 
     const response = await fetch(
       `https://fcm.googleapis.com/v1/projects/${projectId}/messages:send`,
