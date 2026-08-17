@@ -1,5 +1,5 @@
 "use client";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import {
   Table,
   TableBody,
@@ -8,7 +8,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { useRouter, useSearchParams } from "next/navigation";
 
 const ADMIN_COMMISSION_RATE = 0.15;
 
@@ -16,34 +15,20 @@ function formatMoney(value: number) {
   return `${value.toLocaleString(undefined, { maximumFractionDigits: 2 })} ج.م`;
 }
 
-export function OrdersByAdminTable({ rows }: { rows: any[] }) {
-  const router = useRouter();
-  const searchParams = useSearchParams();
-
-  const openAdminDetails = (adminId: number) => {
-    const params = new URLSearchParams();
-    const from = searchParams.get("from");
-    const to = searchParams.get("to");
-    if (from) params.set("from", from);
-    if (to) params.set("to", to);
-    const query = params.toString();
-    router.push(
-      `/admin/reports/orders/${adminId}${query ? `?${query}` : ""}`,
-    );
-  };
+export function AdminProductsTable({ rows }: { rows: any[] }) {
+  const totalRevenue = rows.reduce((sum, r) => sum + (r.revenue || 0), 0);
+  const totalProfit = rows.reduce((sum, r) => sum + (r.profit || 0), 0);
+  const totalCommission = totalProfit * ADMIN_COMMISSION_RATE;
 
   return (
     <Card className="border-none shadow-sm">
-      <CardHeader>
-        <CardTitle>عدد الطلبات لكل مشرف</CardTitle>
-      </CardHeader>
-      <CardContent>
+      <CardContent className="pt-6">
         <div className="rounded-md border border-secondary/50 overflow-hidden">
           <Table dir="rtl">
             <TableHeader className="bg-secondary/5">
               <TableRow>
-                <TableHead className="text-right">المشرف</TableHead>
-                <TableHead className="text-right">عدد الطلبات</TableHead>
+                <TableHead className="text-right">المنتج</TableHead>
+                <TableHead className="text-right">الكمية المباعة</TableHead>
                 <TableHead className="text-right">إجمالي الإيرادات</TableHead>
                 <TableHead className="text-right">صافي الربح</TableHead>
                 <TableHead className="text-right">
@@ -58,26 +43,18 @@ export function OrdersByAdminTable({ rows }: { rows: any[] }) {
                     colSpan={5}
                     className="text-center py-10 text-muted-foreground"
                   >
-                    لا توجد طلبات مسجلة في هذه الفترة
+                    لا توجد منتجات مباعة في هذه الفترة
                   </TableCell>
                 </TableRow>
               ) : (
                 rows.map((row) => (
-                  <TableRow
-                    key={row.adminId}
-                    onClick={() => openAdminDetails(row.adminId)}
-                    className="cursor-pointer hover:bg-secondary/10"
-                  >
+                  <TableRow key={row.productId}>
                     <TableCell className="font-medium">
                       {row.name || "غير محدد"}
                     </TableCell>
-                    <TableCell>{row.orders}</TableCell>
-                    <TableCell>
-                      {formatMoney(row.revenue || 0)}
-                    </TableCell>
-                    <TableCell>
-                      {formatMoney(row.profit || 0)}
-                    </TableCell>
+                    <TableCell>{row.quantity || 0}</TableCell>
+                    <TableCell>{formatMoney(row.revenue || 0)}</TableCell>
+                    <TableCell>{formatMoney(row.profit || 0)}</TableCell>
                     <TableCell className="text-primary font-bold">
                       {formatMoney((row.profit || 0) * ADMIN_COMMISSION_RATE)}
                     </TableCell>
@@ -85,6 +62,20 @@ export function OrdersByAdminTable({ rows }: { rows: any[] }) {
                 ))
               )}
             </TableBody>
+            <TableRow>
+              <TableCell colSpan={2} className="font-bold">
+                الإجمالي
+              </TableCell>
+              <TableCell className="font-bold">
+                {formatMoney(totalRevenue)}
+              </TableCell>
+              <TableCell className="font-bold">
+                {formatMoney(totalProfit)}
+              </TableCell>
+              <TableCell className="text-primary font-bold">
+                {formatMoney(totalCommission)}
+              </TableCell>
+            </TableRow>
           </Table>
         </div>
       </CardContent>

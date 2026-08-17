@@ -349,6 +349,8 @@ export async function getAllProductsReports({
   };
 }
 
+export const ADMIN_COMMISSION_RATE = 0.15;
+
 export async function getOrdersByAdminReport({
   from,
   to,
@@ -360,13 +362,14 @@ export async function getOrdersByAdminReport({
     .select({
       adminId: orders.createdBy,
       name: users.name,
-      email: users.email,
       orders: sql<number>`COUNT(DISTINCT ${orders.id})`,
       revenue: sql<number>`COALESCE(SUM(${orderItems.price} * ${orderItems.quantity}), 0)`,
+      profit: sql<number>`COALESCE(SUM((${orderItems.price} * ${orderItems.quantity}) - (COALESCE(${orderItems.buyingPrice}, ${products.buyingPrice}, 0) * ${orderItems.quantity})), 0)`,
     })
     .from(orders)
     .leftJoin(users, eq(orders.createdBy, users.id))
     .leftJoin(orderItems, eq(orders.id, orderItems.orderId))
+    .leftJoin(products, eq(orderItems.productId, products.id))
     .where(
       and(
         between(orders.createdAt, `${from} 00:00:00`, `${to} 23:59:59`),
@@ -375,6 +378,37 @@ export async function getOrdersByAdminReport({
     )
     .groupBy(orders.createdBy)
     .orderBy(sql`COUNT(DISTINCT ${orders.id}) DESC`)
+    .all();
+}
+
+export async function getAdminProductsReport({
+  from,
+  to,
+  adminId,
+}: {
+  from: string;
+  to: string;
+  adminId: number;
+}) {
+  return await db
+    .select({
+      productId: products.id,
+      name: products.nameAr,
+      quantity: sql<number>`SUM(${orderItems.quantity})`,
+      revenue: sql<number>`COALESCE(SUM(${orderItems.price} * ${orderItems.quantity}), 0)`,
+      profit: sql<number>`COALESCE(SUM((${orderItems.price} * ${orderItems.quantity}) - (COALESCE(${orderItems.buyingPrice}, ${products.buyingPrice}, 0) * ${orderItems.quantity})), 0)`,
+    })
+    .from(orderItems)
+    .leftJoin(orders, eq(orderItems.orderId, orders.id))
+    .leftJoin(products, eq(orderItems.productId, products.id))
+    .where(
+      and(
+        between(orders.createdAt, `${from} 00:00:00`, `${to} 23:59:59`),
+        eq(orders.createdBy, adminId),
+      ),
+    )
+    .groupBy(products.id)
+    .orderBy(sql`SUM(${orderItems.price} * ${orderItems.quantity}) DESC`)
     .all();
 }
 
