@@ -87,6 +87,7 @@ export const stockMovements = sqliteTable("stock_movements", {
 export const orders = sqliteTable("orders", {
   id: integer("id").primaryKey({ autoIncrement: true }),
   userId: integer("user_id").references(() => users.id),
+  createdBy: integer("created_by").references(() => users.id),
   status: text("status").default("pending"),
   paymentStatus: text("payment_status").default("unpaid"),
   paymentMethod: text("payment_method"),

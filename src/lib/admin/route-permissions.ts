@@ -18,4 +18,5 @@ export const ROUTE_PERMISSIONS: Record<string, string> = {
   "/admin/reports/categories": ADMIN_PERMISSIONS.REPORTS_MANAGE,
   "/admin/reports/companies": ADMIN_PERMISSIONS.REPORTS_MANAGE,
   "/admin/reports/all": ADMIN_PERMISSIONS.REPORTS_MANAGE,
+  "/admin/reports/orders": ADMIN_PERMISSIONS.REPORTS_MANAGE,
 };

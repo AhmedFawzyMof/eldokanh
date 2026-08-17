@@ -9,7 +9,8 @@ import {
   promoCodes,
   promoCodeUsages,
 } from "@/db/schema";
-import { sql, eq, between, and, inArray } from "drizzle-orm";
+import { sql, eq, between, and, inArray, isNotNull } from "drizzle-orm";
+import { users } from "@/db/schema";
 
 export async function getStatData(from: string, to: string, date?: string) {
   const filterdate = (date: string) => {
@@ -346,5 +347,34 @@ export async function getAllProductsReports({
     totalPages: Math.ceil((totalCountResult?.count || 0) / limit),
     totalCount: totalCountResult?.count || 0,
   };
+}
+
+export async function getOrdersByAdminReport({
+  from,
+  to,
+}: {
+  from: string;
+  to: string;
+}) {
+  return await db
+    .select({
+      adminId: orders.createdBy,
+      name: users.name,
+      email: users.email,
+      orders: sql<number>`COUNT(DISTINCT ${orders.id})`,
+      revenue: sql<number>`COALESCE(SUM(${orderItems.price} * ${orderItems.quantity}), 0)`,
+    })
+    .from(orders)
+    .leftJoin(users, eq(orders.createdBy, users.id))
+    .leftJoin(orderItems, eq(orders.id, orderItems.orderId))
+    .where(
+      and(
+        between(orders.createdAt, `${from} 00:00:00`, `${to} 23:59:59`),
+        isNotNull(orders.createdBy),
+      ),
+    )
+    .groupBy(orders.createdBy)
+    .orderBy(sql`COUNT(DISTINCT ${orders.id}) DESC`)
+    .all();
 }
 

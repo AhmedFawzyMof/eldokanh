@@ -3,15 +3,20 @@ import { createOrder } from "@/models/orders";
 import { tryCatch } from "@/lib/tryCatch";
 import { createAddress } from "@/models/addresses";
 import { createPayment } from "@/models/payments";
+import { getAuthSession } from "@/lib/auth-session";
 
 export async function POST(req: Request) {
   const body = await req.json();
 
   const { items, address, deliveryCost, total } = body;
 
+  const session = await getAuthSession();
+  const adminUserId = session?.user?.id ? parseInt(session.user.id) : null;
+
   const orderData = {
     paymentStatus: "unpaid",
     paymentMethod: "cash",
+    createdBy: adminUserId,
   };
 
   const { data: order, error: orderError } = await tryCatch(() =>

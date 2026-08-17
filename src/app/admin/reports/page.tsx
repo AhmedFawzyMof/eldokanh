@@ -122,6 +122,12 @@ export default async function ReportsPage(props: {
         >
           تقارير عامه
         </Link>
+        <Link
+          href={"/admin/reports/orders"}
+          className=" bg-primary p-2 rounded text-white cursor-pointer"
+        >
+          تقارير المشرفين
+        </Link>
       </div>
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard
