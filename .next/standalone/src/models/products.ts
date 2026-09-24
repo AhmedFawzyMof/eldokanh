@@ -1,0 +1,334 @@
+import { db } from "@/db";
+import {
+  favorites,
+  product_brands,
+  product_subcategories,
+  products,
+  products_category,
+} from "@/db/schema";
+import { eq, and, like, or, sql, inArray, desc, asc } from "drizzle-orm";
+import { Session } from "next-auth";
+
+export async function createProduct(data: typeof products.$inferInsert) {
+  return await db.insert(products).values(data).returning();
+}
+
+export async function getProductById(id: number) {
+  return await db
+    .select({
+      product: { ...products, categoryAr: products_category.nameAr },
+    })
+    .from(products)
+    .where(and(eq(products.id, id), eq(products.isActive, true)))
+    .innerJoin(products_category, eq(products.categoryId, products_category.id))
+    .get();
+}
+
+export async function getProducts() {
+  return await db
+    .select({
+      id: products.id,
+    })
+    .from(products)
+    .where(eq(products.isActive, true))
+    .orderBy(desc(products.id))
+    .execute();
+}
+
+export async function getAllProducts(
+  page: number,
+  search?: string | null,
+  categoryId?: number | null,
+  brandId?: number | null,
+  options?: { session?: Session | null; onlyActive?: boolean },
+) {
+  const limit = 20;
+  const offset = (page - 1) * limit || 0;
+  const conditions: any[] = [];
+
+  if (options?.onlyActive) {
+    conditions.push(eq(products.isActive, true));
+  }
+
+  if (categoryId) {
+    conditions.push(eq(products.categoryId, categoryId));
+  }
+
+  if (brandId) {
+    conditions.push(eq(products.brandId, brandId));
+  }
+
+  if (search) {
+    if (!isNaN(Number(search))) {
+      conditions.push(eq(products.price, Number(search)));
+    } else {
+      conditions.push(
+        or(
+          like(products.name, `%${search}%`),
+          like(products.nameAr, `%${search}%`),
+          like(products.description, `%${search}%`),
+          like(products.descriptionAr, `%${search}%`),
+        ),
+      );
+    }
+  }
+
+  let productsQuery = db
+    .select({
+      id: products.id,
+      name: products.name,
+      nameAr: products.nameAr,
+      description: products.description,
+      descriptionAr: products.descriptionAr,
+      imageUrl: products.imageUrl,
+      images: products.images,
+      price: products.price,
+      discountPrice: products.discountPrice,
+      buyingPrice: products.buyingPrice,
+      category: products_category.name,
+      categoryAr: products_category.nameAr,
+      categoryId: products.categoryId,
+      type: products.type,
+      brand: product_brands.name,
+      brandAr: product_brands.nameAr,
+      brandId: products.brandId,
+      subcategory: product_subcategories.name,
+      subcategoryAr: product_subcategories.nameAr,
+      subcategoryId: products.subcategoryId,
+      stockQuantity: products.stockQuantity,
+      isActive: products.isActive,
+      createdAt: products.createdAt,
+      updatedAt: products.updatedAt,
+      isFav: options?.session
+        ? sql<boolean>`favorites.id IS NOT NULL`
+        : sql<boolean>`false`,
+    })
+    .from(products);
+
+  if (options?.session) {
+    productsQuery = productsQuery.leftJoin(
+      favorites,
+      and(
+        eq(favorites.productId, products.id),
+        eq(favorites.userId, Number(options.session?.user.id)),
+      ),
+    ) as any;
+  }
+
+  const productsData = await productsQuery
+    .innerJoin(products_category, eq(products.categoryId, products_category.id))
+    .leftJoin(
+      product_subcategories,
+      eq(products.subcategoryId, product_subcategories.id),
+    )
+    .leftJoin(product_brands, eq(products.brandId, product_brands.id))
+    .where(and(...conditions))
+    .orderBy(asc(products.categoryId), desc(products.isActive))
+    .limit(limit)
+    .offset(offset)
+    .execute();
+
+  const productCount = await db
+    .select({
+      count: sql<number>`COUNT(*)`,
+    })
+    .from(products)
+    .where(and(...conditions))
+    .get();
+
+  return { products: productsData, count: productCount?.count };
+}
+
+export async function getLatestProducts(favFilter?: {
+  session?: Session | null;
+}) {
+  const conditions: any[] = [];
+  conditions.push(eq(products.isActive, true));
+  conditions.push(eq(products.categoryId, 1));
+  let productQuery = db
+    .select({
+      id: products.id,
+      nameAr: products.nameAr,
+      category: products_category.nameAr,
+      price: products.price,
+      type: products.type,
+      discountPrice: products.discountPrice,
+      isActive: products.isActive,
+      imageUrl: products.imageUrl,
+      isFav: favFilter?.session
+        ? sql<boolean>`favorites.id IS NOT NULL`
+        : sql<boolean>`false`,
+    })
+    .from(products);
+
+  if (favFilter?.session) {
+    productQuery = productQuery.leftJoin(
+      favorites,
+      and(
+        eq(favorites.productId, products.id),
+        eq(favorites.userId, Number(favFilter.session?.user.id)),
+      ),
+    ) as any;
+  }
+
+  return await productQuery
+    .innerJoin(products_category, eq(products.categoryId, products_category.id))
+    .where(and(...conditions))
+    .orderBy(sql`RANDOM()`)
+    .limit(12)
+    .execute();
+}
+
+export async function getProductByCategory(
+  category: number,
+  page: number = 1,
+  subcategory?: number,
+  favFilter?: { session?: Session | null },
+) {
+  const conditions: any[] = [];
+
+  const limit = 20;
+  const offset = (page - 1) * limit || 0;
+
+  if (subcategory && !isNaN(subcategory)) {
+    conditions.push(eq(products.subcategoryId, subcategory));
+  }
+
+  conditions.push(eq(products.categoryId, category));
+  let productQuery = db
+    .select({
+      id: products.id,
+      nameAr: products.nameAr,
+      category: products_category.nameAr,
+      price: products.price,
+      type: products.type,
+      discountPrice: products.discountPrice,
+      imageUrl: products.imageUrl,
+      isActive: products.isActive,
+      isFav: favFilter?.session
+        ? sql<boolean>`favorites.id IS NOT NULL`
+        : sql<boolean>`false`,
+    })
+    .from(products);
+
+  if (favFilter?.session) {
+    productQuery = productQuery.leftJoin(
+      favorites,
+      and(
+        eq(favorites.productId, products.id),
+        eq(favorites.userId, Number(favFilter.session?.user.id)),
+      ),
+    ) as any;
+  }
+
+  const productsData = await productQuery
+    .innerJoin(products_category, eq(products.categoryId, products_category.id))
+    .where(and(...conditions))
+    .orderBy(desc(products.isActive))
+    .limit(limit)
+    .offset(offset)
+    .execute();
+
+  const productCount = await db
+    .select({
+      count: sql<number>`COUNT(*)`,
+    })
+    .from(products)
+    .where(and(...conditions))
+    .get();
+
+  return { products: productsData, count: productCount?.count };
+}
+
+export async function getProductByBrand(
+  brand: number,
+  page: number = 1,
+  favFilter?: { session?: Session | null },
+) {
+  const conditions: any[] = [];
+
+  const limit = 20;
+  const offset = (page - 1) * limit || 0;
+
+  conditions.push(eq(products.brandId, brand));
+  let productQuery = db
+    .select({
+      id: products.id,
+      nameAr: products.nameAr,
+      category: products_category.nameAr,
+      price: products.price,
+      type: products.type,
+      discountPrice: products.discountPrice,
+      imageUrl: products.imageUrl,
+      isActive: products.isActive,
+      isFav: favFilter?.session
+        ? sql<boolean>`favorites.id IS NOT NULL`
+        : sql<boolean>`false`,
+    })
+    .from(products);
+
+  if (favFilter?.session) {
+    productQuery = productQuery.leftJoin(
+      favorites,
+      and(
+        eq(favorites.productId, products.id),
+        eq(favorites.userId, Number(favFilter.session?.user.id)),
+      ),
+    ) as any;
+  }
+
+  const productsData = await productQuery
+    .innerJoin(products_category, eq(products.categoryId, products_category.id))
+    .where(and(...conditions))
+    .orderBy(asc(products.categoryId))
+    .limit(limit)
+    .offset(offset)
+    .execute();
+
+  const productCount = await db
+    .select({
+      count: sql<number>`COUNT(*)`,
+    })
+    .from(products)
+    .where(and(...conditions))
+    .get();
+
+  return { products: productsData, count: productCount?.count };
+}
+
+export async function getProductsImagesByIds(ids: number[]) {
+  return await db
+    .select({ imageUrl: products.imageUrl })
+    .from(products)
+    .where(inArray(products.id, ids));
+}
+
+export async function updateProduct(
+  id: number,
+  data: Partial<typeof products.$inferInsert>,
+) {
+  return await db
+    .update(products)
+    .set(data)
+    .where(eq(products.id, id))
+    .returning();
+}
+
+export async function deleteProduct(ids: number[]) {
+  return await db.delete(products).where(inArray(products.id, ids));
+}
+
+export async function getFavoriteProducts(session: Session) {
+  return await db
+    .select({
+      product: products,
+    })
+    .from(favorites)
+    .innerJoin(products, eq(favorites.productId, products.id))
+    .where(
+      and(
+        eq(favorites.userId, Number(session.user.id)),
+        eq(products.isActive, true),
+      ),
+    );
+}

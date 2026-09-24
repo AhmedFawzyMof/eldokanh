@@ -1,0 +1,1 @@
+globalThis.__RSC_MANIFEST=(globalThis.__RSC_MANIFEST||{});globalThis.__RSC_MANIFEST["/api/admin/counters/route"]={"moduleLoading":{"prefix":"/_next/"},"ssrModuleMapping":{},"edgeSSRModuleMapping":{},"clientModules":{},"entryCSSFiles":{"/home/ahmedmoftah/Desktop/projects/eldokanh/src/app/api/admin/counters/route":[]},"rscModuleMapping":{},"edgeRscModuleMapping":{}};

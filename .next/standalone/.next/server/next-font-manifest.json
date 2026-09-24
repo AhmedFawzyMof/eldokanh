@@ -1,0 +1,217 @@
+{
+  "app": {
+    "[project]/src/app/(auth)/login/page": [
+      "static/media/caa3a2e1cccd8315-s.p.0wgildi0cnwt9.woff2",
+      "static/media/9ff27b8a0a8f3dc0-s.p.40_3w74kn95bo.woff2",
+      "static/media/d41831e24743a3c1-s.p.08tn9snzkmifr.woff2"
+    ],
+    "[project]/src/app/(auth)/register/page": [
+      "static/media/caa3a2e1cccd8315-s.p.0wgildi0cnwt9.woff2",
+      "static/media/9ff27b8a0a8f3dc0-s.p.40_3w74kn95bo.woff2",
+      "static/media/d41831e24743a3c1-s.p.08tn9snzkmifr.woff2"
+    ],
+    "[project]/src/app/(site)/about/page": [
+      "static/media/caa3a2e1cccd8315-s.p.0wgildi0cnwt9.woff2",
+      "static/media/9ff27b8a0a8f3dc0-s.p.40_3w74kn95bo.woff2",
+      "static/media/d41831e24743a3c1-s.p.08tn9snzkmifr.woff2"
+    ],
+    "[project]/src/app/(site)/brand/[id]/page": [
+      "static/media/caa3a2e1cccd8315-s.p.0wgildi0cnwt9.woff2",
+      "static/media/9ff27b8a0a8f3dc0-s.p.40_3w74kn95bo.woff2",
+      "static/media/d41831e24743a3c1-s.p.08tn9snzkmifr.woff2"
+    ],
+    "[project]/src/app/(site)/brands/page": [
+      "static/media/caa3a2e1cccd8315-s.p.0wgildi0cnwt9.woff2",
+      "static/media/9ff27b8a0a8f3dc0-s.p.40_3w74kn95bo.woff2",
+      "static/media/d41831e24743a3c1-s.p.08tn9snzkmifr.woff2"
+    ],
+    "[project]/src/app/(site)/cart/page": [
+      "static/media/caa3a2e1cccd8315-s.p.0wgildi0cnwt9.woff2",
+      "static/media/9ff27b8a0a8f3dc0-s.p.40_3w74kn95bo.woff2",
+      "static/media/d41831e24743a3c1-s.p.08tn9snzkmifr.woff2"
+    ],
+    "[project]/src/app/(site)/categories/page": [
+      "static/media/caa3a2e1cccd8315-s.p.0wgildi0cnwt9.woff2",
+      "static/media/9ff27b8a0a8f3dc0-s.p.40_3w74kn95bo.woff2",
+      "static/media/d41831e24743a3c1-s.p.08tn9snzkmifr.woff2"
+    ],
+    "[project]/src/app/(site)/category/[id]/page": [
+      "static/media/caa3a2e1cccd8315-s.p.0wgildi0cnwt9.woff2",
+      "static/media/9ff27b8a0a8f3dc0-s.p.40_3w74kn95bo.woff2",
+      "static/media/d41831e24743a3c1-s.p.08tn9snzkmifr.woff2"
+    ],
+    "[project]/src/app/(site)/checkout/page": [
+      "static/media/caa3a2e1cccd8315-s.p.0wgildi0cnwt9.woff2",
+      "static/media/9ff27b8a0a8f3dc0-s.p.40_3w74kn95bo.woff2",
+      "static/media/d41831e24743a3c1-s.p.08tn9snzkmifr.woff2"
+    ],
+    "[project]/src/app/(site)/favorites/page": [
+      "static/media/caa3a2e1cccd8315-s.p.0wgildi0cnwt9.woff2",
+      "static/media/9ff27b8a0a8f3dc0-s.p.40_3w74kn95bo.woff2",
+      "static/media/d41831e24743a3c1-s.p.08tn9snzkmifr.woff2"
+    ],
+    "[project]/src/app/(site)/order-confirmation/[id]/page": [
+      "static/media/caa3a2e1cccd8315-s.p.0wgildi0cnwt9.woff2",
+      "static/media/9ff27b8a0a8f3dc0-s.p.40_3w74kn95bo.woff2",
+      "static/media/d41831e24743a3c1-s.p.08tn9snzkmifr.woff2"
+    ],
+    "[project]/src/app/(site)/order-history/page": [
+      "static/media/caa3a2e1cccd8315-s.p.0wgildi0cnwt9.woff2",
+      "static/media/9ff27b8a0a8f3dc0-s.p.40_3w74kn95bo.woff2",
+      "static/media/d41831e24743a3c1-s.p.08tn9snzkmifr.woff2"
+    ],
+    "[project]/src/app/(site)/privacy/page": [
+      "static/media/caa3a2e1cccd8315-s.p.0wgildi0cnwt9.woff2",
+      "static/media/9ff27b8a0a8f3dc0-s.p.40_3w74kn95bo.woff2",
+      "static/media/d41831e24743a3c1-s.p.08tn9snzkmifr.woff2"
+    ],
+    "[project]/src/app/(site)/product/[id]/page": [
+      "static/media/caa3a2e1cccd8315-s.p.0wgildi0cnwt9.woff2",
+      "static/media/9ff27b8a0a8f3dc0-s.p.40_3w74kn95bo.woff2",
+      "static/media/d41831e24743a3c1-s.p.08tn9snzkmifr.woff2"
+    ],
+    "[project]/src/app/(site)/products/page": [
+      "static/media/caa3a2e1cccd8315-s.p.0wgildi0cnwt9.woff2",
+      "static/media/9ff27b8a0a8f3dc0-s.p.40_3w74kn95bo.woff2",
+      "static/media/d41831e24743a3c1-s.p.08tn9snzkmifr.woff2"
+    ],
+    "[project]/src/app/(site)/search/page": [
+      "static/media/caa3a2e1cccd8315-s.p.0wgildi0cnwt9.woff2",
+      "static/media/9ff27b8a0a8f3dc0-s.p.40_3w74kn95bo.woff2",
+      "static/media/d41831e24743a3c1-s.p.08tn9snzkmifr.woff2"
+    ],
+    "[project]/src/app/(site)/terms/page": [
+      "static/media/caa3a2e1cccd8315-s.p.0wgildi0cnwt9.woff2",
+      "static/media/9ff27b8a0a8f3dc0-s.p.40_3w74kn95bo.woff2",
+      "static/media/d41831e24743a3c1-s.p.08tn9snzkmifr.woff2"
+    ],
+    "[project]/src/app/_not-found/page": [
+      "static/media/caa3a2e1cccd8315-s.p.0wgildi0cnwt9.woff2",
+      "static/media/9ff27b8a0a8f3dc0-s.p.40_3w74kn95bo.woff2",
+      "static/media/d41831e24743a3c1-s.p.08tn9snzkmifr.woff2"
+    ],
+    "[project]/src/app/admin/admins/page": [
+      "static/media/caa3a2e1cccd8315-s.p.0wgildi0cnwt9.woff2",
+      "static/media/9ff27b8a0a8f3dc0-s.p.40_3w74kn95bo.woff2",
+      "static/media/d41831e24743a3c1-s.p.08tn9snzkmifr.woff2"
+    ],
+    "[project]/src/app/admin/brands/page": [
+      "static/media/caa3a2e1cccd8315-s.p.0wgildi0cnwt9.woff2",
+      "static/media/9ff27b8a0a8f3dc0-s.p.40_3w74kn95bo.woff2",
+      "static/media/d41831e24743a3c1-s.p.08tn9snzkmifr.woff2"
+    ],
+    "[project]/src/app/admin/categories/page": [
+      "static/media/caa3a2e1cccd8315-s.p.0wgildi0cnwt9.woff2",
+      "static/media/9ff27b8a0a8f3dc0-s.p.40_3w74kn95bo.woff2",
+      "static/media/d41831e24743a3c1-s.p.08tn9snzkmifr.woff2"
+    ],
+    "[project]/src/app/admin/contact/page": [
+      "static/media/caa3a2e1cccd8315-s.p.0wgildi0cnwt9.woff2",
+      "static/media/9ff27b8a0a8f3dc0-s.p.40_3w74kn95bo.woff2",
+      "static/media/d41831e24743a3c1-s.p.08tn9snzkmifr.woff2"
+    ],
+    "[project]/src/app/admin/coupons/page": [
+      "static/media/caa3a2e1cccd8315-s.p.0wgildi0cnwt9.woff2",
+      "static/media/9ff27b8a0a8f3dc0-s.p.40_3w74kn95bo.woff2",
+      "static/media/d41831e24743a3c1-s.p.08tn9snzkmifr.woff2"
+    ],
+    "[project]/src/app/admin/customers/page": [
+      "static/media/caa3a2e1cccd8315-s.p.0wgildi0cnwt9.woff2",
+      "static/media/9ff27b8a0a8f3dc0-s.p.40_3w74kn95bo.woff2",
+      "static/media/d41831e24743a3c1-s.p.08tn9snzkmifr.woff2"
+    ],
+    "[project]/src/app/admin/dashboard/page": [
+      "static/media/caa3a2e1cccd8315-s.p.0wgildi0cnwt9.woff2",
+      "static/media/9ff27b8a0a8f3dc0-s.p.40_3w74kn95bo.woff2",
+      "static/media/d41831e24743a3c1-s.p.08tn9snzkmifr.woff2"
+    ],
+    "[project]/src/app/admin/delivery/page": [
+      "static/media/caa3a2e1cccd8315-s.p.0wgildi0cnwt9.woff2",
+      "static/media/9ff27b8a0a8f3dc0-s.p.40_3w74kn95bo.woff2",
+      "static/media/d41831e24743a3c1-s.p.08tn9snzkmifr.woff2"
+    ],
+    "[project]/src/app/admin/login/page": [
+      "static/media/caa3a2e1cccd8315-s.p.0wgildi0cnwt9.woff2",
+      "static/media/9ff27b8a0a8f3dc0-s.p.40_3w74kn95bo.woff2",
+      "static/media/d41831e24743a3c1-s.p.08tn9snzkmifr.woff2"
+    ],
+    "[project]/src/app/admin/magazine/page": [
+      "static/media/caa3a2e1cccd8315-s.p.0wgildi0cnwt9.woff2",
+      "static/media/9ff27b8a0a8f3dc0-s.p.40_3w74kn95bo.woff2",
+      "static/media/d41831e24743a3c1-s.p.08tn9snzkmifr.woff2"
+    ],
+    "[project]/src/app/admin/notifications/page": [
+      "static/media/caa3a2e1cccd8315-s.p.0wgildi0cnwt9.woff2",
+      "static/media/9ff27b8a0a8f3dc0-s.p.40_3w74kn95bo.woff2",
+      "static/media/d41831e24743a3c1-s.p.08tn9snzkmifr.woff2"
+    ],
+    "[project]/src/app/admin/orders/[id]/page": [
+      "static/media/caa3a2e1cccd8315-s.p.0wgildi0cnwt9.woff2",
+      "static/media/9ff27b8a0a8f3dc0-s.p.40_3w74kn95bo.woff2",
+      "static/media/d41831e24743a3c1-s.p.08tn9snzkmifr.woff2"
+    ],
+    "[project]/src/app/admin/orders/[id]/receipt/page": [
+      "static/media/caa3a2e1cccd8315-s.p.0wgildi0cnwt9.woff2",
+      "static/media/9ff27b8a0a8f3dc0-s.p.40_3w74kn95bo.woff2",
+      "static/media/d41831e24743a3c1-s.p.08tn9snzkmifr.woff2"
+    ],
+    "[project]/src/app/admin/orders/create/page": [
+      "static/media/caa3a2e1cccd8315-s.p.0wgildi0cnwt9.woff2",
+      "static/media/9ff27b8a0a8f3dc0-s.p.40_3w74kn95bo.woff2",
+      "static/media/d41831e24743a3c1-s.p.08tn9snzkmifr.woff2"
+    ],
+    "[project]/src/app/admin/orders/page": [
+      "static/media/caa3a2e1cccd8315-s.p.0wgildi0cnwt9.woff2",
+      "static/media/9ff27b8a0a8f3dc0-s.p.40_3w74kn95bo.woff2",
+      "static/media/d41831e24743a3c1-s.p.08tn9snzkmifr.woff2"
+    ],
+    "[project]/src/app/admin/products/page": [
+      "static/media/caa3a2e1cccd8315-s.p.0wgildi0cnwt9.woff2",
+      "static/media/9ff27b8a0a8f3dc0-s.p.40_3w74kn95bo.woff2",
+      "static/media/d41831e24743a3c1-s.p.08tn9snzkmifr.woff2"
+    ],
+    "[project]/src/app/admin/reports/all/page": [
+      "static/media/caa3a2e1cccd8315-s.p.0wgildi0cnwt9.woff2",
+      "static/media/9ff27b8a0a8f3dc0-s.p.40_3w74kn95bo.woff2",
+      "static/media/d41831e24743a3c1-s.p.08tn9snzkmifr.woff2"
+    ],
+    "[project]/src/app/admin/reports/categories/page": [
+      "static/media/caa3a2e1cccd8315-s.p.0wgildi0cnwt9.woff2",
+      "static/media/9ff27b8a0a8f3dc0-s.p.40_3w74kn95bo.woff2",
+      "static/media/d41831e24743a3c1-s.p.08tn9snzkmifr.woff2"
+    ],
+    "[project]/src/app/admin/reports/companies/page": [
+      "static/media/caa3a2e1cccd8315-s.p.0wgildi0cnwt9.woff2",
+      "static/media/9ff27b8a0a8f3dc0-s.p.40_3w74kn95bo.woff2",
+      "static/media/d41831e24743a3c1-s.p.08tn9snzkmifr.woff2"
+    ],
+    "[project]/src/app/admin/reports/orders/[adminId]/page": [
+      "static/media/caa3a2e1cccd8315-s.p.0wgildi0cnwt9.woff2",
+      "static/media/9ff27b8a0a8f3dc0-s.p.40_3w74kn95bo.woff2",
+      "static/media/d41831e24743a3c1-s.p.08tn9snzkmifr.woff2"
+    ],
+    "[project]/src/app/admin/reports/orders/page": [
+      "static/media/caa3a2e1cccd8315-s.p.0wgildi0cnwt9.woff2",
+      "static/media/9ff27b8a0a8f3dc0-s.p.40_3w74kn95bo.woff2",
+      "static/media/d41831e24743a3c1-s.p.08tn9snzkmifr.woff2"
+    ],
+    "[project]/src/app/admin/reports/page": [
+      "static/media/caa3a2e1cccd8315-s.p.0wgildi0cnwt9.woff2",
+      "static/media/9ff27b8a0a8f3dc0-s.p.40_3w74kn95bo.woff2",
+      "static/media/d41831e24743a3c1-s.p.08tn9snzkmifr.woff2"
+    ],
+    "[project]/src/app/admin/subcategories/page": [
+      "static/media/caa3a2e1cccd8315-s.p.0wgildi0cnwt9.woff2",
+      "static/media/9ff27b8a0a8f3dc0-s.p.40_3w74kn95bo.woff2",
+      "static/media/d41831e24743a3c1-s.p.08tn9snzkmifr.woff2"
+    ],
+    "[project]/src/app/page": [
+      "static/media/caa3a2e1cccd8315-s.p.0wgildi0cnwt9.woff2",
+      "static/media/9ff27b8a0a8f3dc0-s.p.40_3w74kn95bo.woff2",
+      "static/media/d41831e24743a3c1-s.p.08tn9snzkmifr.woff2"
+    ]
+  },
+  "appUsingSizeAdjust": true,
+  "pages": {},
+  "pagesUsingSizeAdjust": false
+}

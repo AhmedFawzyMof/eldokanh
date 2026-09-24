@@ -1,0 +1,3 @@
+module.exports=[449719,(a,b,c)=>{b.exports=a.x("assert",()=>require("assert"))},921517,(a,b,c)=>{b.exports=a.x("http",()=>require("http"))},504446,(a,b,c)=>{b.exports=a.x("net",()=>require("net"))},755004,(a,b,c)=>{b.exports=a.x("tls",()=>require("tls"))},870722,(a,b,c)=>{b.exports=a.x("tty",()=>require("tty"))},792509,(a,b,c)=>{b.exports=a.x("url",()=>require("url"))}];
+
+//# sourceMappingURL=%5Bexternals%5D__0lc-778._.js.map

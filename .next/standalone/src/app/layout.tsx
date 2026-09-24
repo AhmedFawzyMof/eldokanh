@@ -1,0 +1,118 @@
+import type React from "react";
+import { Cairo, Geist } from "next/font/google";
+import "@/app/globals.css";
+import { Header } from "@/components/header";
+import Providers from "./providers";
+import { Toaster } from "@/components/ui/sonner";
+import { BottomTabs } from "@/components/tabs";
+import { StoreStatusBanner } from "@/components/store-status-banner";
+import { GoogleAnalytics } from "@next/third-parties/google";
+
+const geistSans = Geist({
+  subsets: ["latin"],
+  variable: "--font-geist-sans",
+});
+
+const cairo = Cairo({
+  subsets: ["latin", "arabic"],
+  variable: "--font-cairo",
+  weight: ["400", "500", "600", "700"],
+});
+
+export const metadata = {
+  title:
+    "الدكان ماركت - سوبر ماركت اونلاين | Eldokanh Market - Online Supermarket",
+  description:
+    "سوبر ماركت الدكان هو متجرك الموثوق عبر الإنترنت في القاهرة. اطلب الأطعمة المجمدة والبقالة والخضروات واللحوم تصلك بسرعة لباب بيتك. | Eldokanh Market is your trusted online supermarket in Cairo. Order frozen food, groceries, vegetables, meat, dairy and daily essentials delivered fast to your door.",
+  authors: [
+    { name: "Mohanad Refaye", url: "https://github.com/enghenzoo" },
+    { name: "Ahmed Moftah", url: "https://github.com/AhmedFawzyMof" },
+  ],
+  keywords: [
+    "online supermarket Cairo",
+    "سوبر ماركت اونلاين القاهرة",
+    "frozen food Egypt",
+    "أطعمة مجمدة مصر",
+    "frozen vegetables",
+    "خضار مجمدة",
+    "frozen meat",
+    "لحوم مجمدة",
+    "grocery delivery Cairo",
+    "توصيل بقالة القاهرة",
+    "online grocery Egypt",
+    "بقالة اونلاين مصر",
+    "supermarket online",
+    "سوبر ماركت اونلاين",
+    "food delivery Cairo",
+    "توصيل طعام القاهرة",
+    "fresh vegetables",
+    "خضار طازجة",
+    "dairy products",
+    "منتجات ألبان",
+    "frozen chicken",
+    "دجاج مجمد",
+    "frozen seafood",
+    "مأكولات بحرية مجمدة",
+    "market Egypt",
+    "سوق مصر",
+    "daily essentials",
+    "الاحتياجات اليومية",
+    "home delivery groceries",
+    "توصيل البقالة للمنزل",
+    "best supermarket Cairo",
+    "أفضل سوبر ماركت القاهرة",
+    "الدكان",
+    "eldokanh",
+    "eldokan",
+    "دكان ماركت",
+  ],
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "El Dokanh",
+  },
+  manifest: "/manifest",
+};
+
+export const viewport = {
+  themeColor: "#ffffff",
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+};
+
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return (
+    <html
+      lang="ar"
+      className={`${cairo.variable} ${geistSans.variable} antialiased`}
+    >
+      <head>
+        <meta
+          name="google-site-verification"
+          content="X0RYT4cq2QMmkuLGJTJ63A4c30BVQXq6lOS_YpzEOks"
+        />
+      </head>
+      <body className="font-(--font-cairo) bg-slate-50">
+        <Providers>
+          <StoreStatusBanner />
+          <Header />
+          {children}
+          <BottomTabs />
+        </Providers>
+        <Toaster
+          position="bottom-right"
+          richColors
+          toastOptions={{ duration: 5000 }}
+          closeButton
+        />
+        <GoogleAnalytics gaId="G-87V1EL3CQH" />
+      </body>
+    </html>
+  );
+}
