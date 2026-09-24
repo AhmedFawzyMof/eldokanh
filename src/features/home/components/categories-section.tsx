@@ -2,7 +2,8 @@
 
 import { Category } from "@/db/schema.types";
 import Link from "next/link";
-import { useRef, useEffect } from "react";
+import { useRef, useState, useEffect } from "react";
+import { ChevronLeft } from "lucide-react";
 
 type CategorySectionType = Category & { productCount: number };
 
@@ -10,6 +11,17 @@ export function CategoriesSection(categories: {
   categories: Partial<CategorySectionType>[];
 }) {
   const scrollRef = useRef<HTMLDivElement>(null);
+  const [canScroll, setCanScroll] = useState(false);
+
+  const updateCanScroll = () => {
+    const el = scrollRef.current;
+    if (!el) return;
+    setCanScroll(el.scrollWidth > el.clientWidth + 2);
+  };
+
+  useEffect(() => {
+    updateCanScroll();
+  }, []);
 
   const isDown = useRef(false);
   const startX = useRef(0);
@@ -40,12 +52,25 @@ export function CategoriesSection(categories: {
   ];
 
   return (
-    <section dir="rtl" className="pb-12 pt-2">
+    <section dir="rtl" className="py-4">
       <div className="container mx-auto px-4">
-        <div className="mb-8">
+        <div className="flex items-center justify-between mb-8">
           <h2 className="font-display text-3xl font-bold text-foreground">
             الأقسام
           </h2>
+          <button
+            onClick={() => {
+              const el = scrollRef.current;
+              if (!el) return;
+              const step = el.clientWidth * 0.6;
+              el.scrollBy({ left: -step, behavior: "smooth" });
+            }}
+            aria-label="تصفح الأقسام"
+            disabled={!canScroll}
+            className="flex-shrink-0 h-10 w-10 flex items-center justify-center rounded-full border border-border/60 bg-background text-foreground cursor-pointer transition-all duration-300 hover:bg-primary hover:text-primary-foreground hover:border-primary disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-background disabled:hover:text-foreground disabled:hover:border-border/60"
+          >
+            <ChevronLeft className="h-5 w-5" />
+          </button>
         </div>
 
         <div
@@ -61,38 +86,20 @@ export function CategoriesSection(categories: {
           onTouchMove={(e) => moveDrag(e.touches[0].pageX)}
           onTouchEnd={stopDrag}
           onMouseEnter={() => (isPaused.current = true)}
-          className="flex gap-5 overflow-x-auto scrollbar-hide pb-4 -mx-1 px-1 cursor-grab active:cursor-grabbing select-none"
+          onScroll={updateCanScroll}
+          className="flex gap-2 overflow-x-auto scrollbar-hide pb-4 -mx-1 px-1 cursor-grab active:cursor-grabbing select-none"
           style={{ scrollbarWidth: "none" }}
         >
           {doubledCategories.map((cat, i: number) => (
-            <div
+            <Link
               key={`${cat.nameAr}-${i}`}
-              className="group cursor-pointer flex-shrink-0 w-32 bg-background border border-border/50 rounded-2xl p-2 transition-all duration-300 hover:shadow-lg hover:border-primary/20"
+              href={`/category/${cat.id}`}
+              className="group cursor-pointer flex-shrink-0 px-4 py-2 bg-background border border-border/50 rounded-full transition-all duration-300 hover:shadow-md hover:border-primary/20 select-none"
             >
-              <Link
-                href={`/category/${cat.id}`}
-                className="flex flex-col items-center"
-              >
-                <div className="relative w-full aspect-square rounded-xl overflow-hidden bg-muted">
-                  <img
-                    src={cat.image!}
-                    alt={cat.nameAr}
-                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                    draggable={false}
-                  />
-                </div>
-
-                <div className="mt-3 text-center space-y-1">
-                  <h3 className="font-body text-sm font-bold text-foreground line-clamp-1 group-hover:text-primary transition-colors">
-                    {cat.nameAr}
-                  </h3>
-
-                  <div className="inline-flex items-center px-2 py-0.5 rounded-full bg-muted text-[10px] text-muted-foreground font-medium">
-                    {cat.productCount} منتج
-                  </div>
-                </div>
-              </Link>
-            </div>
+              <span className="font-body text-sm font-semibold text-foreground group-hover:text-primary transition-colors whitespace-nowrap">
+                {cat.nameAr}
+              </span>
+            </Link>
           ))}
         </div>
       </div>

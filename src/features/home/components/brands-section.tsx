@@ -59,41 +59,33 @@ export function BrandsSection(brands: { brands: Partial<BrandSectionType>[] }) {
           onTouchMove={(e) => moveDrag(e.touches[0].pageX)}
           onTouchEnd={stopDrag}
           onMouseEnter={() => (isPaused.current = true)}
-          className="flex gap-5 overflow-x-auto scrollbar-hide pb-4 -mx-1 px-1 cursor-grab active:cursor-grabbing select-none"
+          className="flex gap-5 overflow-x-auto scrollbar-hide py-4 -mx-1 px-1 cursor-grab active:cursor-grabbing select-none"
           style={{ scrollbarWidth: "none" }}
         >
           {doubledBrands.map((brand, i: number) => (
-            <div
+            <Link
               key={`${brand.nameAr}-${i}`}
-              className="group cursor-pointer shrink-0 w-32 bg-background border border-border/50 rounded-2xl p-2 transition-all duration-300 hover:shadow-lg hover:border-primary/20"
+              href={`/brand/${brand.id}`}
+              className="group cursor-pointer shrink-0 flex flex-col items-center gap-2"
             >
-              <Link
-                href={`/brand/${brand.id}`}
-                className="flex flex-col items-center"
-              >
-                <div className="relative w-full aspect-square rounded-xl overflow-hidden bg-muted">
-                  <Image
-                    src={brand.image!}
-                    alt={brand.nameAr ?? ""}
-                    fill
-                    sizes="128px"
-                    className="object-cover transition-transform duration-500 group-hover:scale-110"
-                    loading="lazy"
-                    draggable={false}
-                  />
-                </div>
+              <div className="relative w-20 h-20 rounded-full overflow-hidden bg-muted ring-1 ring-border/60 transition-all duration-300 group-hover:ring-primary/40 group-hover:scale-105">
+                <Image
+                  src={brand.image!}
+                  alt={brand.nameAr ?? ""}
+                  fill
+                  sizes="80px"
+                  className="object-cover"
+                  loading="lazy"
+                  draggable={false}
+                />
+              </div>
 
-                <div className="mt-3 text-center space-y-1">
-                  <h3 className="font-body text-sm font-bold text-foreground line-clamp-1 group-hover:text-primary transition-colors">
-                    {brand.nameAr}
-                  </h3>
-
-                  <div className="inline-flex items-center px-2 py-0.5 rounded-full bg-muted text-[10px] text-muted-foreground font-medium">
-                    {brand.productCount} منتج
-                  </div>
-                </div>
-              </Link>
-            </div>
+              <div className="text-center space-y-1">
+                <h3 className="font-body text-sm font-bold text-foreground line-clamp-1 group-hover:text-primary transition-colors">
+                  {brand.nameAr}
+                </h3>
+              </div>
+            </Link>
           ))}
         </div>
       </div>

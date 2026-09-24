@@ -65,7 +65,8 @@ export function HeroCarousel({ offers }: { offers: Partial<HeroOffer>[] }) {
   };
 
   return (
-    <div className="relative container mx-auto  h-[35vh] md:h-[45vh] lg:h-[55vh] overflow-hidden rounded-2xl">
+    <div className="container mx-auto px-4 md:px-6">
+      <div className="relative h-[35vh] md:h-[45vh] lg:h-[55vh] overflow-hidden rounded-2xl">
       <AnimatePresence initial={false} custom={direction}>
         <motion.div
           key={index}
@@ -121,6 +122,7 @@ export function HeroCarousel({ offers }: { offers: Partial<HeroOffer>[] }) {
           />
         ))}
       </div>
+    </div>
     </div>
   );
 }
